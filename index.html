@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EarnPro - Reward App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; background: #0f172a; }
+        .mobile-container { max-width: 430px; height: 100vh; height: 100dvh; margin: 0 auto; background: #f8fafc; position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        @media(min-width: 431px) { .mobile-container { border-radius: 40px; border: 12px solid #1e293b; height: 884px; margin-top: 20px; margin-bottom: 20px; } }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex justify-center items-center">
+
+<div class="mobile-container w-full" id="app">
+    <!-- Loader -->
+    <div id="loader" class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-[150] flex flex-col items-center justify-center text-white hidden">
+        <div class="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent"></div>
+        <p class="mt-4 text-sm font-medium tracking-wide">Please wait...</p>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="absolute top-5 left-1/2 -translate-x-1/2 z-[200] bg-slate-900 text-white px-5 py-2.5 rounded-full shadow-2xl text-xs font-medium tracking-wide opacity-0 transition-opacity duration-300 pointer-events-none flex items-center gap-2 w-max max-w-[90%]">
+        <i id="toast-icon" class="fas fa-info-circle text-emerald-400"></i>
+        <span id="toast-msg">Notification</span>
+    </div>
+
+    <!-- PREMIUM ONBOARDING SCREEN 1 -->
+    <div id="onboarding-1" class="absolute inset-0 bg-slate-900 z-[95] flex flex-col hidden">
+        <div class="flex-1 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=600')] bg-cover bg-center opacity-10"></div>
+            <div class="w-48 h-48 bg-gradient-to-tr from-emerald-400 to-teal-600 rounded-full mb-8 flex items-center justify-center shadow-[0_0_60px_rgba(16,185,129,0.3)] z-10 border-4 border-emerald-500/30">
+                <i class="fas fa-rocket text-6xl text-white"></i>
+            </div>
+            <h1 class="text-3xl font-extrabold text-white mb-3 z-10 tracking-tight">Welcome to EarnPro</h1>
+            <p class="text-[13px] text-emerald-100/70 font-medium z-10 max-w-[85%] leading-relaxed">Your premium platform to complete simple tax actions and earn daily rewards safely.</p>
+        </div>
+        <div class="p-6 pb-12 z-10 bg-gradient-to-t from-slate-900">
+            <button onclick="showOnboarding2()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold py-4 rounded-2xl text-sm shadow-lg shadow-emerald-600/30 active:scale-95 transition-transform uppercase tracking-wider">Get Started</button>
+        </div>
+    </div>
+
+    <!-- PREMIUM ONBOARDING SCREEN 2 -->
+    <div id="onboarding-2" class="absolute inset-0 bg-slate-900 z-[95] flex flex-col hidden">
+        <div class="flex-1 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=600')] bg-cover bg-center opacity-10"></div>
+            <div class="w-48 h-48 bg-gradient-to-tr from-amber-400 to-orange-500 rounded-full mb-8 flex items-center justify-center shadow-[0_0_60px_rgba(245,158,11,0.3)] z-10 border-4 border-amber-500/30">
+                <i class="fas fa-coins text-6xl text-white"></i>
+            </div>
+            <h1 class="text-3xl font-extrabold text-white mb-3 z-10 tracking-tight">Start Earning Now</h1>
+            <p class="text-[13px] text-amber-100/70 font-medium z-10 max-w-[85%] leading-relaxed">Spin the wheel, invite friends, and withdraw your winning cash directly to your UPI ID!</p>
+        </div>
+        <div class="p-6 pb-12 z-10 bg-gradient-to-t from-slate-900">
+            <button onclick="finishOnboarding()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-900 font-extrabold py-4 rounded-2xl text-sm shadow-lg shadow-amber-600/30 active:scale-95 transition-transform uppercase tracking-wider">Start Earning</button>
+        </div>
+    </div>
+
+    <!-- AUTHENTICATION SCREEN -->
+    <div id="auth-screen" class="absolute inset-0 bg-slate-900 z-[90] flex flex-col justify-between p-6 text-white overflow-y-auto hidden">
+        <div class="pt-8 text-center">
+            <div class="w-20 h-20 bg-gradient-to-tr from-emerald-500 to-teal-700 rounded-3xl mx-auto flex items-center justify-center shadow-lg shadow-emerald-500/30 mb-4">
+                <i class="fas fa-shield-check text-3xl text-white"></i>
+            </div>
+            <h1 class="text-2xl font-bold tracking-tight">Welcome to EarnPro</h1>
+            <p class="text-xs text-slate-400 mt-1">Complete tasks, spin & earn daily rewards!</p>
+        </div>
+
+        <div class="space-y-4 my-auto">
+            <div class="flex bg-slate-800/80 p-1 rounded-xl">
+                <button onclick="switchAuthTab('login')" id="tab-login-btn" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-emerald-600 text-white transition-all">Login</button>
+                <button onclick="switchAuthTab('register')" id="tab-register-btn" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 transition-all">Register</button>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-3">
+                <div>
+                    <label class="text-[11px] text-slate-400 font-medium">Email Address</label>
+                    <input type="email" id="login-email" required class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-[11px] text-slate-400 font-medium">Password</label>
+                    <input type="password" id="login-password" required class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="text-right">
+                    <button type="button" onclick="showForgotPassword()" class="text-[11px] text-emerald-400 hover:underline">Forgot Password?</button>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 font-semibold py-3 rounded-xl text-xs shadow-lg shadow-emerald-600/30 active:scale-95 transition-transform">Login to Account</button>
+            </form>
+
+            <form id="register-form" onsubmit="handleRegister(event)" class="space-y-3 hidden">
+                <div>
+                    <label class="text-[11px] text-slate-400 font-medium">Full Name</label>
+                    <input type="text" id="reg-name" required class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-[11px] text-slate-400 font-medium">Mobile Number</label>
+                    <input type="tel" id="reg-mobile" required class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-[11px] text-slate-400 font-medium">Email Address</label>
+                    <input type="email" id="reg-email" required class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-[11px] text-slate-400 font-medium">Password</label>
+                    <input type="password" id="reg-password" required class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-[11px] text-slate-400 font-medium">Referral Code (Optional)</label>
+                    <input type="text" id="reg-referral" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-emerald-500" placeholder="e.g. 58241">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 font-semibold py-3 rounded-xl text-xs shadow-lg shadow-emerald-600/30 active:scale-95 transition-transform">Create Account (+₹10 Bonus)</button>
+            </form>
+
+            <div class="relative flex py-2 items-center">
+                <div class="flex-grow border-t border-slate-800"></div>
+                <span class="flex-shrink mx-4 text-slate-500 text-[10px]">OR</span>
+                <div class="flex-grow border-t border-slate-800"></div>
+            </div>
+
+            <button onclick="handleGoogleLogin()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 font-medium py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors">
+                <i class="fab fa-google text-red-400"></i> Continue with Google (+₹10 Bonus)
+            </button>
+        </div>
+    </div>
+
+    <!-- AVATAR SELECTION MODAL -->
+    <div id="avatar-modal" class="absolute inset-0 bg-slate-900/95 z-[100] hidden flex-col">
+        <div class="p-4 flex items-center justify-between z-10 sticky top-0 bg-slate-900/80 backdrop-blur-md">
+            <button onclick="closeAvatarModal()" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="text-white font-bold tracking-wide">Choose Profile Picture</h2>
+            <div class="w-10"></div>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 hide-scrollbar">
+            <div class="grid grid-cols-3 gap-4" id="avatar-grid"></div>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTENT -->
+    <div id="main-content" class="flex-1 overflow-y-auto hide-scrollbar pb-24 relative bg-slate-50">
+        <!-- TOP PROFILE + WALLET HEADER -->
+        <div class="bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 p-4 pb-8 text-white rounded-b-[30px] shadow-lg relative z-10">
+            <div class="flex justify-between items-center pb-2">
+                <div class="flex items-center gap-3 cursor-pointer">
+                    <div onclick="openAvatarModal()" class="w-12 h-12 rounded-full bg-emerald-500 border-2 border-white/30 overflow-hidden flex items-center justify-center font-bold text-lg shadow-md relative group">
+                        <img id="header-avatar-img" src="" class="w-full h-full object-cover hidden">
+                        <span id="header-avatar-initial">A</span>
+                        <div class="absolute inset-0 bg-black/30 hidden group-hover:flex items-center justify-center"><i class="fas fa-camera text-[10px]"></i></div>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-bold flex items-center gap-1.5"><span id="header-name">Hello, User</span> <span class="text-amber-300">👋</span></h2>
+                        <div class="flex items-center gap-1 text-[11px] text-emerald-100 mt-0.5">
+                            <span>UID: <strong id="header-uid">58241</strong></span>
+                            <button onclick="copyUID(event)" class="hover:text-white"><i class="far fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="bg-teal-950/40 border border-white/10 px-3 py-1.5 rounded-2xl flex items-center gap-2 cursor-pointer shadow-inner" onclick="openPage('wallet-page')">
+                        <div class="w-7 h-7 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 text-xs"><i class="fas fa-wallet"></i></div>
+                        <div>
+                            <div class="text-xs font-extrabold text-amber-300" id="header-balance">₹0.00</div>
+                            <div class="text-[9px] text-emerald-100 tracking-wider font-medium">Wallet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AUTO-SLIDING CUSTOM BANNERS -->
+        <div class="px-4 -mt-6 relative z-20">
+            <div class="relative w-full aspect-[16/9] rounded-[20px] overflow-hidden shadow-[0_8px_20px_rgba(0,0,0,0.12)] bg-slate-900 border-2 border-white" id="banner-container-wrapper">
+                <div id="banner-track" class="flex h-full w-full transition-transform duration-700 ease-in-out relative"></div>
+                <div class="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-10" id="banner-dots"></div>
+                <div id="banner-empty-msg" class="text-xs text-slate-400 text-center px-4 absolute inset-0 flex items-center justify-center bg-white hidden">No banners active right now.</div>
+            </div>
+        </div>
+
+        <!-- NEW SPIN PROMO BANNER -->
+        <div class="px-4 mt-5">
+            <div onclick="openSpinPage()" class="bg-gradient-to-r from-amber-400 to-orange-500 rounded-2xl p-4 shadow-md flex items-center justify-between cursor-pointer hover:scale-[1.02] transition-transform">
+                <div class="text-white">
+                    <h3 class="text-sm font-extrabold uppercase tracking-wide flex items-center gap-2"><i class="fas fa-dharmachakra"></i> Play Spin & Win</h3>
+                    <p class="text-[10px] font-medium mt-1">Spin the wheel and earn up to ₹101 daily!</p>
+                </div>
+                <button class="bg-white text-orange-600 font-bold px-3 py-1.5 rounded-xl text-[10px] shadow-sm">PLAY NOW</button>
+            </div>
+        </div>
+
+        <!-- QUICK ACCESS -->
+        <div class="px-4 mt-4">
+            <div class="grid grid-cols-5 gap-2 text-center">
+                <div onclick="switchTab('tasks')" class="cursor-pointer flex flex-col items-center">
+                    <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm text-base mb-1 hover:scale-105 transition-transform"><i class="fas fa-clipboard-list"></i></div>
+                    <span class="text-[10px] font-medium text-slate-700">Tasks</span>
+                </div>
+                <div onclick="openPage('referral-page')" class="cursor-pointer flex flex-col items-center">
+                    <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 shadow-sm text-base mb-1 hover:scale-105 transition-transform"><i class="fas fa-users"></i></div>
+                    <span class="text-[10px] font-medium text-slate-700">Refer & Earn</span>
+                </div>
+                <div onclick="openPage('wallet-page')" class="cursor-pointer flex flex-col items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm text-base mb-1 hover:scale-105 transition-transform"><i class="fas fa-wallet"></i></div>
+                    <span class="text-[10px] font-medium text-slate-700">Wallet</span>
+                </div>
+                <div onclick="openPage('withdraw-page')" class="cursor-pointer flex flex-col items-center">
+                    <div class="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 shadow-sm text-base mb-1 hover:scale-105 transition-transform"><i class="fas fa-university"></i></div>
+                    <span class="text-[10px] font-medium text-slate-700">Withdraw</span>
+                </div>
+                <div onclick="openPage('support-page')" class="cursor-pointer flex flex-col items-center">
+                    <div class="w-12 h-12 bg-pink-100 rounded-2xl flex items-center justify-center text-pink-600 shadow-sm text-base mb-1 hover:scale-105 transition-transform"><i class="fas fa-headset"></i></div>
+                    <span class="text-[10px] font-medium text-slate-700">Support</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELEGRAM BANNER -->
+        <div class="px-4 mt-4 mb-6">
+            <div class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 text-lg"><i class="fab fa-telegram-plane"></i></div>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-800">Join our Telegram Channel</h4>
+                        <p class="text-[10px] text-slate-500">Get daily spin codes, updates & more</p>
+                    </div>
+                </div>
+                <button onclick="openTelegramChannel()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-semibold px-3.5 py-2 rounded-xl shadow-sm">JOIN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULL PAGE SPIN & WIN SECTION (WITH 24H RESET TIMER) -->
+    <div id="spin-page" class="absolute inset-0 bg-slate-900 z-[45] hidden flex-col">
+        <div class="p-4 flex items-center justify-between z-10 relative">
+            <button onclick="closeSpinPage()" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white backdrop-blur-sm"><i class="fas fa-arrow-left"></i></button>
+            
+            <div class="bg-white/10 px-4 py-1.5 rounded-xl border border-white/20 backdrop-blur-sm">
+                <div class="text-[9px] text-purple-200 font-semibold uppercase text-center">Spins Left</div>
+                <div class="text-sm font-extrabold text-amber-400 text-center" id="full-spins-left">3/3</div>
+                <!-- NEW 24H TIMER -->
+                <div id="spin-reset-timer" class="text-[8px] text-emerald-300 font-mono tracking-wider text-center mt-0.5">Resets in: 00h 00m 00s</div>
+            </div>
+        </div>
+        
+        <div class="flex-1 flex flex-col items-center justify-center pb-20 relative px-4">
+            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518684079-3c830dcef090?q=80&w=600')] bg-cover bg-center opacity-10"></div>
+            
+            <h2 class="text-3xl font-extrabold text-white mb-2 z-10 drop-shadow-lg tracking-wider text-center">SPIN & WIN</h2>
+            <p class="text-xs text-purple-200 mb-8 z-10 font-medium">Unlock daily spin and win big rewards!</p>
+
+            <div class="relative w-72 h-72 mx-auto flex items-center justify-center z-10">
+                <div class="absolute -top-5 left-1/2 -translate-x-1/2 text-red-500 text-5xl z-30 drop-shadow-xl filter drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]">
+                    <i class="fas fa-caret-down"></i>
+                </div>
+                <div id="spin-wheel" class="w-full h-full rounded-full border-8 border-purple-800 shadow-[0_0_40px_rgba(168,85,247,0.6)] relative overflow-hidden" 
+                     style="background: conic-gradient(from -15deg, #fcd34d 0deg 30deg, #c084fc 30deg 60deg, #fcd34d 60deg 90deg, #c084fc 90deg 120deg, #fcd34d 120deg 150deg, #c084fc 150deg 180deg, #fcd34d 180deg 210deg, #c084fc 210deg 240deg, #fcd34d 240deg 270deg, #c084fc 270deg 300deg, #fcd34d 300deg 330deg, #c084fc 330deg 360deg);">
+                    <div class="absolute inset-0 flex justify-center pt-2.5 text-[15px] font-extrabold text-slate-900" style="transform: rotate(0deg);">10001</div>
+                    <div class="absolute inset-0 flex justify-center pt-2.5 text-[15px] font-extrabold text-white" style="transform: rotate(30deg);">2</div>
+                    <div class="absolute inset-0 flex justify-center pt-2.5 text-[15px] font-extrabold text-slate-900" style="transform: rotate(60deg);">101</div>
+                    <div class="absolute inset-0 flex justify-center pt-2.5 text-[15px] font-extrabold text-white" style="transform: rotate(90deg);">5</div>
+                    <div class="absolute inset-0 flex justify-center pt-2.5 text-[15px] font-extrabold text-slate-900" style="transform: rotate(120deg);">21</div>
+                    <div class="absolute inset-0 flex justify-center pt-2.5 text-[15px] font-extrabold text-white" style="transform: rotate(150deg);">3</div>
+                    <div class="absolute inset-0 flex justify-center pt-2.5 text-[15px] font-extrabold text-slate-900" style="transform: rotate(180deg);">501</div>
+                    <div class="absolute inset-0 flex justify-center pt-2.5 text-[15px] font-extrabold text-white" style="transform: rotate(210deg);">8</div>
+                    <div class="absolute inset-0 flex justify-center pt-2.5 text-[15px] font-extrabold text-slate-900" style="transform: rotate(240deg);">10</div>
+                    <div class="absolute inset-0 flex justify-center pt-2.5 text-[15px] font-extrabold text-white" style="transform: rotate(270deg);">9</div>
+                    <div class="absolute inset-0 flex justify-center pt-2.5 text-[15px] font-extrabold text-slate-900" style="transform: rotate(300deg);">5</div>
+                    <div class="absolute inset-0 flex justify-center pt-2.5 text-[15px] font-extrabold text-white" style="transform: rotate(330deg);">10</div>
+                </div>
+                <div class="absolute cursor-pointer w-16 h-16 bg-gradient-to-tr from-slate-900 to-indigo-900 rounded-full shadow-2xl flex items-center justify-center text-amber-400 font-extrabold text-sm tracking-wider z-20 border-4 border-amber-400 hover:scale-105 transition-transform" onclick="showToast('Enter code to spin!', 'info')">
+                    SPIN
+                </div>
+            </div>
+
+            <div class="mt-12 w-full max-w-xs z-10 bg-white/10 p-4 rounded-2xl border border-white/10 backdrop-blur-sm">
+                <label class="text-[10px] text-purple-200 font-medium block mb-2">Enter today's 10-digit code to unlock spin:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="spin-code-input" maxlength="10" placeholder="Enter 10 Digit Code" class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-2 text-xs font-semibold focus:outline-none focus:border-amber-400 text-center tracking-widest">
+                </div>
+                <button onclick="unlockSpin()" class="w-full mt-3 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-extrabold px-4 py-3 rounded-xl text-xs shadow-lg active:scale-95 transition-all uppercase tracking-wider">UNLOCK & SPIN</button>
+                <button onclick="openTelegramChannel()" class="w-full mt-2 text-[10px] text-purple-300 hover:text-white underline text-center block">Get code from Telegram</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- START TAX PAGE SECTION -->
+    <div id="tasks-page" class="absolute inset-0 bg-slate-50 z-40 flex flex-col hidden">
+        <div class="bg-white p-4 flex items-center justify-between shadow-sm shrink-0 sticky top-0 z-20">
+            <button onclick="switchTab('home')" class="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center text-slate-700 hover:bg-slate-200 active:scale-95 transition-all">
+                <i class="fas fa-chevron-left text-sm"></i>
+            </button>
+            <h2 class="text-base font-extrabold text-slate-800 tracking-wide">Start Tax</h2>
+            <button onclick="openPage('profile-page')" class="w-8 h-8 text-slate-700 hover:text-slate-900 transition-colors text-lg">
+                <i class="fas fa-history"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto hide-scrollbar flex flex-col relative" id="task-list-container">
+            <div class="p-8 text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-2 border-emerald-500 border-t-transparent mx-auto"></div>
+                <p class="text-xs text-slate-400 mt-2">Loading Start Tax list...</p>
+            </div>
+        </div>
+
+        <div class="bg-white border-t border-slate-100 p-3.5 flex justify-between items-center text-[10.5px] font-extrabold text-slate-700 shadow-[0_-4px_10px_rgba(0,0,0,0.03)] shrink-0 z-20">
+            <div class="flex items-center gap-2">
+                <div class="w-5 h-5 bg-emerald-100 rounded-md flex items-center justify-center text-emerald-600"><i class="fas fa-shield-check text-[10px]"></i></div>
+                सुरक्षित और 100% आसान टैक्स प्रक्रिया
+            </div>
+            <div class="text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-100 flex items-center gap-1.5">
+                <i class="fas fa-lock text-[8px]"></i> 100% Secure
+            </div>
+        </div>
+    </div>
+
+    <!-- FULL PAGE FOR TASK DETAILS -->
+    <div id="task-full-page" class="absolute inset-0 bg-slate-50 z-[55] flex flex-col hidden">
+        <div class="bg-white p-4 flex items-center justify-between shadow-sm shrink-0 sticky top-0 z-20">
+            <button onclick="closeTaskFullPage()" class="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center text-slate-700 hover:bg-slate-200 active:scale-95 transition-all">
+                <i class="fas fa-chevron-left text-sm"></i>
+            </button>
+            <h2 class="text-base font-extrabold text-slate-800 tracking-wide">Complete Tax</h2>
+            <div class="w-8"></div>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto pb-6 hide-scrollbar bg-slate-100">
+            <div class="w-full bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-900 flex justify-center aspect-[16/9] overflow-hidden relative border-b border-slate-200">
+                <img id="full-task-img" src="" class="hidden">
+                <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-20 mix-blend-overlay"></div>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-10">
+                    <div class="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center backdrop-blur-md border border-emerald-500/30 mb-3 shadow-lg text-emerald-400 text-xl">
+                        <i class="fas fa-arrow-down animate-bounce"></i>
+                    </div>
+                    <div class="text-amber-400 text-[13.5px] font-extrabold bg-black/40 px-5 py-2.5 rounded-xl backdrop-blur-md border border-white/10 shadow-lg tracking-wide">
+                        👇 Tax का फुल प्रोसेस नीचे में है 👇
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-5 space-y-5 bg-white -mt-4 relative z-10 rounded-t-3xl shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+                <div class="flex justify-between items-start pt-1">
+                    <h3 class="text-xl font-extrabold text-slate-800 leading-tight" id="full-task-title">Task Title</h3>
+                    <div class="bg-emerald-100 text-emerald-700 font-extrabold text-sm px-4 py-1.5 rounded-xl border border-emerald-200 shrink-0 shadow-inner flex items-center gap-1.5">
+                        <i class="fas fa-coins text-amber-500"></i> <span id="full-task-reward">0</span>
+                    </div>
+                </div>
+                
+                <p class="text-[13.5px] text-slate-600 font-semibold whitespace-pre-line leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100" id="full-task-desc">Task Description...</p>
+                
+                <div class="space-y-3 pt-3">
+                    <button onclick="openVideoLink()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl text-[13px] flex justify-center items-center gap-2 shadow-md active:scale-95 transition-transform"><i class="fab fa-youtube text-lg"></i> Watch Video Link</button>
+                    <button onclick="openAppLink()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-[13px] flex justify-center items-center gap-2 shadow-md active:scale-95 transition-transform"><i class="fab fa-google-play text-lg"></i> Download App Link</button>
+                </div>
+
+                <div class="bg-indigo-50 p-5 rounded-2xl border border-indigo-100 mt-6 shadow-sm" id="submit-section-container">
+                    <!-- IN-APP SUBMIT -->
+                    <div id="in-app-submit-form">
+                        <h5 class="text-xs font-extrabold text-indigo-900 text-center mb-4 uppercase tracking-wide flex items-center justify-center gap-2">
+                            <i class="fas fa-file-upload"></i> Submit Proof to Get Reward
+                        </h5>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-700 mb-1.5 block">Registered Mobile Number</label>
+                                <input type="tel" id="full-action-reg-num" placeholder="Enter number used in app" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 text-xs font-semibold focus:outline-none focus:border-indigo-500 shadow-sm focus:ring-2 focus:ring-indigo-100 transition-all">
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-700 mb-1.5 block">Your UID</label>
+                                <input type="text" id="full-action-uid" placeholder="Enter UID" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 text-xs font-semibold focus:outline-none focus:border-indigo-500 shadow-sm focus:ring-2 focus:ring-indigo-100 transition-all">
+                            </div>
+                            <button onclick="submitActionTaskFull()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold py-3.5 rounded-xl text-[13px] shadow-md active:scale-95 transition-transform uppercase tracking-wider mt-2 flex justify-center items-center gap-2">SUBMIT PROOF <i class="fas fa-check-circle"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- TELEGRAM SUBMIT -->
+                    <div id="telegram-submit-form" class="hidden text-center space-y-4">
+                        <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto"><i class="fab fa-telegram-plane"></i></div>
+                        <div>
+                            <h5 class="text-sm font-extrabold text-indigo-900">Submit via Telegram</h5>
+                            <p class="text-[11px] text-slate-600 mt-1">Please send your screenshot proof to our Telegram admin first.</p>
+                        </div>
+                        
+                        <!-- BUTTON 1: Open Telegram to send proof -->
+                        <button onclick="openTelegramAdmin()" class="w-full bg-[#0088cc] hover:bg-[#0077b5] text-white font-extrabold py-3.5 rounded-xl text-[13px] shadow-md active:scale-95 transition-transform uppercase tracking-wider flex justify-center items-center gap-2">1. SEND PROOF ON TELEGRAM <i class="fas fa-paper-plane"></i></button>
+
+                        <!-- BUTTON 2: Confirm task is completed to add to history -->
+                        <div class="pt-4 mt-2 border-t border-indigo-100">
+                            <p class="text-[11.5px] text-slate-700 font-bold mb-3">क्या आपने अपना Tax पूरी तरह से Complete कर लिया है और प्रूफ Telegram पर सेंड कर दिया है?</p>
+                            <button onclick="submitTaskTelegram()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 rounded-xl text-[13px] shadow-md active:scale-95 transition-transform uppercase tracking-wider flex justify-center items-center gap-2">2. YES, I CONFIRM <i class="fas fa-check-circle"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEATS LEFT INDICATOR -->
+                <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl flex items-center justify-between shadow-inner mt-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-chair text-amber-500 text-lg"></i>
+                        <span class="text-xs font-bold text-amber-800">Available Seats:</span>
+                    </div>
+                    <span class="text-sm font-extrabold text-white bg-amber-500 px-3 py-1 rounded-lg" id="full-task-seats">0</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- WALLET PAGE -->
+    <div id="wallet-page" class="absolute inset-0 bg-slate-50 z-30 flex flex-col hidden">
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-800 p-4 text-white flex items-center justify-between shadow-md">
+            <button onclick="closePage('wallet-page')" class="text-white text-base"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="text-xs font-bold uppercase tracking-wider">My Wallet</h2>
+            <div class="w-5"></div>
+        </div>
+        <div class="p-4">
+            <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-5 text-white shadow-md text-center">
+                <div class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Total Balance</div>
+                <div class="text-3xl font-extrabold text-amber-400 mt-1" id="wallet-total-balance">₹0.00</div>
+            </div>
+            <button onclick="openPage('withdraw-page')" class="w-full mt-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-3 rounded-xl text-xs shadow-md shadow-emerald-500/30">REQUEST WITHDRAWAL</button>
+        </div>
+        <div class="flex-1 overflow-y-auto px-4 pb-4">
+            <h3 class="text-xs font-bold text-slate-800 mb-2">Recent Transactions</h3>
+            <div class="space-y-2" id="transaction-list"></div>
+        </div>
+    </div>
+
+    <!-- WITHDRAW PAGE -->
+    <div id="withdraw-page" class="absolute inset-0 bg-slate-50 z-30 flex flex-col hidden">
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-800 p-4 text-white flex items-center justify-between shadow-md">
+            <button onclick="closePage('withdraw-page')" class="text-white text-base"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="text-xs font-bold uppercase tracking-wider">Withdraw Funds</h2>
+            <div class="w-5"></div>
+        </div>
+        <div class="p-4 space-y-4 flex-1 overflow-y-auto">
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
+                <div>
+                    <div class="text-[10px] text-slate-500 font-medium">Available Balance</div>
+                    <div class="text-base font-bold text-slate-800" id="withdraw-avail-bal">₹0.00</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-[10px] text-emerald-600 font-semibold">Min. Withdrawal</div>
+                    <div class="text-xs font-bold text-slate-700">₹100</div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                <label class="text-xs font-bold text-slate-800">Payment Method (UPI)</label>
+                <div>
+                    <label class="text-[10px] font-medium text-slate-600">UPI ID</label>
+                    <input type="text" id="w-upi-id" placeholder="username@paytm" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-[10px] font-medium text-slate-600">Withdrawal Amount (₹)</label>
+                    <input type="number" id="w-amount" placeholder="Min ₹100" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
+                </div>
+                <button onclick="requestWithdrawal()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-3 rounded-xl text-xs shadow-md">REQUEST WITHDRAWAL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REFERRAL PAGE -->
+    <div id="referral-page" class="absolute inset-0 bg-slate-50 z-30 flex flex-col hidden">
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-800 p-4 text-white flex items-center justify-between shadow-md">
+            <button onclick="closePage('referral-page')" class="text-white text-base"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="text-xs font-bold uppercase tracking-wider">Refer & Earn</h2>
+            <div class="w-5"></div>
+        </div>
+        <div class="p-4 space-y-4 flex-1 overflow-y-auto">
+            <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-5 text-white shadow-md text-center space-y-3">
+                <div class="w-14 h-14 bg-white/10 rounded-2xl mx-auto flex items-center justify-center text-2xl">🎁</div>
+                <h3 class="text-sm font-bold">Invite Friends & Earn ₹20</h3>
+                <p class="text-[11px] text-slate-400">Get ₹20 when your referred friend completes their first task!</p>
+                <div class="bg-black/30 p-3 rounded-xl border border-white/10 flex items-center justify-between">
+                    <div>
+                        <div class="text-[9px] text-slate-400">Your Referral Code</div>
+                        <div class="text-sm font-extrabold text-amber-400" id="ref-code-display">58241</div>
+                    </div>
+                    <button onclick="copyReferralCode()" class="bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">COPY</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="copyReferralLink()" class="bg-indigo-600 text-white font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm"><i class="fas fa-link"></i> Copy Link</button>
+                <button onclick="shareReferral()" class="bg-emerald-600 text-white font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm"><i class="fab fa-whatsapp"></i> Share Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE / HISTORY PAGE -->
+    <div id="profile-page" class="absolute inset-0 bg-slate-50 z-30 flex flex-col hidden">
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-800 p-4 text-white flex items-center justify-between shadow-md">
+            <button onclick="closePage('profile-page')" class="text-white text-base"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="text-xs font-bold uppercase tracking-wider">Profile & History</h2>
+            <div class="w-5"></div>
+        </div>
+        <div class="p-4 space-y-3 flex-1 overflow-y-auto">
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3 relative">
+                <div onclick="openAvatarModal()" class="w-14 h-14 rounded-full bg-emerald-500 text-white font-bold text-xl flex items-center justify-center border-2 border-slate-100 shadow-sm cursor-pointer overflow-hidden relative group">
+                    <img id="profile-avatar-img" src="" class="w-full h-full object-cover hidden">
+                    <span id="profile-avatar-initial">A</span>
+                    <div class="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center"><i class="fas fa-camera text-xs"></i></div>
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold text-slate-800" id="profile-name">User Name</h3>
+                    <div class="text-[10px] text-slate-500" id="profile-email">email@domain.com</div>
+                    <div class="text-[10px] text-emerald-600 font-semibold mt-0.5">UID: <span id="profile-uid">58241</span></div>
+                </div>
+            </div>
+
+            <!-- DEDICATED HISTORY SECTION -->
+            <h3 class="text-xs font-extrabold text-slate-800 ml-1 mt-4 mb-2 uppercase tracking-wide">My History</h3>
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-100 text-xs">
+                <div onclick="openHistoryModal('tasks')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+                    <span class="font-bold text-slate-700 flex items-center gap-2"><i class="fas fa-file-invoice-dollar text-emerald-500 text-base"></i> Tax Action History</span>
+                    <i class="fas fa-chevron-right text-slate-400"></i>
+                </div>
+                <div onclick="openHistoryModal('earnings')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+                    <span class="font-bold text-slate-700 flex items-center gap-2"><i class="fas fa-coins text-amber-500 text-base"></i> Earnings History</span>
+                    <i class="fas fa-chevron-right text-slate-400"></i>
+                </div>
+                <div onclick="openHistoryModal('spin')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+                    <span class="font-bold text-slate-700 flex items-center gap-2"><i class="fas fa-dharmachakra text-indigo-500 text-base"></i> Spin History</span>
+                    <i class="fas fa-chevron-right text-slate-400"></i>
+                </div>
+                <div onclick="openHistoryModal('withdrawal')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+                    <span class="font-bold text-slate-700 flex items-center gap-2"><i class="fas fa-university text-blue-500 text-base"></i> Withdrawal History</span>
+                    <i class="fas fa-chevron-right text-slate-400"></i>
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <button onclick="handleLogout()" class="w-full bg-red-50 text-red-600 font-bold py-3.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-red-100 shadow-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORY MODAL -->
+    <div id="history-modal" class="absolute inset-0 bg-slate-900/85 z-[60] flex items-end hidden">
+        <div class="bg-white w-full rounded-t-3xl p-5 max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-extrabold uppercase text-slate-800" id="history-modal-title">History</h3>
+                <button onclick="closeHistoryModal()" class="w-8 h-8 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto space-y-3 hide-scrollbar" id="history-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 py-2 px-4 flex justify-between items-center z-20 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+        <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center text-emerald-600"><i class="fas fa-home text-base"></i><span class="text-[9px] font-semibold mt-0.5">Home</span></button>
+        <button onclick="switchTab('tasks')" id="nav-tasks" class="flex flex-col items-center text-slate-400"><i class="fas fa-clipboard-list text-base"></i><span class="text-[9px] font-semibold mt-0.5">Tasks</span></button>
+        <button onclick="openSpinPage()" class="relative -top-4 w-14 h-14 bg-gradient-to-tr from-emerald-500 to-teal-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-500/40 border-4 border-white active:scale-95 transition-transform"><i class="fas fa-dharmachakra text-xl"></i></button>
+        <button onclick="openPage('wallet-page')" id="nav-wallet" class="flex flex-col items-center text-slate-400"><i class="fas fa-wallet text-base"></i><span class="text-[9px] font-semibold mt-0.5">Wallet</span></button>
+        <button onclick="openPage('profile-page')" id="nav-profile" class="flex flex-col items-center text-slate-400"><i class="fas fa-user-circle text-base"></i><span class="text-[9px] font-semibold mt-0.5">Profile</span></button>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDisCevr-uMBLGDRqjYrhTlkGdF3mThKd4",
+        authDomain: "real-tax-40830.firebaseapp.com",
+        databaseURL: "https://real-tax-40830-default-rtdb.firebaseio.com",
+        projectId: "real-tax-40830",
+        storageBucket: "real-tax-40830.firebasestorage.app",
+        messagingSenderId: "440403875084",
+        appId: "1:440403875084:web:d4d52447f375c13b13a529"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let currentUserData = null;
+    let currentAuthUser = null;
+    let currentSelectedTask = null;
+    let appSettings = {};
+    let bannerInterval = null;
+    let currentBannerIndex = 0;
+    
+    let userSubmissionsMap = {}; 
+    
+    let currentWheelSegments = [10001, 2, 101, 5, 21, 3, 501, 8, 10, 9, 5, 10]; 
+    let adminSpinRewards = [2, 3, 5, 10]; 
+
+    db.ref('settings').on('value', snap => {
+        if(snap.exists()) {
+            appSettings = snap.val();
+            if(appSettings.spinRewards) {
+                adminSpinRewards = appSettings.spinRewards;
+                updateWheelVisuals();
+            }
+        }
+    });
+
+    function updateWheelVisuals() {
+        currentWheelSegments[1] = Number(adminSpinRewards[0]); 
+        currentWheelSegments[3] = Number(adminSpinRewards[1]); 
+        currentWheelSegments[5] = Number(adminSpinRewards[2]); 
+        currentWheelSegments[8] = Number(adminSpinRewards[3]); 
+        
+        const wheelDivs = document.querySelectorAll('#spin-wheel > div');
+        currentWheelSegments.forEach((val, idx) => {
+            if(wheelDivs[idx]) wheelDivs[idx].innerText = val;
+        });
+    }
+
+    function showLoader() { document.getElementById('loader').classList.remove('hidden'); }
+    function hideLoader() { document.getElementById('loader').classList.add('hidden'); }
+    function showToast(msg, type='info') {
+        const toast = document.getElementById('toast');
+        const msgEl = document.getElementById('toast-msg');
+        const iconEl = document.getElementById('toast-icon');
+        msgEl.innerText = msg;
+        iconEl.className = type === 'success' ? 'fas fa-check-circle text-emerald-400' : (type === 'error' ? 'fas fa-exclamation-circle text-red-400' : 'fas fa-info-circle text-blue-400');
+        toast.style.opacity = '1';
+        setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+    }
+
+    // ONBOARDING SYSTEM & AUTH STATE
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentAuthUser = user;
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('onboarding-1').classList.add('hidden');
+            document.getElementById('onboarding-2').classList.add('hidden');
+            loadUserData(user.uid);
+            generateAvatars();
+        } else {
+            currentAuthUser = null;
+            hideLoader();
+            if (!localStorage.getItem('onboardingDone')) {
+                document.getElementById('onboarding-1').classList.remove('hidden');
+            } else {
+                document.getElementById('auth-screen').classList.remove('hidden');
+            }
+        }
+    });
+
+    function showOnboarding2() {
+        document.getElementById('onboarding-1').classList.add('hidden');
+        document.getElementById('onboarding-2').classList.remove('hidden');
+    }
+
+    function finishOnboarding() {
+        localStorage.setItem('onboardingDone', 'true');
+        document.getElementById('onboarding-2').classList.add('hidden');
+        document.getElementById('auth-screen').classList.remove('hidden');
+    }
+
+    function loadUserData(uid) {
+        showLoader();
+        db.ref('users/' + uid).on('value', snapshot => {
+            hideLoader();
+            if (snapshot.exists()) {
+                currentUserData = snapshot.val();
+                checkDailySpinReset(); // 24-HOUR SPIN RESET LOGIC
+                updateUIWithUserData();
+            } else {
+                createDefaultUserRecord(currentAuthUser);
+            }
+        });
+        loadBanners();
+        listenUserSubmissions();
+        loadTasks();
+    }
+    
+    // NEW: 24-HOUR SPIN RESET
+    function checkDailySpinReset() {
+        if(!currentAuthUser || !currentUserData) return;
+        let todayDate = new Date().toLocaleDateString();
+        
+        if(currentUserData.lastSpinDate !== todayDate) {
+            db.ref('users/' + currentAuthUser.uid).update({
+                spinsLeft: 3,
+                lastSpinDate: todayDate
+            });
+            // Update UI instantly for current session
+            currentUserData.spinsLeft = 3;
+            currentUserData.lastSpinDate = todayDate;
+        }
+    }
+
+    // UPDATED: LIVE 24H TIMER FOR MIDNIGHT RESET
+    setInterval(() => {
+        const now = new Date();
+        const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1); // Next midnight
+        const diff = tomorrow - now;
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        const timerEl = document.getElementById('spin-reset-timer');
+        if(timerEl) {
+            timerEl.innerText = `Resets in: ${h.toString().padStart(2,'0')}h ${m.toString().padStart(2,'0')}m ${s.toString().padStart(2,'0')}s`;
+        }
+    }, 1000);
+
+    function listenUserSubmissions() {
+        if(!currentAuthUser) return;
+        db.ref('taskSubmissions').orderByChild('userId').equalTo(currentAuthUser.uid).on('value', snap => {
+            userSubmissionsMap = {};
+            if(snap.exists()) {
+                snap.forEach(child => {
+                    let sub = child.val();
+                    userSubmissionsMap[sub.taskId] = sub.status;
+                });
+            }
+            renderTasksUI(); 
+        });
+    }
+
+    function createDefaultUserRecord(user) {
+        const uidNum = Math.floor(10000 + Math.random() * 90000).toString();
+        const todayDate = new Date().toLocaleDateString();
+        const newUser = {
+            name: user.displayName || 'User', email: user.email, mobile: user.phoneNumber || '9876543210', uid: uidNum, balance: 10.00, spinsLeft: 3, lastSpinDate: todayDate, status: 'Active'
+        };
+        db.ref('users/' + user.uid).set(newUser).then(() => {
+            db.ref('transactions/' + user.uid).push({ type: 'Signup Bonus', amount: 10, date: todayDate, status: 'Success' });
+            showToast('Welcome! ₹10 Signup Bonus credited.', 'success');
+        });
+    }
+
+    function updateUIWithUserData() {
+        if (!currentUserData) return;
+        document.getElementById('header-name').innerText = 'Hello, ' + (currentUserData.name ? currentUserData.name.split(' ')[0] : 'User');
+        document.getElementById('header-uid').innerText = currentUserData.uid || '58241';
+        document.getElementById('header-balance').innerText = '₹' + Number(currentUserData.balance || 0).toFixed(2);
+        document.getElementById('wallet-total-balance').innerText = '₹' + Number(currentUserData.balance || 0).toFixed(2);
+        document.getElementById('withdraw-avail-bal').innerText = '₹' + Number(currentUserData.balance || 0).toFixed(2);
+        document.getElementById('ref-code-display').innerText = currentUserData.uid || '58241';
+        document.getElementById('full-spins-left').innerText = (currentUserData.spinsLeft ?? 3) + '/3';
+
+        const avatarInitial = currentUserData.name ? currentUserData.name.charAt(0).toUpperCase() : 'A';
+        const imgEl1 = document.getElementById('header-avatar-img');
+        const imgEl2 = document.getElementById('profile-avatar-img');
+        const intEl1 = document.getElementById('header-avatar-initial');
+        const intEl2 = document.getElementById('profile-avatar-initial');
+        
+        document.getElementById('profile-name').innerText = currentUserData.name || 'User Name';
+        document.getElementById('profile-email').innerText = currentUserData.email || '';
+        document.getElementById('profile-uid').innerText = currentUserData.uid || '58241';
+
+        if(currentUserData.avatar) {
+            imgEl1.src = currentUserData.avatar; imgEl2.src = currentUserData.avatar;
+            imgEl1.classList.remove('hidden'); imgEl2.classList.remove('hidden');
+            intEl1.classList.add('hidden'); intEl2.classList.add('hidden');
+        } else {
+            intEl1.innerText = avatarInitial; intEl2.innerText = avatarInitial;
+            imgEl1.classList.add('hidden'); imgEl2.classList.add('hidden');
+            intEl1.classList.remove('hidden'); intEl2.classList.remove('hidden');
+        }
+        loadUserTransactions();
+    }
+
+    function switchAuthTab(tab) {
+        if (tab === 'login') {
+            document.getElementById('login-form').classList.remove('hidden'); document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('tab-login-btn').className = 'flex-1 py-2 text-xs font-semibold rounded-lg bg-emerald-600 text-white transition-all';
+            document.getElementById('tab-register-btn').className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 transition-all';
+        } else {
+            document.getElementById('login-form').classList.add('hidden'); document.getElementById('register-form').classList.remove('hidden');
+            document.getElementById('tab-login-btn').className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 transition-all';
+            document.getElementById('tab-register-btn').className = 'flex-1 py-2 text-xs font-semibold rounded-lg bg-emerald-600 text-white transition-all';
+        }
+    }
+
+    function handleLogin(e) {
+        e.preventDefault(); showLoader();
+        auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value)
+        .catch(err => {
+            hideLoader();
+            if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+                showToast('Account not found! Please register first.', 'error');
+                switchAuthTab('register'); 
+            } else {
+                showToast(err.message, 'error');
+            }
+        });
+    }
+
+    function handleRegister(e) {
+        e.preventDefault(); showLoader();
+        auth.createUserWithEmailAndPassword(document.getElementById('reg-email').value, document.getElementById('reg-password').value).then(res => {
+            const newUser = { name: document.getElementById('reg-name').value, mobile: document.getElementById('reg-mobile').value, email: document.getElementById('reg-email').value, uid: Math.floor(10000 + Math.random() * 90000).toString(), balance: 10.00, spinsLeft: 3, lastSpinDate: new Date().toLocaleDateString(), status: 'Active' };
+            db.ref('users/' + res.user.uid).set(newUser).then(() => { hideLoader(); showToast('Registration successful!', 'success'); });
+        }).catch(err => { hideLoader(); showToast(err.message, 'error'); });
+    }
+    function handleGoogleLogin() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(err => showToast(err.message, 'error')); }
+    function handleLogout() { auth.signOut(); }
+
+    function switchTab(tab) {
+        ['main-content', 'tasks-page', 'spin-page'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        document.getElementById('nav-home').className = 'flex flex-col items-center text-slate-400';
+        document.getElementById('nav-tasks').className = 'flex flex-col items-center text-slate-400';
+        
+        if (tab === 'home') { document.getElementById('main-content').classList.remove('hidden'); document.getElementById('nav-home').className = 'flex flex-col items-center text-emerald-600'; }
+        else if (tab === 'tasks') { document.getElementById('tasks-page').classList.remove('hidden'); document.getElementById('nav-tasks').className = 'flex flex-col items-center text-emerald-600'; }
+    }
+
+    function openPage(pageId) { const el = document.getElementById(pageId); if (el) el.classList.remove('hidden'); }
+    function closePage(pageId) { const el = document.getElementById(pageId); if (el) el.classList.add('hidden'); }
+    function openSpinPage() { document.getElementById('spin-page').classList.remove('hidden'); }
+    function closeSpinPage() { document.getElementById('spin-page').classList.add('hidden'); }
+
+    function generateAvatars() {
+        const grid = document.getElementById('avatar-grid');
+        grid.innerHTML = '';
+        const styles = ['adventurer', 'bottts', 'fun-emoji'];
+        for(let i=1; i<=30; i++) {
+            const style = styles[i%3];
+            const url = `https://api.dicebear.com/7.x/${style}/svg?seed=EarnPro${i}&backgroundColor=e2e8f0`;
+            grid.innerHTML += `<div onclick="selectAvatar('${url}')" class="w-full aspect-square rounded-2xl overflow-hidden cursor-pointer hover:ring-4 hover:ring-emerald-500 transition-all bg-white shadow-sm"><img src="${url}" class="w-full h-full object-cover"></div>`;
+        }
+    }
+    function openAvatarModal() { document.getElementById('avatar-modal').classList.remove('hidden'); document.getElementById('avatar-modal').classList.add('flex'); }
+    function closeAvatarModal() { document.getElementById('avatar-modal').classList.add('hidden'); document.getElementById('avatar-modal').classList.remove('flex'); }
+    function selectAvatar(url) {
+        if(!currentAuthUser) return;
+        showLoader();
+        db.ref('users/' + currentAuthUser.uid).update({ avatar: url }).then(()=>{
+            hideLoader(); closeAvatarModal(); showToast('Profile picture updated!', 'success');
+        });
+    }
+
+    function loadBanners() {
+        try {
+            const track = document.getElementById('banner-track');
+            const dots = document.getElementById('banner-dots');
+            if (!track || !dots) return;
+            document.getElementById('banner-empty-msg').classList.add('hidden');
+            
+            const staticBanners = [
+                {
+                    bg: "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=800&auto=format&fit=crop",
+                    gradient: "from-blue-900/95 via-blue-800/90 to-indigo-900/95",
+                    icon: "fab fa-telegram-plane text-blue-400",
+                    title: "Join Our <span class='text-blue-300'>Telegram</span>",
+                    sub: "Daily Free Spin Codes & Updates यहाँ मिलेंगे",
+                    btn: "JOIN NOW",
+                    btnClass: "bg-blue-500 hover:bg-blue-400 text-white",
+                    action: "openTelegramChannel()"
+                },
+                {
+                    bg: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=800&auto=format&fit=crop",
+                    gradient: "from-slate-900/95 via-gray-800/90 to-black/95",
+                    icon: "fas fa-headset text-slate-300",
+                    title: "24/7 <span class='text-slate-300'>Customer Support</span>",
+                    sub: "किसी भी समस्या (Problem) के लिए Customer Support से संपर्क करें।",
+                    btn: "SUPPORT",
+                    btnClass: "bg-slate-600 hover:bg-slate-500 text-white",
+                    action: "openTelegramSupport()"
+                },
+                {
+                    bg: "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=800&auto=format&fit=crop",
+                    gradient: "from-emerald-900/95 via-teal-900/90 to-slate-900/95",
+                    icon: "fas fa-shield-check text-emerald-400",
+                    title: "हर रोज़ <span class='text-emerald-300'>Tax Complete</span> करो",
+                    sub: "Task पूरा करें और रोज़ाना आसानी से पैसे कमाएं।",
+                    btn: "START TAX",
+                    btnClass: "bg-emerald-500 hover:bg-emerald-400 text-white",
+                    action: "switchTab('tasks')"
+                },
+                {
+                    bg: "https://images.unsplash.com/photo-1518684079-3c830dcef090?q=80&w=800&auto=format&fit=crop",
+                    gradient: "from-purple-900/95 via-indigo-900/90 to-slate-900/95",
+                    icon: "fas fa-dharmachakra text-amber-400",
+                    title: "हर रोज़ <span class='text-amber-400'>Spin</span> करो",
+                    sub: "Spin का इस्तेमाल करो और जीतो शानदार इनाम!",
+                    btn: "PLAY NOW",
+                    btnClass: "bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900",
+                    action: "openSpinPage()"
+                },
+                {
+                    bg: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=800&auto=format&fit=crop",
+                    gradient: "from-rose-900/95 via-pink-900/90 to-purple-900/95",
+                    icon: "fas fa-bolt text-rose-300",
+                    title: "Instant <span class='text-rose-300'>Withdrawals</span>",
+                    sub: "जीती हुई रकम तुरंत अपने UPI खाते में ट्रांसफर करें!",
+                    btn: "WITHDRAW NOW",
+                    btnClass: "bg-rose-500 hover:bg-rose-400 text-white",
+                    action: "openPage('withdraw-page')"
+                }
+            ];
+
+            track.innerHTML = '';
+            dots.innerHTML = '';
+            
+            track.style.width = (staticBanners.length * 100) + '%';
+            const childWidth = 100 / staticBanners.length;
+
+            staticBanners.forEach((b, idx) => {
+                track.innerHTML += `
+                    <div class="h-full flex-shrink-0 relative group overflow-hidden bg-slate-900 cursor-pointer" style="width: ${childWidth}%;" onclick="${b.action}">
+                        <img src="${b.bg}" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-1000 ease-out block">
+                        <div class="absolute inset-0 bg-gradient-to-r ${b.gradient}"></div>
+                        <div class="absolute inset-0 p-5 flex flex-col justify-center items-start">
+                            <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/20 mb-2 shadow-lg">
+                                <i class="${b.icon} text-lg"></i>
+                            </div>
+                            <h3 class="text-[22px] font-extrabold text-white leading-tight drop-shadow-md mb-1">${b.title}</h3>
+                            <p class="text-[11px] font-medium text-slate-200 mb-3 drop-shadow-sm max-w-[80%]">${b.sub}</p>
+                            <button class="${b.btnClass} text-[10px] font-extrabold px-4 py-1.5 rounded-lg shadow-lg active:scale-95 transition-transform tracking-wide flex items-center gap-1.5 uppercase">
+                                ${b.btn} <i class="fas fa-arrow-right text-[8px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                dots.innerHTML += `<span class="w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === 0 ? 'bg-emerald-500 w-4' : 'bg-white/50'} shadow-sm"></span>`;
+            });
+
+            if (bannerInterval) clearInterval(bannerInterval);
+            currentBannerIndex = 0;
+            bannerInterval = setInterval(() => {
+                currentBannerIndex = (currentBannerIndex + 1) % staticBanners.length;
+                track.style.transform = `translateX(-${currentBannerIndex * childWidth}%)`;
+                Array.from(dots.children).forEach((d, i) => { 
+                    d.className = `w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentBannerIndex ? 'bg-emerald-500 w-4' : 'bg-white/50'} shadow-sm`; 
+                });
+            }, 4500);
+        } catch(e) { console.error("Banner load error:", e); }
+    }
+
+    let isSpinning = false;
+    function unlockSpin() {
+        if (isSpinning) return;
+        const code = document.getElementById('spin-code-input').value.trim();
+        if (!code || code.length !== 10) { showToast('Enter valid 10-digit code', 'error'); return; }
+        showLoader();
+        db.ref('spinCodes/' + code).once('value', snapshot => {
+            hideLoader();
+            if (snapshot.exists() && snapshot.val().active !== false) {
+                if (currentUserData && currentUserData.spinsLeft <= 0) { showToast('Spin Limit Reached (3/3)', 'error'); return; }
+                showToast('Spin Unlocked! Good Luck!', 'success');
+                executeSpinAnimation();
+            } else { showToast('Invalid or Expired Code', 'error'); }
+        });
+    }
+
+    async function executeSpinAnimation() {
+        if (isSpinning || !currentAuthUser || !currentUserData) return;
+        isSpinning = true;
+        
+        const selectedAmount = Number(adminSpinRewards[Math.floor(Math.random() * adminSpinRewards.length)]);
+        let matchIndices = [];
+        currentWheelSegments.forEach((val, idx) => { if (val === selectedAmount) matchIndices.push(idx); });
+        
+        let targetIndex = matchIndices[Math.floor(Math.random() * matchIndices.length)];
+        const extraSpins = 360 * 6; 
+        const finalAngle = extraSpins + (360 - (targetIndex * 30));
+        const wheel = document.getElementById('spin-wheel');
+        wheel.style.transition = 'transform 4.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        wheel.style.transform = `rotate(${finalAngle}deg)`;
+        
+        setTimeout(() => {
+            wheel.style.transition = 'none'; 
+            wheel.style.transform = `rotate(${finalAngle % 360}deg)`; 
+            isSpinning = false; 
+            updateSpinRewardInDB(selectedAmount);
+        }, 4700);
+    }
+    
+    function updateSpinRewardInDB(reward) {
+        const uid = currentAuthUser.uid;
+        db.ref('users/' + uid).update({ balance: Number(currentUserData.balance || 0) + reward, spinsLeft: (currentUserData.spinsLeft || 3) - 1 });
+        db.ref('transactions/' + uid).push({ type: 'Spin Reward', amount: reward, date: new Date().toLocaleDateString(), status: 'Success' });
+        db.ref('spinHistory/' + uid).push({ amount: reward, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString(), txId: 'SPIN_' + Math.floor(100000 + Math.random() * 900000) });
+        showToast(`🎉 Congratulations! You Won ₹${reward}!`, 'success');
+    }
+
+    // UPDATED TASK SYSTEM: PENDING, COMPLETED & REJECTED LOGIC
+    let tasksList = [];
+    function loadTasks() {
+        try {
+            db.ref('tasks').on('value', snapshot => {
+                tasksList = []; 
+                if (snapshot.exists()) { 
+                    snapshot.forEach(child => { 
+                        const t = { id: child.key, ...child.val() }; 
+                        if (t && t.active !== false) tasksList.push(t); 
+                    }); 
+                }
+                renderTasksUI(); 
+            });
+        } catch(e) { console.error("Tasks load error:", e); }
+    }
+
+    function renderTasksUI() {
+        const container = document.getElementById('task-list-container');
+        if (!container) return;
+
+        if (tasksList.length === 0) {
+            container.innerHTML = `<div class="p-8 text-center"><div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-lg mb-2"><i class="fas fa-file-invoice-dollar"></i></div><h4 class="text-xs font-bold text-slate-800">No Tax Available</h4></div>`; return;
+        }
+
+        let html = `
+            <div class="bg-amber-50/70 border border-amber-100/80 p-3 rounded-2xl flex gap-3 mx-4 mt-4 shadow-sm shrink-0">
+                <div class="w-8 h-8 rounded-full bg-amber-100/50 flex items-center justify-center shrink-0 border border-amber-200 text-amber-500 shadow-inner"><i class="fas fa-shield-alt text-sm"></i></div>
+                <div class="text-[11.5px] text-slate-700 font-bold leading-relaxed pt-0.5">जिस भी Amount का Tax भरना चाहते है,<br>उसके सामने Start Tax पर क्लिक करे</div>
+            </div>
+            <div class="relative mt-5 px-5 pb-8 flex-1">
+                <div class="absolute left-[2.4rem] top-5 bottom-8 border-l-[1.5px] border-dashed border-slate-300 z-0"></div>
+        `;
+        
+        tasksList.forEach((t) => {
+            const subStatus = userSubmissionsMap[t.id];
+            const isOver = (t.seatsLeft !== undefined && t.seatsLeft <= 0);
+            
+            let btnText = 'Start Tax <i class="fas fa-arrow-right text-[10px]"></i>';
+            let btnClass = 'bg-[#1ca74c] hover:bg-emerald-700 text-white';
+            let isDisabled = false;
+            let cardOpacityClass = '';
+
+            // Check if user has interacted with this task
+            if (subStatus && subStatus !== 'Rejected') {
+                isDisabled = true;
+                if (subStatus === 'Success' || subStatus === 'Done') {
+                    btnText = 'Completed <i class="fas fa-check-circle"></i>';
+                    btnClass = 'bg-slate-400 text-white cursor-not-allowed';
+                    cardOpacityClass = 'opacity-70';
+                } else {
+                    // Pending state (Wait for checking, Checking, Telegram)
+                    btnText = 'Pending <i class="fas fa-clock"></i>';
+                    btnClass = 'bg-amber-500 text-white cursor-not-allowed';
+                }
+            } else if (isOver) {
+                isDisabled = true;
+                btnText = 'Task Over';
+                btnClass = 'bg-slate-400 text-white cursor-not-allowed';
+                cardOpacityClass = 'opacity-50 grayscale';
+            } else if (subStatus === 'Rejected') {
+                // If rejected, allow retry
+                btnText = 'Start Tax <i class="fas fa-redo text-[10px]"></i>';
+            }
+
+            html += `
+                <div class="flex items-center justify-between relative z-10 mb-4 bg-white p-2 rounded-[18px] border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)] transition-transform ${isDisabled ? '' : 'active:scale-[0.98]'} ${cardOpacityClass}">
+                    <div class="w-[11px] h-[11px] rounded-full bg-emerald-500 absolute -left-[18px] top-1/2 -translate-y-1/2 border-2 border-slate-50 shadow-sm z-20"></div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-[42px] h-[42px] bg-amber-50 rounded-full flex items-center justify-center shrink-0 border border-amber-100 text-amber-500 text-[18px] shadow-inner ml-1"><i class="fas fa-coins"></i></div>
+                        <div class="text-[18px] font-extrabold text-slate-800 tracking-tight flex items-center">₹${t.reward || 0}</div>
+                    </div>
+                    <button ${isDisabled ? 'disabled' : `onclick="startTaskFlow('${t.id}')"`} class="${btnClass} font-bold text-[12.5px] px-4 py-2.5 rounded-[12px] shadow-sm flex items-center gap-1.5 mr-1">
+                        ${btnText}
+                    </button>
+                </div>
+            `;
+        });
+        html += `</div>`; 
+        container.innerHTML = html;
+    }
+
+    function startTaskFlow(taskId) {
+        if (!currentAuthUser) { showToast("Please login first", "error"); return; }
+        
+        // Final strict check: do not open if Pending or Completed
+        let currentStatus = userSubmissionsMap[taskId];
+        if (currentStatus && currentStatus !== 'Rejected') {
+            showToast("You have already submitted this task.", "info");
+            return;
+        }
+
+        currentSelectedTask = tasksList.find(t => t.id === taskId);
+        if (!currentSelectedTask) return;
+        
+        let seatMsg = currentSelectedTask.seatsLeft > 0 ? `Only ${currentSelectedTask.seatsLeft} seats left for this task!` : `Task Over! No seats left.`;
+        showToast(seatMsg, 'info');
+
+        document.getElementById('full-task-title').innerText = currentSelectedTask.title || 'Start Tax Action';
+        document.getElementById('full-task-desc').innerText = currentSelectedTask.description || 'Follow instructions and complete the action to get reward.';
+        document.getElementById('full-task-reward').innerText = currentSelectedTask.reward || 0;
+        
+        document.getElementById('full-task-img').src = currentSelectedTask.imageUrl || '';
+        document.getElementById('full-task-seats').innerText = currentSelectedTask.seatsLeft || 0;
+        
+        document.getElementById('full-action-reg-num').value = '';
+        document.getElementById('full-action-uid').value = '';
+
+        if(currentSelectedTask.submitType === 'telegram') {
+            document.getElementById('in-app-submit-form').classList.add('hidden');
+            document.getElementById('telegram-submit-form').classList.remove('hidden');
+        } else {
+            document.getElementById('in-app-submit-form').classList.remove('hidden');
+            document.getElementById('telegram-submit-form').classList.add('hidden');
+        }
+        
+        document.getElementById('task-full-page').classList.remove('hidden');
+    }
+
+    function closeTaskFullPage() { document.getElementById('task-full-page').classList.add('hidden'); }
+    function openVideoLink() { if (currentSelectedTask && currentSelectedTask.videoLink) window.open(currentSelectedTask.videoLink, '_blank'); else showToast('Video link not available', 'info'); }
+    function openAppLink() { if (currentSelectedTask && currentSelectedTask.appLink) window.open(currentSelectedTask.appLink, '_blank'); else showToast('App link not available', 'info'); }
+
+    function submitActionTaskFull() {
+        const regNum = document.getElementById('full-action-reg-num').value.trim();
+        const uid = document.getElementById('full-action-uid').value.trim();
+        if (!regNum || !uid) { showToast('Please enter both Register Number & UID', 'error'); return; }
+        
+        showLoader();
+        const newSubRef = db.ref('taskSubmissions').push();
+        newSubRef.set({
+            userId: currentAuthUser.uid, userName: currentUserData.name || 'User', userUid: currentUserData.uid || '', 
+            taskId: currentSelectedTask.id, taskTitle: currentSelectedTask.title || 'Start Tax', reward: currentSelectedTask.reward || 0, 
+            date: new Date().toLocaleDateString(), status: 'Wait for checking', submitMethod: 'in-app',
+            registerNumber: regNum, submittedUid: uid
+        }).then(() => {
+            hideLoader(); closeTaskFullPage(); 
+            showToast('Proof submitted! Added to History (Wait for checking).', 'success');
+        });
+    }
+
+    function openTelegramAdmin() {
+        let link = currentSelectedTask.telegramSubmitLink || appSettings.telegramSupport || 'https://t.me/';
+        window.open(link, '_blank');
+    }
+
+    function submitTaskTelegram() {
+        let confirmAction = confirm("क्या आपने सच में इस टास्क (Tax) को पूरा कर लिया है?\n\nयदि हाँ, तो 'OK' पर क्लिक करें और Telegram पर स्क्रीनशॉट भेजें। (गलत सबमिशन पर अकाउंट ब्लॉक हो सकता है!)");
+        if (!confirmAction) return;
+
+        showLoader();
+        const newSubRef = db.ref('taskSubmissions').push();
+        newSubRef.set({
+            userId: currentAuthUser.uid, userName: currentUserData.name || 'User', userUid: currentUserData.uid || '', 
+            taskId: currentSelectedTask.id, taskTitle: currentSelectedTask.title || 'Start Tax', reward: currentSelectedTask.reward || 0, 
+            date: new Date().toLocaleDateString(), status: 'Wait for checking', submitMethod: 'Telegram'
+        }).then(() => {
+            hideLoader(); closeTaskFullPage(); 
+            showToast('Task marked as Pending. We will verify soon.', 'success');
+        });
+    }
+
+    function loadUserTransactions() {
+        if (!currentAuthUser) return;
+        db.ref('transactions/' + currentAuthUser.uid).on('value', snapshot => {
+            const list = document.getElementById('transaction-list');
+            if (!list) return;
+            list.innerHTML = '';
+            if (snapshot.exists()) {
+                snapshot.forEach(child => {
+                    const tx = child.val(); if (!tx) return;
+                    const isPositive = String(tx.type || '').includes('Reward') || String(tx.type || '').includes('Bonus') || String(tx.type || '').includes('Refund') || String(tx.type || '').includes('Added');
+                    list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-slate-100 flex items-center justify-between text-xs"><div><div class="font-bold text-slate-800">${tx.type || 'Transaction'}</div><div class="text-[10px] text-slate-400">${tx.date || ''}</div></div><div class="text-right"><div class="font-bold ${isPositive ? 'text-emerald-600' : 'text-red-600'}">${isPositive ? '+' : '-'}₹${tx.amount || 0}</div><div class="text-[9px] text-slate-500">${tx.status || 'Success'}</div></div></div>`;
+                });
+            }
+            if (list.innerHTML === '') list.innerHTML = '<p class="text-center text-xs text-slate-400 py-4">No transactions yet.</p>';
+        });
+    }
+
+    function requestWithdrawal() {
+        const amountInput = document.getElementById('w-amount'); const upiInput = document.getElementById('w-upi-id');
+        const amount = Number(amountInput.value); const upi = upiInput.value.trim();
+        if (isNaN(amount) || amount < 100) { showToast('Minimum withdrawal is ₹100', 'error'); return; }
+        if (currentUserData && amount > currentUserData.balance) { showToast('Insufficient balance', 'error'); return; }
+        if (!upi) { showToast('Enter UPI ID', 'error'); return; }
+        showLoader();
+        const uid = currentAuthUser.uid;
+        db.ref('users/' + uid).update({ balance: Number(currentUserData.balance || 0) - amount }).then(() => {
+            db.ref('withdrawals').push({ userId: uid, userName: currentUserData.name || 'User', userUid: currentUserData.uid || '', amount, method: 'UPI', details: upi, date: new Date().toLocaleDateString(), status: 'Pending' });
+            db.ref('transactions/' + uid).push({ type: 'Withdrawal Request', amount, date: new Date().toLocaleDateString(), status: 'Pending' });
+            hideLoader(); showToast('Withdrawal requested successfully!', 'success'); closePage('withdraw-page');
+        });
+    }
+
+    function openHistoryModal(type) {
+        const modal = document.getElementById('history-modal'); const title = document.getElementById('history-modal-title'); const content = document.getElementById('history-modal-content');
+        if (!modal) return; modal.classList.remove('hidden'); content.innerHTML = '<p class="text-center text-xs text-slate-400 py-4">Loading...</p>';
+        const uid = currentAuthUser.uid;
+        if (type === 'earnings') {
+            title.innerText = 'Earnings History';
+            db.ref('transactions/' + uid).once('value', snap => {
+                content.innerHTML = '';
+                if (snap.exists()) { snap.forEach(c => { const tx = c.val(); if (tx && (String(tx.type).includes('Reward') || String(tx.type).includes('Bonus') || String(tx.type).includes('Added'))) { content.innerHTML += `<div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex justify-between text-xs"><div><div class="font-extrabold text-slate-800">${tx.type}</div><div class="text-[10px] text-slate-400">${tx.date}</div></div><div class="font-extrabold text-emerald-600 text-sm">+₹${tx.amount}</div></div>`; } }); }
+                if (content.innerHTML === '') content.innerHTML = '<p class="text-center text-xs text-slate-400">No earnings found.</p>';
+            });
+        } else if (type === 'tasks') {
+            title.innerText = 'Tax Action History';
+            db.ref('taskSubmissions').orderByChild('userId').equalTo(uid).once('value', snap => {
+                content.innerHTML = '';
+                if (snap.exists()) {
+                    snap.forEach(c => { 
+                        const sub = c.val(); 
+                        if (sub) { 
+                            let statusColor = 'text-purple-600 bg-purple-50 px-2 py-1 rounded-lg'; 
+                            if(sub.status === 'Wait for checking' || sub.status === 'Checking') statusColor = 'text-blue-600 bg-blue-50 px-2 py-1 rounded-lg'; 
+                            if(sub.status === 'Success' || sub.status === 'Done') statusColor = 'text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg';
+                            if(sub.status === 'Rejected') statusColor = 'text-red-600 bg-red-50 px-2 py-1 rounded-lg';
+                            
+                            let methodText = sub.submitMethod === 'Telegram' ? '<i class="fab fa-telegram text-blue-500"></i>' : '<i class="fas fa-mobile-alt text-slate-400"></i>';
+                            content.innerHTML += `<div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex justify-between items-center text-xs"><div><div class="font-extrabold text-slate-800">${sub.taskTitle || 'Tax'} ${methodText}</div><div class="text-[10px] text-slate-500 font-medium">Reward: ₹${sub.reward || 0} | ${sub.date || ''}</div></div><div class="text-right font-bold ${statusColor}">${sub.status || 'Checking'}</div></div>`; 
+                        } 
+                    });
+                }
+                if (content.innerHTML === '') content.innerHTML = '<p class="text-center text-xs text-slate-400">No history found.</p>';
+            });
+        } else if (type === 'spin') {
+            title.innerText = 'Spin History';
+            db.ref('spinHistory/' + uid).once('value', snap => {
+                content.innerHTML = '';
+                if (snap.exists()) { snap.forEach(c => { const s = c.val(); if (s) { content.innerHTML += `<div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex justify-between text-xs"><div><div class="font-extrabold text-slate-800">₹${s.amount || 0} Won</div><div class="text-[10px] text-slate-400">${s.date || ''} ${s.time || ''}</div></div><div class="text-[10px] font-mono text-slate-500">${s.txId || ''}</div></div>`; } }); }
+                if (content.innerHTML === '') content.innerHTML = '<p class="text-center text-xs text-slate-400">No spin history found.</p>';
+            });
+        } else if (type === 'withdrawal') {
+            title.innerText = 'Withdrawal History';
+            db.ref('withdrawals').orderByChild('userId').equalTo(uid).once('value', snap => {
+                content.innerHTML = '';
+                if (snap.exists()) { snap.forEach(c => { const w = c.val(); if (w) { content.innerHTML += `<div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex justify-between items-center text-xs"><div><div class="font-extrabold text-slate-800">₹${w.amount || 0} (${w.method || 'UPI'})</div><div class="text-[10px] text-slate-400">${w.date || ''}</div></div><div class="font-bold ${w.status === 'Success' ? 'text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg' : (w.status === 'Rejected' ? 'text-red-600 bg-red-50 px-2 py-1 rounded-lg' : 'text-amber-600 bg-amber-50 px-2 py-1 rounded-lg')}">${w.status || 'Pending'}</div></div>`; } }); }
+                if (content.innerHTML === '') content.innerHTML = '<p class="text-center text-xs text-slate-400">No withdrawal history found.</p>';
+            });
+        }
+    }
+    
+    function closeHistoryModal() { document.getElementById('history-modal').classList.add('hidden'); }
+    function copyUID(e) { e.stopPropagation(); navigator.clipboard.writeText(currentUserData?.uid || ''); showToast('UID Copied', 'success'); }
+    function copyReferralCode() { navigator.clipboard.writeText(currentUserData?.uid || ''); showToast('Referral Code Copied', 'success'); }
+    function copyReferralLink() { let link = appSettings.referralLink || 'https://earnpro.app/register'; navigator.clipboard.writeText(`${link}?ref=${currentUserData?.uid || ''}`); showToast('Referral Link Copied', 'success'); }
+    function shareReferral() { let link = appSettings.referralLink || 'https://earnpro.app/register'; navigator.clipboard.writeText(`Join EarnPro: ${link}?ref=${currentUserData?.uid || ''}`); showToast('Share link copied', 'success'); }
+    function openTelegramChannel() { if(appSettings.telegramChannel) window.open(appSettings.telegramChannel, '_blank'); else showToast('Telegram Channel not set by Admin yet.', 'error'); }
+    function openTelegramSupport() { if(appSettings.telegramSupport) window.open(appSettings.telegramSupport, '_blank'); else showToast('Support Link not set by Admin yet.', 'error'); }
+</script>
+</body>
+</html>
