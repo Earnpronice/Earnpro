@@ -16,8 +16,6 @@
         @media(min-width: 431px) { .mobile-container { border-radius: 40px; border: 12px solid #1e293b; height: 884px; margin-top: 20px; margin-bottom: 20px; } }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Scratch Card Canvas Anti-Scroll */
         #scratch-canvas { touch-action: none; }
     </style>
 </head>
@@ -36,7 +34,27 @@
         <span id="toast-msg">Notification</span>
     </div>
 
-    <!-- PREMIUM ONBOARDING SCREEN 1 -->
+    <!-- Admin Message Modal -->
+    <div id="admin-msg-modal" class="absolute inset-0 bg-slate-900/95 z-[250] hidden flex-col items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-6 text-center shadow-2xl max-w-[320px] w-full border-4 border-indigo-100 relative overflow-hidden">
+            <div class="absolute -top-10 -left-10 w-32 h-32 bg-indigo-50 rounded-full z-0"></div>
+            <div class="relative z-10">
+                <div class="text-indigo-500 text-5xl mb-3"><i class="fas fa-envelope-open-text drop-shadow-md"></i></div>
+                <h2 class="text-xl font-black text-slate-800 mb-2">Message from Admin</h2>
+                <p id="admin-msg-text" class="text-[13px] text-slate-600 font-semibold mb-6 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100"></p>
+                <button onclick="closeAdminMsg()" class="w-full bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-black py-3 rounded-xl shadow-lg active:scale-95 transition-transform uppercase tracking-wider text-xs">OK, Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blocked Screen -->
+    <div id="blocked-screen" class="absolute inset-0 bg-red-950 z-[300] hidden flex-col items-center justify-center p-6 text-white text-center">
+        <i class="fas fa-ban text-7xl text-red-500 mb-4 drop-shadow-lg"></i>
+        <h1 class="text-2xl font-black mb-2">Account Blocked</h1>
+        <p class="text-[13px] opacity-80 font-medium">Your account has been restricted by the admin. Please contact support.</p>
+    </div>
+
+    <!-- ONBOARDING SCREEN 1 -->
     <div id="onboarding-1" class="absolute inset-0 bg-slate-900 z-[95] flex flex-col hidden">
         <div class="flex-1 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
             <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=600')] bg-cover bg-center opacity-10"></div>
@@ -51,7 +69,7 @@
         </div>
     </div>
 
-    <!-- PREMIUM ONBOARDING SCREEN 2 -->
+    <!-- ONBOARDING SCREEN 2 -->
     <div id="onboarding-2" class="absolute inset-0 bg-slate-900 z-[95] flex flex-col hidden">
         <div class="flex-1 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
             <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=600')] bg-cover bg-center opacity-10"></div>
@@ -82,6 +100,7 @@
                 <button onclick="switchAuthTab('register')" id="tab-register-btn" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 transition-all">Register</button>
             </div>
 
+            <!-- LOGIN FORM -->
             <form id="login-form" onsubmit="handleLogin(event)" class="space-y-3">
                 <div>
                     <label class="text-[11px] text-slate-400 font-medium">Email Address</label>
@@ -96,13 +115,10 @@
                     <input type="checkbox" id="login-privacy" required class="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 accent-emerald-500 cursor-pointer">
                     <label for="login-privacy" class="text-[10px] text-slate-400 cursor-pointer">I have read and agree to the <span onclick="openPrivacyModal(event)" class="text-emerald-400 font-bold underline">Privacy Agreement & Rules</span>.</label>
                 </div>
-
-                <div class="text-right">
-                    <button type="button" onclick="showForgotPassword()" class="text-[11px] text-emerald-400 hover:underline">Forgot Password?</button>
-                </div>
                 <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 font-semibold py-3 rounded-xl text-xs shadow-lg shadow-emerald-600/30 active:scale-95 transition-transform">Login to Account</button>
             </form>
 
+            <!-- REGISTER FORM -->
             <form id="register-form" onsubmit="handleRegister(event)" class="space-y-3 hidden">
                 <div>
                     <label class="text-[11px] text-slate-400 font-medium">Full Name</label>
@@ -145,19 +161,14 @@
         <div class="flex-1 overflow-y-auto p-5 text-white hide-scrollbar space-y-4 text-xs font-medium text-slate-300 leading-relaxed">
             <h3 class="text-lg font-bold text-emerald-400">EarnPro Terms & Privacy</h3>
             <p>Welcome to EarnPro! By using our application, you agree to the following terms and rules. (कृपया एप्लिकेशन उपयोग करने से पहले इन नियमों को ध्यान से पढ़ें):</p>
-            
             <h4 class="font-bold text-white mt-2">1. Account Rules</h4>
             <p>You can only create one account per device. Multiple accounts will lead to a permanent block. (एक फोन में सिर्फ एक अकाउंट बनाएं, अन्यथा अकाउंट ब्लॉक कर दिया जाएगा।)</p>
-            
             <h4 class="font-bold text-white mt-2">2. Task & Tax Verification</h4>
-            <p>All tasks submitted via Telegram or In-App must be genuine. Fake proofs, wrong UIDs, or invalid numbers will result in task rejection. 3 rejected tasks will suspend your account. (गलत या फेक स्क्रीनशॉट देने पर अकाउंट सस्पेंड हो सकता है।)</p>
-            
+            <p>All tasks submitted must be genuine. Fake proofs, wrong UIDs, or invalid numbers will result in task rejection. 3 rejected tasks will suspend your account.</p>
             <h4 class="font-bold text-white mt-2">3. Referral System</h4>
-            <p>Referral bonus is only credited when your invited friend completes their FIRST task successfully. Multi-level commissions (3%, 0.5%, 0.5%) are valid for life. Fake referrals are prohibited. (रेफरल का पैसा तभी मिलेगा जब आपका दोस्त पहला टास्क पास करेगा।)</p>
-            
+            <p>Referral bonus is only credited when your invited friend completes their FIRST task successfully. Fake referrals are prohibited.</p>
             <h4 class="font-bold text-white mt-2">4. Withdrawals</h4>
             <p>Minimum withdrawal is ₹100. Withdrawals are processed safely to your provided UPI ID. Ensure your UPI ID is correct.</p>
-            
             <button onclick="closePrivacyModal()" class="w-full mt-6 bg-emerald-600 text-white font-bold py-3 rounded-xl active:scale-95 transition-transform">I Understand & Agree</button>
         </div>
     </div>
@@ -180,14 +191,12 @@
             
             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-3">
                 <h4 class="font-bold text-emerald-600 text-sm"><i class="fas fa-star text-amber-400"></i> Features & How it Works</h4>
-                <p><strong>1. Tax Completion:</strong> App में दिए गए Tax/Tasks को पूरा करें। निर्देशों को ध्यान से पढ़ें और अपना सही Proof सबमिट करें। Task अप्रूव होते ही आपके वॉलेट में पैसे आ जाएंगे।</p>
-                <p><strong>2. Daily Spin & Scratch:</strong> हर 24 घंटे में आपको 3 Free Spin और 1 Scratch Card मिलता है। टेलीग्राम चैनल से Daily Code लेकर स्पिन अनलॉक करें और शानदार इनाम जीतें।</p>
-                <p><strong>3. 7-Day Streak:</strong> अगर आप लगातार 7 दिन तक रोज़ाना कम से कम एक टास्क (Tax) कम्पलीट करते हैं, तो 7वें दिन आपको ₹200 का एक्स्ट्रा बोनस ऑटोमैटिक मिल जाएगा।</p>
-                <p><strong>4. Advanced Refer & Earn:</strong> अपने दोस्तों को इन्वाइट करें। आपको 3 लेवल तक कमीशन मिलेगा (Level 1 - 3%, Level 2 - 0.5%, Level 3 - 0.5%)। साथ ही 500 और 3000 एक्टिव रेफरल पर शानदार Grand Rewards जीतें!</p>
-                <p><strong>5. 100% Safe Withdraw:</strong> अपनी कमाई को बिना किसी झंझट के सीधे अपने UPI ID (PhonePe, GPay, Paytm) में विथड्रॉ करें।</p>
+                <p><strong>1. Tax Completion:</strong> App में दिए गए Tax/Tasks को पूरा करें। Task अप्रूव होते ही आपके वॉलेट में पैसे आ जाएंगे।</p>
+                <p><strong>2. Daily Spin & Scratch:</strong> हर 24 घंटे में आपको 3 Free Spin और 1 Scratch Card मिलता है।</p>
+                <p><strong>3. 7-Day Streak:</strong> अगर आप लगातार 7 दिन तक रोज़ाना कम से कम एक टास्क (Tax) कम्पलीट करते हैं, तो आपको ₹200 का एक्स्ट्रा बोनस ऑटोमैटिक मिल जाएगा।</p>
+                <p><strong>4. Advanced Refer & Earn:</strong> अपने दोस्तों को इन्वाइट करें और कमीशन कमाएं।</p>
+                <p><strong>5. 100% Safe Withdraw:</strong> अपनी कमाई को सीधे अपने UPI ID (PhonePe, GPay, Paytm) या Bank में विथड्रॉ करें।</p>
             </div>
-            
-            <p class="text-center text-[10px] text-slate-400 mt-6">© 2026 EarnPro Official. All rights reserved.</p>
         </div>
     </div>
 
@@ -416,7 +425,7 @@
                 </div>
             </div>
 
-            <!-- DYNAMIC SPIN ACTION AREA (Admin Controlled) -->
+            <!-- DYNAMIC SPIN ACTION AREA -->
             <div id="spin-action-area" class="mt-12 w-full max-w-xs z-10 bg-white/10 p-4 rounded-2xl border border-white/10 backdrop-blur-sm transition-all duration-300">
                 <div class="text-center py-4"><i class="fas fa-spinner fa-spin text-purple-300 text-2xl"></i></div>
             </div>
@@ -536,7 +545,6 @@
                     </div>
                     <span class="text-sm font-extrabold text-white bg-amber-500 px-3 py-1 rounded-lg" id="full-task-seats">0</span>
                 </div>
-
             </div>
         </div>
     </div>
@@ -561,7 +569,7 @@
         </div>
     </div>
 
-    <!-- WITHDRAW PAGE -->
+    <!-- UPDATED WITHDRAW PAGE -->
     <div id="withdraw-page" class="absolute inset-0 bg-slate-50 z-30 flex flex-col hidden">
         <div class="bg-gradient-to-r from-emerald-600 to-teal-800 p-4 text-white flex items-center justify-between shadow-md">
             <button onclick="closePage('withdraw-page')" class="text-white text-base"><i class="fas fa-arrow-left"></i></button>
@@ -579,17 +587,51 @@
                     <div class="text-xs font-bold text-slate-700">₹100</div>
                 </div>
             </div>
+            
             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-3">
-                <label class="text-xs font-bold text-slate-800">Payment Method (UPI)</label>
-                <div>
+                <label class="text-xs font-bold text-slate-800">Payment Method</label>
+                
+                <!-- Toggle Bank / UPI -->
+                <div class="flex gap-2">
+                    <button id="btn-method-upi" onclick="setWithdrawMethod('UPI')" class="flex-1 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-bold border border-emerald-600 transition-all">UPI ID</button>
+                    <button id="btn-method-bank" onclick="setWithdrawMethod('Bank')" class="flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-bold border border-slate-200 transition-all">Bank Account</button>
+                </div>
+
+                <!-- UPI Input -->
+                <div id="withdraw-upi-section" class="block mt-2">
                     <label class="text-[10px] font-medium text-slate-600">UPI ID</label>
                     <input type="text" id="w-upi-id" placeholder="username@paytm" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
                 </div>
-                <div>
-                    <label class="text-[10px] font-medium text-slate-600">Withdrawal Amount (₹)</label>
-                    <input type="number" id="w-amount" placeholder="Min ₹100" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
+
+                <!-- Bank Input -->
+                <div id="withdraw-bank-section" class="hidden mt-2 space-y-2">
+                    <div>
+                        <label class="text-[10px] font-medium text-slate-600">Account Number</label>
+                        <input type="number" id="w-bank-acc" placeholder="Enter Ac/No" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-medium text-slate-600">IFSC Code</label>
+                        <input type="text" id="w-bank-ifsc" placeholder="e.g. SBIN0001234" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 uppercase">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-medium text-slate-600">Account Holder Name</label>
+                        <input type="text" id="w-bank-name" placeholder="Name on Bank" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
+                    </div>
                 </div>
-                <button onclick="requestWithdrawal()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-3 rounded-xl text-xs shadow-md">REQUEST WITHDRAWAL</button>
+
+                <!-- Withdrawal Amount Select (FIXED OPTIONS) -->
+                <div class="pt-2">
+                    <label class="text-[10px] font-medium text-slate-600">Withdrawal Amount (₹)</label>
+                    <select id="w-amount" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 font-bold text-slate-700">
+                        <option value="100">₹100</option>
+                        <option value="200">₹200</option>
+                        <option value="500">₹500</option>
+                        <option value="1000">₹1000</option>
+                        <option value="10000">₹10000</option>
+                    </select>
+                </div>
+                
+                <button onclick="requestWithdrawal()" class="w-full mt-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-3 rounded-xl text-xs shadow-md">REQUEST WITHDRAWAL</button>
             </div>
         </div>
     </div>
@@ -806,12 +848,16 @@
     let appSettings = {};
     let bannerInterval = null;
     let currentBannerIndex = 0;
-    
-    // Updated userSubmissionsMap to store objects: { status, key, prio }
     let userSubmissionsMap = {}; 
-    
     let currentWheelSegments = [10001, 2, 101, 5, 21, 3, 501, 8, 10, 9, 5, 10]; 
     let adminSpinRewards = [2, 3, 5, 10]; 
+    let currentSelectedWithdrawMethod = 'UPI';
+
+    // Check Single Device Lock
+    function checkDeviceLock() {
+        let devId = localStorage.getItem('device_used');
+        return devId;
+    }
 
     db.ref('settings').on('value', snap => {
         if(snap.exists()) {
@@ -820,7 +866,7 @@
                 adminSpinRewards = appSettings.spinRewards;
                 updateWheelVisuals();
             }
-            renderSpinActionArea(); // <--- Dynamically updates Spin UI based on Admin selection
+            renderSpinActionArea(); 
         }
     });
 
@@ -854,6 +900,10 @@
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('onboarding-1').classList.add('hidden');
             document.getElementById('onboarding-2').classList.add('hidden');
+            
+            // Lock device to this user UID
+            localStorage.setItem('device_used', user.uid);
+            
             loadUserData(user.uid);
             generateAvatars();
         } else {
@@ -884,6 +934,24 @@
             hideLoader();
             if (snapshot.exists()) {
                 currentUserData = snapshot.val();
+                
+                // Block Account Logic
+                if(currentUserData.status === 'Blocked') {
+                    document.getElementById('blocked-screen').classList.remove('hidden');
+                    document.getElementById('blocked-screen').classList.add('flex');
+                    auth.signOut();
+                    return;
+                } else {
+                    document.getElementById('blocked-screen').classList.add('hidden');
+                }
+
+                // Admin Message Popup Logic
+                if(currentUserData.adminMessage && currentUserData.adminMessageRead === false) {
+                    document.getElementById('admin-msg-text').innerText = currentUserData.adminMessage;
+                    document.getElementById('admin-msg-modal').classList.remove('hidden');
+                    document.getElementById('admin-msg-modal').classList.add('flex');
+                }
+
                 checkDailyResets(); 
                 updateUIWithUserData();
                 loadReferralData(); 
@@ -897,6 +965,13 @@
         loadTasks();
     }
     
+    function closeAdminMsg() {
+        document.getElementById('admin-msg-modal').classList.add('hidden');
+        if(currentAuthUser) {
+            db.ref('users/' + currentAuthUser.uid).update({ adminMessageRead: true });
+        }
+    }
+
     function checkDailyResets() {
         if(!currentAuthUser || !currentUserData) return;
         let todayDate = new Date().toLocaleDateString();
@@ -932,7 +1007,7 @@
         if(scratchTimer) scratchTimer.innerText = timeStr;
     }, 1000);
 
-    // FULL SCREEN SCRATCH CANVAS LOGIC
+    // SCRATCH CANVAS
     let isDrawing = false;
     let canvas, ctx;
     let scratchValue = 0;
@@ -942,124 +1017,66 @@
         canvas = document.getElementById('scratch-canvas');
         if(!canvas) return;
         ctx = canvas.getContext('2d', { willReadFrequently: true });
-        
-        canvas.width = canvas.offsetWidth || 256;
-        canvas.height = canvas.offsetHeight || 256;
-        
-        ctx.fillStyle = '#94a3b8';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.font = "bold 22px Poppins, sans-serif";
-        ctx.fillStyle = "#cbd5e1";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
+        canvas.width = canvas.offsetWidth || 256; canvas.height = canvas.offsetHeight || 256;
+        ctx.fillStyle = '#94a3b8'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "bold 22px Poppins, sans-serif"; ctx.fillStyle = "#cbd5e1";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
         ctx.fillText("SCRATCH ME", canvas.width/2, canvas.height/2);
-
         scratchCompleted = false;
         document.getElementById('close-scratch-btn').classList.add('hidden');
         document.getElementById('scratch-instruction').innerText = "Use your finger to completely scratch the card!";
-
-        canvas.addEventListener('mousedown', startScratch);
-        canvas.addEventListener('mousemove', scratch);
-        canvas.addEventListener('mouseup', stopScratch);
-        canvas.addEventListener('mouseleave', stopScratch);
-
-        canvas.addEventListener('touchstart', startScratch, {passive: false});
-        canvas.addEventListener('touchmove', scratch, {passive: false});
-        canvas.addEventListener('touchend', stopScratch);
+        canvas.addEventListener('mousedown', startScratch); canvas.addEventListener('mousemove', scratch);
+        canvas.addEventListener('mouseup', stopScratch); canvas.addEventListener('mouseleave', stopScratch);
+        canvas.addEventListener('touchstart', startScratch, {passive: false}); canvas.addEventListener('touchmove', scratch, {passive: false}); canvas.addEventListener('touchend', stopScratch);
     }
 
     function getMousePos(evt) {
-        let rect = canvas.getBoundingClientRect();
-        let clientX = evt.clientX;
-        let clientY = evt.clientY;
-        if (evt.touches && evt.touches.length > 0) {
-            clientX = evt.touches[0].clientX;
-            clientY = evt.touches[0].clientY;
-        }
+        let rect = canvas.getBoundingClientRect(); let clientX = evt.clientX; let clientY = evt.clientY;
+        if (evt.touches && evt.touches.length > 0) { clientX = evt.touches[0].clientX; clientY = evt.touches[0].clientY; }
         return { x: clientX - rect.left, y: clientY - rect.top };
     }
 
-    function startScratch(e) {
-        if(scratchCompleted) return;
-        e.preventDefault();
-        isDrawing = true;
-        scratch(e);
-    }
-
-    function stopScratch() {
-        isDrawing = false;
-        checkScratchPercent();
-    }
-
+    function startScratch(e) { if(scratchCompleted) return; e.preventDefault(); isDrawing = true; scratch(e); }
+    function stopScratch() { isDrawing = false; checkScratchPercent(); }
     function scratch(e) {
-        if (!isDrawing || scratchCompleted) return;
-        e.preventDefault();
-        let pos = getMousePos(e);
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 24, 0, Math.PI * 2);
-        ctx.fill();
+        if (!isDrawing || scratchCompleted) return; e.preventDefault();
+        let pos = getMousePos(e); ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath(); ctx.arc(pos.x, pos.y, 24, 0, Math.PI * 2); ctx.fill();
     }
 
     function checkScratchPercent() {
         if(scratchCompleted) return;
         let pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
         let transparent = 0;
-        for (let i = 3; i < pixels.length; i += 4) {
-            if (pixels[i] === 0) transparent++;
-        }
+        for (let i = 3; i < pixels.length; i += 4) { if (pixels[i] === 0) transparent++; }
         let percent = (transparent / (pixels.length / 4)) * 100;
         if (percent > 45) {
-            scratchCompleted = true;
-            ctx.clearRect(0, 0, canvas.width, canvas.height); 
-            canvas.style.display = 'none'; 
-            processScratchWin();
+            scratchCompleted = true; ctx.clearRect(0, 0, canvas.width, canvas.height); canvas.style.display = 'none'; processScratchWin();
         }
     }
 
     function openScratchModal() {
         if(!currentAuthUser || !currentUserData) return;
         let todayDate = new Date().toLocaleDateString();
-        
-        if (currentUserData.lastScratchDate === todayDate) {
-            showToast("You have already scratched today! Come back tomorrow.", "error");
-            return;
-        }
-
-        document.getElementById('scratch-modal').classList.remove('hidden');
-        document.getElementById('scratch-modal').classList.add('flex');
-        
+        if (currentUserData.lastScratchDate === todayDate) { showToast("You have already scratched today! Come back tomorrow.", "error"); return; }
+        document.getElementById('scratch-modal').classList.remove('hidden'); document.getElementById('scratch-modal').classList.add('flex');
         scratchValue = Math.floor(Math.random() * 5) + 1;
         document.getElementById('scratch-win-amount').innerText = "₹" + scratchValue;
-        
         document.getElementById('scratch-canvas').style.display = 'block';
         setTimeout(() => { initScratchCard(); }, 50); 
     }
     
-    function closeScratchModal() {
-        document.getElementById('scratch-modal').classList.add('hidden');
-        document.getElementById('scratch-modal').classList.remove('flex');
-        updateUIWithUserData(); 
-    }
+    function closeScratchModal() { document.getElementById('scratch-modal').classList.add('hidden'); document.getElementById('scratch-modal').classList.remove('flex'); updateUIWithUserData(); }
 
     function processScratchWin() {
         let todayDate = new Date().toLocaleDateString();
         showLoader();
-        db.ref('users/' + currentAuthUser.uid).update({
-            balance: Number(currentUserData.balance || 0) + scratchValue,
-            lastScratchDate: todayDate
-        }).then(() => {
+        db.ref('users/' + currentAuthUser.uid).update({ balance: Number(currentUserData.balance || 0) + scratchValue, lastScratchDate: todayDate }).then(() => {
             db.ref('transactions/' + currentAuthUser.uid).push({ type: 'Daily Scratch Reward', amount: scratchValue, date: todayDate, status: 'Success' });
             db.ref('spinHistory/' + currentAuthUser.uid).push({ amount: scratchValue, date: todayDate, time: new Date().toLocaleTimeString(), txId: 'SCRATCH_' + Math.floor(10000 + Math.random() * 90000) });
-            hideLoader();
-            
-            document.getElementById('scratch-instruction').innerText = "Congratulations! Reward Added to Wallet.";
-            document.getElementById('close-scratch-btn').classList.remove('hidden');
-            
+            hideLoader(); document.getElementById('scratch-instruction').innerText = "Congratulations! Reward Added to Wallet."; document.getElementById('close-scratch-btn').classList.remove('hidden');
             showToast(`Yay! You won ₹${scratchValue}!`, 'success');
-            currentUserData.balance = Number(currentUserData.balance || 0) + scratchValue;
-            currentUserData.lastScratchDate = todayDate;
+            currentUserData.balance = Number(currentUserData.balance || 0) + scratchValue; currentUserData.lastScratchDate = todayDate;
         });
     }
 
@@ -1071,94 +1088,55 @@
             const container = document.getElementById('referral-list-container');
             if(!container) return;
             
-            let totalRefs = 0;
-            let activeRefs = 0;
-            let html = '';
+            let totalRefs = 0; let activeRefs = 0; let html = '';
             
             if (snap.exists()) {
-                let allUsersObj = snap.val();
-                let allKeys = Object.keys(allUsersObj);
-                
+                let allUsersObj = snap.val(); let allKeys = Object.keys(allUsersObj);
                 allKeys.forEach(key => {
-                    let u = allUsersObj[key];
-                    let refIdToCheck = (u.referredByL1 || u.referredBy || "").toString().trim();
-                    
+                    let u = allUsersObj[key]; let refIdToCheck = (u.referredByL1 || u.referredBy || "").toString().trim();
                     if (refIdToCheck === myUid) {
                         totalRefs++;
-                        
                         let hasCompletedTask = u.firstTaskCompleted === true || (u.breakdown && u.breakdown.tasks > 0);
                         if(hasCompletedTask) activeRefs++;
                         
                         let statusHtml = hasCompletedTask 
                             ? `<span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-100 shadow-sm"><i class="fas fa-check-circle"></i> Completed</span>` 
-                            : `<span class="text-[9px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-100 shadow-sm"><i class="fas fa-clock"></i> Waiting for complete task</span>`;
+                            : `<span class="text-[9px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-100 shadow-sm"><i class="fas fa-clock"></i> Waiting for task</span>`;
                             
                         html += `
                             <div class="flex items-center justify-between p-3.5 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm mb-2">
-                                <div>
-                                    <div class="text-xs font-extrabold text-slate-800">${u.name}</div>
-                                    <div class="text-[10px] text-slate-500 font-medium mt-0.5">Joined UID: ${u.uid}</div>
-                                </div>
+                                <div><div class="text-xs font-extrabold text-slate-800">${u.name}</div><div class="text-[10px] text-slate-500 font-medium mt-0.5">Joined UID: ${u.uid}</div></div>
                                 ${statusHtml}
                             </div>
                         `;
                     }
                 });
             }
-            
-            if (totalRefs === 0) {
-                html = '<div class="text-center p-6 text-[12px] text-slate-400 font-medium bg-slate-50 rounded-xl border border-slate-100 border-dashed">No referrals yet. Share your code with friends!</div>';
-            }
-            
+            if (totalRefs === 0) { html = '<div class="text-center p-6 text-[12px] text-slate-400 font-medium bg-slate-50 rounded-xl border border-slate-100 border-dashed">No referrals yet. Share your code with friends!</div>'; }
             container.innerHTML = html;
-            
-            document.getElementById('ref-total-count').innerText = totalRefs;
-            document.getElementById('ref-active-count').innerText = activeRefs;
-            document.getElementById('ref-total-earnings').innerText = '₹' + Number(currentUserData.refEarnings || 0).toFixed(2);
-            
-            let pct500 = Math.min((activeRefs / 500) * 100, 100);
-            document.getElementById('ref-progress-500').style.width = pct500 + '%';
-            document.getElementById('ref-text-500').innerText = activeRefs + ' / 500';
-            
-            let pct3000 = Math.min((activeRefs / 3000) * 100, 100);
-            document.getElementById('ref-progress-3000').style.width = pct3000 + '%';
-            document.getElementById('ref-text-3000').innerText = activeRefs + ' / 3000';
+            document.getElementById('ref-total-count').innerText = totalRefs; document.getElementById('ref-active-count').innerText = activeRefs; document.getElementById('ref-total-earnings').innerText = '₹' + Number(currentUserData.refEarnings || 0).toFixed(2);
+            let pct500 = Math.min((activeRefs / 500) * 100, 100); document.getElementById('ref-progress-500').style.width = pct500 + '%'; document.getElementById('ref-text-500').innerText = activeRefs + ' / 500';
+            let pct3000 = Math.min((activeRefs / 3000) * 100, 100); document.getElementById('ref-progress-3000').style.width = pct3000 + '%'; document.getElementById('ref-text-3000').innerText = activeRefs + ' / 3000';
         });
     }
 
-    // ==========================================
-    // PERFECT STATUS LISTENER (UNTOUCHED LOGIC)
-    // ==========================================
     function listenUserSubmissions() {
         if(!currentAuthUser) return;
         db.ref('taskSubmissions').orderByChild('userId').equalTo(currentAuthUser.uid).on('value', snap => {
             let tempMap = {};
             if (snap.exists()) {
                 snap.forEach(child => {
-                    let sub = child.val();
-                    let taskId = sub.taskId;
-                    let st = (sub.status || '').toLowerCase();
-                    
+                    let sub = child.val(); let taskId = sub.taskId; let st = (sub.status || '').toLowerCase();
                     let prio = 2; 
-                    if (st.includes('success') || st.includes('done') || st.includes('approv') || st.includes('complete')) {
-                        prio = 3; 
-                    } else if (st.includes('reject') || st.includes('fail') || st.includes('cancel')) {
-                        prio = 1; 
-                    }
+                    if (st.includes('success') || st.includes('done') || st.includes('approv') || st.includes('complete')) { prio = 3; } 
+                    else if (st.includes('reject') || st.includes('fail') || st.includes('cancel')) { prio = 1; }
                     
                     let currentPrio = tempMap[taskId] ? tempMap[taskId].prio : -1;
-                    
-                    if (prio >= currentPrio) {
-                        tempMap[taskId] = { status: sub.status, key: child.key, prio: prio };
-                    }
+                    if (prio >= currentPrio) { tempMap[taskId] = { status: sub.status, key: child.key, prio: prio }; }
                     
                     if (prio === 3) {
-                        if (!sub.commissionPaid) {
-                            payCommissions(sub.reward, child.key, currentUserData ? currentUserData.name : 'User');
-                        }
-                        if (!sub.streakProcessed) {
-                            process7DayStreak(child.key);
-                        }
+                        if (!sub.commissionPaid) { payCommissions(sub.reward, child.key, currentUserData ? currentUserData.name : 'User'); }
+                        if (!sub.streakProcessed) { process7DayStreak(child.key); }
                         if (currentUserData && !currentUserData.firstTaskCompleted) {
                             db.ref('users/' + currentAuthUser.uid).update({ firstTaskCompleted: true });
                             let refToPay = currentUserData.referredByL1 || currentUserData.referredBy;
@@ -1168,22 +1146,14 @@
                     }
                 });
             }
-            userSubmissionsMap = tempMap;
-            renderTasksUI(); 
+            userSubmissionsMap = tempMap; renderTasksUI(); 
         });
     }
     
     function payCommissions(rewardAmount, subKey, myName) {
         db.ref('taskSubmissions/' + subKey).update({ commissionPaid: true });
-        
-        let l1 = currentUserData.referredByL1 || currentUserData.referredBy;
-        let l2 = currentUserData.referredByL2;
-        let l3 = currentUserData.referredByL3;
-
-        let c1 = Number((rewardAmount * 0.03).toFixed(2));
-        let c2 = Number((rewardAmount * 0.005).toFixed(2));
-        let c3 = Number((rewardAmount * 0.005).toFixed(2));
-
+        let l1 = currentUserData.referredByL1 || currentUserData.referredBy; let l2 = currentUserData.referredByL2; let l3 = currentUserData.referredByL3;
+        let c1 = Number((rewardAmount * 0.03).toFixed(2)); let c2 = Number((rewardAmount * 0.005).toFixed(2)); let c3 = Number((rewardAmount * 0.005).toFixed(2));
         if (l1 && c1 > 0) applyComm(l1, c1, `Level 1 Commission (3%) - ${myName}`);
         if (l2 && c2 > 0) applyComm(l2, c2, `Level 2 Commission (0.5%) - ${myName}`);
         if (l3 && c3 > 0) applyComm(l3, c3, `Level 3 Commission (0.5%) - ${myName}`);
@@ -1192,12 +1162,8 @@
     function applyComm(uid, amt, text) {
         db.ref('users').orderByChild('uid').equalTo(String(uid).trim()).once('value', snap => {
             if(snap.exists()){
-                let key = Object.keys(snap.val())[0];
-                let u = snap.val()[key];
-                db.ref('users/'+key).update({ 
-                    balance: Number(u.balance||0) + amt,
-                    refEarnings: Number(u.refEarnings||0) + amt 
-                });
+                let key = Object.keys(snap.val())[0]; let u = snap.val()[key];
+                db.ref('users/'+key).update({ balance: Number(u.balance||0) + amt, refEarnings: Number(u.refEarnings||0) + amt });
                 db.ref('transactions/'+key).push({ type: text, amount: amt, date: new Date().toLocaleDateString(), status: 'Success' });
             }
         });
@@ -1207,17 +1173,10 @@
         db.ref('users').orderByChild('uid').equalTo(String(referrerUid).trim()).once('value', snap => {
             if (snap.exists()) {
                 snap.forEach(child => {
-                    let refNodeKey = child.key;
-                    let refUser = child.val();
-                    let newBal = Number(refUser.balance || 0) + 20;
-                    let newRefE = Number(refUser.refEarnings || 0) + 20;
+                    let refNodeKey = child.key; let refUser = child.val();
+                    let newBal = Number(refUser.balance || 0) + 20; let newRefE = Number(refUser.refEarnings || 0) + 20;
                     db.ref('users/' + refNodeKey).update({ balance: newBal, refEarnings: newRefE });
-                    db.ref('transactions/' + refNodeKey).push({
-                        type: 'Referral Bonus (First Task) - ' + myName,
-                        amount: 20,
-                        date: new Date().toLocaleDateString(),
-                        status: 'Success'
-                    });
+                    db.ref('transactions/' + refNodeKey).push({ type: 'Referral Bonus (First Task) - ' + myName, amount: 20, date: new Date().toLocaleDateString(), status: 'Success' });
                 });
             }
         });
@@ -1225,33 +1184,20 @@
 
     function process7DayStreak(subKey) {
         db.ref('taskSubmissions/' + subKey).update({ streakProcessed: true });
-        
         let today = new Date().toLocaleDateString();
         if(currentUserData.lastStreakDate === today) return; 
-
         let yesterday = new Date(Date.now() - 86400000).toLocaleDateString();
         let currentStreak = currentUserData.streakCount || 0;
-
-        if (currentUserData.lastStreakDate === yesterday) {
-            currentStreak++; 
-        } else {
-            currentStreak = 1; 
-        }
+        if (currentUserData.lastStreakDate === yesterday) { currentStreak++; } else { currentStreak = 1; }
 
         if (currentStreak >= 7) {
-            db.ref('users/' + currentAuthUser.uid).update({ 
-                balance: Number(currentUserData.balance || 0) + 200, 
-                streakCount: 0, 
-                lastStreakDate: today 
-            });
+            db.ref('users/' + currentAuthUser.uid).update({ balance: Number(currentUserData.balance || 0) + 200, streakCount: 0, lastStreakDate: today });
             db.ref('transactions/' + currentAuthUser.uid).push({ type: '7-Day Streak Complete Bonus', amount: 200, date: today, status: 'Success' });
             showToast('🎉 7 Days Streak Complete! ₹200 Added to Wallet!', 'success');
-            currentUserData.streakCount = 0;
-            currentUserData.lastStreakDate = today;
+            currentUserData.streakCount = 0; currentUserData.lastStreakDate = today;
         } else {
             db.ref('users/' + currentAuthUser.uid).update({ streakCount: currentStreak, lastStreakDate: today });
-            currentUserData.streakCount = currentStreak;
-            currentUserData.lastStreakDate = today;
+            currentUserData.streakCount = currentStreak; currentUserData.lastStreakDate = today;
             showToast(`🔥 Daily Streak updated! Day ${currentStreak}/7`, 'success');
         }
         updateStreakUI();
@@ -1260,26 +1206,14 @@
     function updateStreakUI() {
         if(!currentUserData) return;
         let streak = currentUserData.streakCount || 0;
-        
-        let pct = (streak / 6) * 100;
-        if(pct > 100) pct = 100;
-        
-        let sl = document.getElementById('streak-progress-line');
-        let sst = document.getElementById('streak-status-text');
-        
-        if(sl) sl.style.width = pct + '%';
-        if(sst) sst.innerText = `${streak} Days Completed`;
-
+        let pct = (streak / 6) * 100; if(pct > 100) pct = 100;
+        let sl = document.getElementById('streak-progress-line'); let sst = document.getElementById('streak-status-text');
+        if(sl) sl.style.width = pct + '%'; if(sst) sst.innerText = `${streak} Days Completed`;
         for(let i=1; i<=6; i++) {
             let el = document.getElementById('streak-day-' + i);
             if(el) {
-                if(i <= streak) {
-                    el.className = 'w-7 h-7 rounded-full bg-emerald-500 border-2 border-emerald-600 flex items-center justify-center text-white text-[10px] font-bold z-10 shadow-sm';
-                    el.innerHTML = '<i class="fas fa-check"></i>';
-                } else {
-                    el.className = 'w-7 h-7 rounded-full bg-slate-700 border-2 border-slate-800 flex items-center justify-center text-slate-400 text-[10px] font-bold z-10';
-                    el.innerHTML = i;
-                }
+                if(i <= streak) { el.className = 'w-7 h-7 rounded-full bg-emerald-500 border-2 border-emerald-600 flex items-center justify-center text-white text-[10px] font-bold z-10 shadow-sm'; el.innerHTML = '<i class="fas fa-check"></i>'; } 
+                else { el.className = 'w-7 h-7 rounded-full bg-slate-700 border-2 border-slate-800 flex items-center justify-center text-slate-400 text-[10px] font-bold z-10'; el.innerHTML = i; }
             }
         }
     }
@@ -1307,10 +1241,8 @@
         document.getElementById('full-spins-left').innerText = (currentUserData.spinsLeft ?? 3) + '/3';
 
         const avatarInitial = currentUserData.name ? currentUserData.name.charAt(0).toUpperCase() : 'A';
-        const imgEl1 = document.getElementById('header-avatar-img');
-        const imgEl2 = document.getElementById('profile-avatar-img');
-        const intEl1 = document.getElementById('header-avatar-initial');
-        const intEl2 = document.getElementById('profile-avatar-initial');
+        const imgEl1 = document.getElementById('header-avatar-img'); const imgEl2 = document.getElementById('profile-avatar-img');
+        const intEl1 = document.getElementById('header-avatar-initial'); const intEl2 = document.getElementById('profile-avatar-initial');
         
         let pEmail = document.getElementById('profile-email');
         if(pEmail) pEmail.innerText = currentUserData.email || (currentAuthUser ? currentAuthUser.email : '');
@@ -1318,15 +1250,12 @@
         document.getElementById('profile-name').innerText = currentUserData.name || 'User Name';
         document.getElementById('profile-uid').innerText = currentUserData.uid || '58241';
         
-        let seBtn = document.getElementById('scratch-entry-btn');
-        let sdMsg = document.getElementById('scratch-done-msg');
+        let seBtn = document.getElementById('scratch-entry-btn'); let sdMsg = document.getElementById('scratch-done-msg');
         
         if (currentUserData.lastScratchDate === new Date().toLocaleDateString()) {
-            if(seBtn) seBtn.classList.add('hidden');
-            if(sdMsg) sdMsg.classList.remove('hidden');
+            if(seBtn) seBtn.classList.add('hidden'); if(sdMsg) sdMsg.classList.remove('hidden');
         } else {
-            if(seBtn) seBtn.classList.remove('hidden');
-            if(sdMsg) sdMsg.classList.add('hidden');
+            if(seBtn) seBtn.classList.remove('hidden'); if(sdMsg) sdMsg.classList.add('hidden');
         }
 
         if(currentUserData.avatar) {
@@ -1358,29 +1287,11 @@
         }
     }
 
-    function handleLogin(e) {
-        e.preventDefault(); 
-        if(!document.getElementById('login-privacy').checked) {
-            showToast('Please check the Privacy Agreement box to login.', 'error'); return;
-        }
-        showLoader();
-        auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value)
-        .catch(err => {
-            hideLoader();
-            if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-                showToast('Account not found! Please register first.', 'error');
-                switchAuthTab('register'); 
-            } else {
-                showToast(err.message, 'error');
-            }
-        });
-    }
-
     async function handleRegister(e) {
         e.preventDefault(); 
-        if(!document.getElementById('reg-privacy').checked) {
-            showToast('Please check the Privacy Agreement box to register.', 'error'); return;
-        }
+        if(!document.getElementById('reg-privacy').checked) { showToast('Please check the Privacy Agreement box.', 'error'); return; }
+        
+        if(checkDeviceLock()) { showToast('Device limit reached! Only one account per device allowed.', 'error'); return; }
         showLoader();
         
         try {
@@ -1394,72 +1305,49 @@
                     rL1 = String(referrer.uid).trim() || "";
                     rL2 = String(referrer.referredByL1 || referrer.referredBy || "").trim() || "";
                     rL3 = String(referrer.referredByL2 || "").trim() || "";
-                } else {
-                    hideLoader(); showToast('Invalid Referral Code', 'error'); return;
-                }
+                } else { hideLoader(); showToast('Invalid Referral Code', 'error'); return; }
             }
 
             let res = await auth.createUserWithEmailAndPassword(document.getElementById('reg-email').value, document.getElementById('reg-password').value);
             
             const newUser = { 
-                name: document.getElementById('reg-name').value, 
-                mobile: document.getElementById('reg-mobile').value, 
-                email: document.getElementById('reg-email').value, 
-                uid: Math.floor(10000 + Math.random() * 90000).toString(), 
-                balance: 10.00, 
-                spinsLeft: 3, 
-                lastSpinDate: new Date().toLocaleDateString(), 
-                lastScratchDate: "",
-                streakCount: 0,
-                lastStreakDate: "",
-                status: 'Active',
-                referredByL1: rL1,
-                referredByL2: rL2,
-                referredByL3: rL3,
-                firstTaskCompleted: false,
-                refEarnings: 0
+                name: document.getElementById('reg-name').value, mobile: document.getElementById('reg-mobile').value, email: document.getElementById('reg-email').value, 
+                uid: Math.floor(10000 + Math.random() * 90000).toString(), balance: 10.00, spinsLeft: 3, lastSpinDate: new Date().toLocaleDateString(), 
+                lastScratchDate: "", streakCount: 0, lastStreakDate: "", status: 'Active', referredByL1: rL1, referredByL2: rL2, referredByL3: rL3,
+                firstTaskCompleted: false, refEarnings: 0
             };
             
             await db.ref('users/' + res.user.uid).set(newUser);
-            hideLoader(); 
-            showToast('Registration successful!', 'success');
+            localStorage.setItem('device_used', res.user.uid);
+            hideLoader(); showToast('Registration successful!', 'success');
             
-        } catch(err) {
-            hideLoader(); showToast(err.message, 'error');
-        }
+        } catch(err) { hideLoader(); showToast(err.message, 'error'); }
     }
     
+    function handleLogin(e) {
+        e.preventDefault(); 
+        if(!document.getElementById('login-privacy').checked) { showToast('Please check the Privacy Agreement box.', 'error'); return; }
+        showLoader();
+        auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value).catch(err => {
+            hideLoader();
+            if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+                showToast('Account not found! Please register first.', 'error'); switchAuthTab('register'); 
+            } else { showToast(err.message, 'error'); }
+        });
+    }
+
     function handleLogout() { auth.signOut(); }
 
     function switchTab(tab) {
-        ['main-content', 'tasks-page', 'spin-page', 'rewards-page'].forEach(id => {
-            let el = document.getElementById(id);
-            if(el) el.classList.add('hidden');
-        });
-        
+        ['main-content', 'tasks-page', 'spin-page', 'rewards-page'].forEach(id => { let el = document.getElementById(id); if(el) el.classList.add('hidden'); });
         ['nav-home', 'nav-tasks', 'nav-rewards', 'nav-profile'].forEach(id => {
             let el = document.getElementById(id);
-            if(el) {
-                el.className = 'flex flex-col items-center justify-center w-12 text-slate-400';
-                el.children[1].className = 'text-[9px] font-bold mt-1 tracking-wide';
-            }
+            if(el) { el.className = 'flex flex-col items-center justify-center w-12 text-slate-400'; el.children[1].className = 'text-[9px] font-bold mt-1 tracking-wide'; }
         });
         
-        if (tab === 'home') { 
-            document.getElementById('main-content').classList.remove('hidden'); 
-            document.getElementById('nav-home').className = 'flex flex-col items-center justify-center w-12 text-emerald-600'; 
-            document.getElementById('nav-home').children[1].className = 'text-[9px] font-extrabold mt-1 tracking-wide';
-        }
-        else if (tab === 'tasks') { 
-            document.getElementById('tasks-page').classList.remove('hidden'); 
-            document.getElementById('nav-tasks').className = 'flex flex-col items-center justify-center w-12 text-emerald-600'; 
-            document.getElementById('nav-tasks').children[1].className = 'text-[9px] font-extrabold mt-1 tracking-wide';
-        }
-        else if (tab === 'rewards') { 
-            document.getElementById('rewards-page').classList.remove('hidden'); 
-            document.getElementById('nav-rewards').className = 'flex flex-col items-center justify-center w-12 text-emerald-600'; 
-            document.getElementById('nav-rewards').children[1].className = 'text-[9px] font-extrabold mt-1 tracking-wide';
-        }
+        if (tab === 'home') { document.getElementById('main-content').classList.remove('hidden'); document.getElementById('nav-home').className = 'flex flex-col items-center justify-center w-12 text-emerald-600'; document.getElementById('nav-home').children[1].className = 'text-[9px] font-extrabold mt-1 tracking-wide'; }
+        else if (tab === 'tasks') { document.getElementById('tasks-page').classList.remove('hidden'); document.getElementById('nav-tasks').className = 'flex flex-col items-center justify-center w-12 text-emerald-600'; document.getElementById('nav-tasks').children[1].className = 'text-[9px] font-extrabold mt-1 tracking-wide'; }
+        else if (tab === 'rewards') { document.getElementById('rewards-page').classList.remove('hidden'); document.getElementById('nav-rewards').className = 'flex flex-col items-center justify-center w-12 text-emerald-600'; document.getElementById('nav-rewards').children[1].className = 'text-[9px] font-extrabold mt-1 tracking-wide'; }
     }
 
     function openPage(pageId) { const el = document.getElementById(pageId); if (el) el.classList.remove('hidden'); }
@@ -1468,88 +1356,33 @@
     function closeSpinPage() { document.getElementById('spin-page').classList.add('hidden'); }
 
     function generateAvatars() {
-        const grid = document.getElementById('avatar-grid');
-        grid.innerHTML = '';
-        const styles = ['adventurer', 'bottts', 'fun-emoji'];
+        const grid = document.getElementById('avatar-grid'); grid.innerHTML = ''; const styles = ['adventurer', 'bottts', 'fun-emoji'];
         for(let i=1; i<=30; i++) {
-            const style = styles[i%3];
-            const url = `https://api.dicebear.com/7.x/${style}/svg?seed=EarnPro${i}&backgroundColor=e2e8f0`;
+            const style = styles[i%3]; const url = `https://api.dicebear.com/7.x/${style}/svg?seed=EarnPro${i}&backgroundColor=e2e8f0`;
             grid.innerHTML += `<div onclick="selectAvatar('${url}')" class="w-full aspect-square rounded-2xl overflow-hidden cursor-pointer hover:ring-4 hover:ring-emerald-500 transition-all bg-white shadow-sm"><img src="${url}" class="w-full h-full object-cover"></div>`;
         }
     }
     function openAvatarModal() { document.getElementById('avatar-modal').classList.remove('hidden'); document.getElementById('avatar-modal').classList.add('flex'); }
     function closeAvatarModal() { document.getElementById('avatar-modal').classList.add('hidden'); document.getElementById('avatar-modal').classList.remove('flex'); }
     function selectAvatar(url) {
-        if(!currentAuthUser) return;
-        showLoader();
-        db.ref('users/' + currentAuthUser.uid).update({ avatar: url }).then(()=>{
-            hideLoader(); closeAvatarModal(); showToast('Profile picture updated!', 'success');
-        });
+        if(!currentAuthUser) return; showLoader();
+        db.ref('users/' + currentAuthUser.uid).update({ avatar: url }).then(()=>{ hideLoader(); closeAvatarModal(); showToast('Profile picture updated!', 'success'); });
     }
 
     function loadBanners() {
         try {
-            const track = document.getElementById('banner-track');
-            const dots = document.getElementById('banner-dots');
+            const track = document.getElementById('banner-track'); const dots = document.getElementById('banner-dots');
             if (!track || !dots) return;
             document.getElementById('banner-empty-msg').classList.add('hidden');
-            
             const staticBanners = [
-                {
-                    bg: "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=800&auto=format&fit=crop",
-                    gradient: "from-blue-900/95 via-blue-800/90 to-indigo-900/95",
-                    icon: "fab fa-telegram-plane text-blue-400",
-                    title: "Join Our <span class='text-blue-300'>Telegram</span>",
-                    sub: "Daily Free Spin Codes & Updates यहाँ मिलेंगे",
-                    btn: "JOIN NOW",
-                    btnClass: "bg-blue-500 hover:bg-blue-400 text-white",
-                    action: "openTelegramChannel()"
-                },
-                {
-                    bg: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=800&auto=format&fit=crop",
-                    gradient: "from-slate-900/95 via-gray-800/90 to-black/95",
-                    icon: "fas fa-headset text-slate-300",
-                    title: "24/7 <span class='text-slate-300'>Customer Support</span>",
-                    sub: "किसी भी समस्या (Problem) के लिए Customer Support से संपर्क करें।",
-                    btn: "SUPPORT",
-                    btnClass: "bg-slate-600 hover:bg-slate-500 text-white",
-                    action: "openTelegramSupport()"
-                },
-                {
-                    bg: "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=800&auto=format&fit=crop",
-                    gradient: "from-emerald-900/95 via-teal-900/90 to-slate-900/95",
-                    icon: "fas fa-shield-check text-emerald-400",
-                    title: "हर रोज़ <span class='text-emerald-300'>Tax Complete</span> करो",
-                    sub: "Task पूरा करें और रोज़ाना आसानी से पैसे कमाएं।",
-                    btn: "START TAX",
-                    btnClass: "bg-emerald-500 hover:bg-emerald-400 text-white",
-                    action: "switchTab('tasks')"
-                },
-                {
-                    bg: "https://images.unsplash.com/photo-1518684079-3c830dcef090?q=80&w=800&auto=format&fit=crop",
-                    gradient: "from-purple-900/95 via-indigo-900/90 to-slate-900/95",
-                    icon: "fas fa-dharmachakra text-amber-400",
-                    title: "हर रोज़ <span class='text-amber-400'>Spin</span> करो",
-                    sub: "Spin का इस्तेमाल करो और जीतो शानदार इनाम!",
-                    btn: "PLAY NOW",
-                    btnClass: "bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900",
-                    action: "openSpinPage()"
-                },
-                {
-                    bg: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=800&auto=format&fit=crop",
-                    gradient: "from-rose-900/95 via-pink-900/90 to-purple-900/95",
-                    icon: "fas fa-bolt text-rose-300",
-                    title: "Instant <span class='text-rose-300'>Withdrawals</span>",
-                    sub: "जीती हुई रकम तुरंत अपने UPI खाते में ट्रांसफर करें!",
-                    btn: "WITHDRAW NOW",
-                    btnClass: "bg-rose-500 hover:bg-rose-400 text-white",
-                    action: "openPage('withdraw-page')"
-                }
+                { bg: "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=800", gradient: "from-blue-900/95 via-blue-800/90 to-indigo-900/95", icon: "fab fa-telegram-plane text-blue-400", title: "Join Our <span class='text-blue-300'>Telegram</span>", sub: "Daily Free Spin Codes & Updates यहाँ मिलेंगे", btn: "JOIN NOW", btnClass: "bg-blue-500 hover:bg-blue-400 text-white", action: "openTelegramChannel()" },
+                { bg: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=800", gradient: "from-slate-900/95 via-gray-800/90 to-black/95", icon: "fas fa-headset text-slate-300", title: "24/7 <span class='text-slate-300'>Customer Support</span>", sub: "किसी भी समस्या (Problem) के लिए Customer Support से संपर्क करें।", btn: "SUPPORT", btnClass: "bg-slate-600 hover:bg-slate-500 text-white", action: "openTelegramSupport()" },
+                { bg: "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?q=80&w=800", gradient: "from-emerald-900/95 via-teal-900/90 to-slate-900/95", icon: "fas fa-shield-check text-emerald-400", title: "हर रोज़ <span class='text-emerald-300'>Tax Complete</span> करो", sub: "Task पूरा करें और रोज़ाना आसानी से पैसे कमाएं।", btn: "START TAX", btnClass: "bg-emerald-500 hover:bg-emerald-400 text-white", action: "switchTab('tasks')" },
+                { bg: "https://images.unsplash.com/photo-1518684079-3c830dcef090?q=80&w=800", gradient: "from-purple-900/95 via-indigo-900/90 to-slate-900/95", icon: "fas fa-dharmachakra text-amber-400", title: "हर रोज़ <span class='text-amber-400'>Spin</span> करो", sub: "Spin का इस्तेमाल करो और जीतो शानदार इनाम!", btn: "PLAY NOW", btnClass: "bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900", action: "openSpinPage()" },
+                { bg: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=800", gradient: "from-rose-900/95 via-pink-900/90 to-purple-900/95", icon: "fas fa-bolt text-rose-300", title: "Instant <span class='text-rose-300'>Withdrawals</span>", sub: "जीती हुई रकम तुरंत अपने UPI खाते में ट्रांसफर करें!", btn: "WITHDRAW NOW", btnClass: "bg-rose-500 hover:bg-rose-400 text-white", action: "openPage('withdraw-page')" }
             ];
 
-            track.innerHTML = '';
-            dots.innerHTML = '';
-            
+            track.innerHTML = ''; dots.innerHTML = '';
             track.style.width = (staticBanners.length * 100) + '%';
             const childWidth = 100 / staticBanners.length;
 
@@ -1559,14 +1392,10 @@
                         <img src="${b.bg}" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-1000 ease-out block">
                         <div class="absolute inset-0 bg-gradient-to-r ${b.gradient}"></div>
                         <div class="absolute inset-0 p-5 flex flex-col justify-center items-start">
-                            <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/20 mb-2 shadow-lg">
-                                <i class="${b.icon} text-lg"></i>
-                            </div>
+                            <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/20 mb-2 shadow-lg"><i class="${b.icon} text-lg"></i></div>
                             <h3 class="text-[22px] font-extrabold text-white leading-tight drop-shadow-md mb-1">${b.title}</h3>
                             <p class="text-[11px] font-medium text-slate-200 mb-3 drop-shadow-sm max-w-[80%]">${b.sub}</p>
-                            <button class="${b.btnClass} text-[10px] font-extrabold px-4 py-1.5 rounded-lg shadow-lg active:scale-95 transition-transform tracking-wide flex items-center gap-1.5 uppercase">
-                                ${b.btn} <i class="fas fa-arrow-right text-[8px]"></i>
-                            </button>
+                            <button class="${b.btnClass} text-[10px] font-extrabold px-4 py-1.5 rounded-lg shadow-lg active:scale-95 transition-transform tracking-wide flex items-center gap-1.5 uppercase">${b.btn} <i class="fas fa-arrow-right text-[8px]"></i></button>
                         </div>
                     </div>
                 `;
@@ -1578,21 +1407,15 @@
             bannerInterval = setInterval(() => {
                 currentBannerIndex = (currentBannerIndex + 1) % staticBanners.length;
                 track.style.transform = `translateX(-${currentBannerIndex * childWidth}%)`;
-                Array.from(dots.children).forEach((d, i) => { 
-                    d.className = `w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentBannerIndex ? 'bg-emerald-500 w-4' : 'bg-white/50'} shadow-sm`; 
-                });
+                Array.from(dots.children).forEach((d, i) => { d.className = `w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentBannerIndex ? 'bg-emerald-500 w-4' : 'bg-white/50'} shadow-sm`; });
             }, 4500);
         } catch(e) { console.error("Banner load error:", e); }
     }
 
-    // ==========================================
-    // NEW: DYNAMIC SPIN CONTROL LOGIC
-    // ==========================================
     function renderSpinActionArea() {
         const area = document.getElementById('spin-action-area');
         if(!area) return;
         const mode = appSettings.spinMode || 'code';
-        
         if (mode === 'task') {
             area.innerHTML = `
                 <p class="text-[11px] text-purple-200 font-bold mb-3 text-center leading-relaxed">No code needed!<br>Complete at least 1 Task today to unlock your 3 daily spins.</p>
@@ -1612,59 +1435,41 @@
     }
 
     function unlockSpinTaskMode() {
-        if (isSpinning) return;
-        showLoader();
+        if (isSpinning) return; showLoader();
         let today = new Date().toLocaleDateString();
-        
-        // Checks if user has a task completed today based on streak log
         if (currentUserData && currentUserData.lastStreakDate === today) {
             hideLoader();
             if (currentUserData.spinsLeft <= 0) { showToast('Spin Limit Reached (3/3)', 'error'); return; }
-            showToast('Task Verified! Spin Unlocked!', 'success');
-            executeSpinAnimation();
-        } else {
-            hideLoader();
-            showToast('Not Unlocked! Please complete 1 Task today first.', 'error');
-        }
+            showToast('Task Verified! Spin Unlocked!', 'success'); executeSpinAnimation();
+        } else { hideLoader(); showToast('Not Unlocked! Please complete 1 Task today first.', 'error'); }
     }
 
     let isSpinning = false;
     function unlockSpin() {
-        if (isSpinning) return;
-        const code = document.getElementById('spin-code-input').value.trim();
+        if (isSpinning) return; const code = document.getElementById('spin-code-input').value.trim();
         if (!code || code.length !== 10) { showToast('Enter valid 10-digit code', 'error'); return; }
         showLoader();
         db.ref('spinCodes/' + code).once('value', snapshot => {
             hideLoader();
             if (snapshot.exists() && snapshot.val().active !== false) {
                 if (currentUserData && currentUserData.spinsLeft <= 0) { showToast('Spin Limit Reached (3/3)', 'error'); return; }
-                showToast('Spin Unlocked! Good Luck!', 'success');
-                executeSpinAnimation();
+                showToast('Spin Unlocked! Good Luck!', 'success'); executeSpinAnimation();
             } else { showToast('Invalid or Expired Code', 'error'); }
         });
     }
 
     async function executeSpinAnimation() {
-        if (isSpinning || !currentAuthUser || !currentUserData) return;
-        isSpinning = true;
-        
+        if (isSpinning || !currentAuthUser || !currentUserData) return; isSpinning = true;
         const selectedAmount = Number(adminSpinRewards[Math.floor(Math.random() * adminSpinRewards.length)]);
-        let matchIndices = [];
-        currentWheelSegments.forEach((val, idx) => { if (val === selectedAmount) matchIndices.push(idx); });
+        let matchIndices = []; currentWheelSegments.forEach((val, idx) => { if (val === selectedAmount) matchIndices.push(idx); });
         
         let targetIndex = matchIndices[Math.floor(Math.random() * matchIndices.length)];
-        const extraSpins = 360 * 6; 
-        const finalAngle = extraSpins + (360 - (targetIndex * 30));
+        const extraSpins = 360 * 6; const finalAngle = extraSpins + (360 - (targetIndex * 30));
         const wheel = document.getElementById('spin-wheel');
         wheel.style.transition = 'transform 4.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
         wheel.style.transform = `rotate(${finalAngle}deg)`;
         
-        setTimeout(() => {
-            wheel.style.transition = 'none'; 
-            wheel.style.transform = `rotate(${finalAngle % 360}deg)`; 
-            isSpinning = false; 
-            updateSpinRewardInDB(selectedAmount);
-        }, 4700);
+        setTimeout(() => { wheel.style.transition = 'none'; wheel.style.transform = `rotate(${finalAngle % 360}deg)`; isSpinning = false; updateSpinRewardInDB(selectedAmount); }, 4700);
     }
     
     function updateSpinRewardInDB(reward) {
@@ -1680,153 +1485,70 @@
         try {
             db.ref('tasks').on('value', snapshot => {
                 tasksList = []; 
-                if (snapshot.exists()) { 
-                    snapshot.forEach(child => { 
-                        const t = { id: child.key, ...child.val() }; 
-                        if (t && t.active !== false) tasksList.push(t); 
-                    }); 
-                }
+                if (snapshot.exists()) { snapshot.forEach(child => { const t = { id: child.key, ...child.val() }; if (t && t.active !== false) tasksList.push(t); }); }
                 renderTasksUI(); 
             });
         } catch(e) { console.error("Tasks load error:", e); }
     }
 
     function renderTasksUI() {
-        const container = document.getElementById('task-list-container');
-        if (!container) return;
-
-        if (tasksList.length === 0) {
-            container.innerHTML = `<div class="p-8 text-center"><div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl mb-3 shadow-inner"><i class="fas fa-file-invoice-dollar"></i></div><h4 class="text-sm font-extrabold text-slate-800">No Tax Available</h4><p class="text-[10px] text-slate-400 mt-1">Please check back later.</p></div>`; return;
-        }
+        const container = document.getElementById('task-list-container'); if (!container) return;
+        if (tasksList.length === 0) { container.innerHTML = `<div class="p-8 text-center"><div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl mb-3 shadow-inner"><i class="fas fa-file-invoice-dollar"></i></div><h4 class="text-sm font-extrabold text-slate-800">No Tax Available</h4><p class="text-[10px] text-slate-400 mt-1">Please check back later.</p></div>`; return; }
 
         let html = `
             <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 p-4 rounded-2xl flex items-start gap-3 mx-4 mt-4 shadow-sm shrink-0">
                 <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 border border-emerald-200 text-emerald-600 shadow-inner"><i class="fas fa-info text-sm"></i></div>
-                <div class="text-[11px] text-slate-700 font-bold leading-relaxed pt-0.5">
-                    Select a Tax (Task) below to start.<br>Once submitted, it will go into <span class="text-amber-600 font-extrabold">Pending</span> for checking.
-                </div>
+                <div class="text-[11px] text-slate-700 font-bold leading-relaxed pt-0.5">Select a Tax (Task) below to start.<br>Once submitted, it will go into <span class="text-amber-600 font-extrabold">Pending</span> for checking.</div>
             </div>
             <div class="mt-5 px-4 pb-8 flex-1 space-y-4">
         `;
 
         tasksList.forEach((t) => {
-            const subObj = userSubmissionsMap[t.id];
-            const isOver = (t.seatsLeft !== undefined && t.seatsLeft <= 0);
-
-            let btnText = 'Start Tax <i class="fas fa-arrow-right text-[10px]"></i>';
-            let btnClass = 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-emerald-500/30';
-            let isDisabled = false;
-            let statusBadge = '';
-            let cardOpacityClass = '';
-            let containerBg = 'bg-white';
+            const subObj = userSubmissionsMap[t.id]; const isOver = (t.seatsLeft !== undefined && t.seatsLeft <= 0);
+            let btnText = 'Start Tax <i class="fas fa-arrow-right text-[10px]"></i>'; let btnClass = 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-emerald-500/30';
+            let isDisabled = false; let statusBadge = ''; let cardOpacityClass = ''; let containerBg = 'bg-white';
 
             if (subObj) {
                 let prio = subObj.prio;
-                if (prio === 3) {
-                    // COMPLETED STATE
-                    isDisabled = true;
-                    btnText = '<i class="fas fa-check-circle text-sm"></i> Completed';
-                    btnClass = 'bg-emerald-100 text-emerald-600 font-extrabold cursor-not-allowed border border-emerald-200 shadow-inner';
-                    statusBadge = `<span class="absolute -top-3 -right-2 bg-emerald-500 text-white text-[9px] font-bold px-3 py-1 rounded-full shadow-md border-2 border-white tracking-wide">COMPLETED</span>`;
-                    containerBg = 'bg-emerald-50/50 border-emerald-100';
-                } else if (prio === 1) {
-                    // REJECTED STATE
-                    isDisabled = false;
-                    btnText = 'Retry Tax <i class="fas fa-redo text-[10px]"></i>';
-                    btnClass = 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white shadow-red-500/30';
-                    statusBadge = `<span class="absolute -top-3 -right-2 bg-red-500 text-white text-[9px] font-bold px-3 py-1 rounded-full shadow-md border-2 border-white tracking-wide">REJECTED</span>`;
-                    containerBg = 'bg-red-50/50 border-red-100';
-                } else {
-                    // PENDING STATE
-                    isDisabled = true;
-                    btnText = '<i class="fas fa-spinner fa-spin text-sm"></i> Pending';
-                    btnClass = 'bg-amber-100 text-amber-700 font-extrabold cursor-not-allowed border border-amber-200 shadow-inner';
-                    statusBadge = `<span class="absolute -top-3 -right-2 bg-amber-500 text-white text-[9px] font-bold px-3 py-1 rounded-full shadow-md border-2 border-white tracking-wide">PENDING</span>`;
-                    containerBg = 'bg-amber-50/50 border-amber-100';
-                }
-            } else if (isOver) {
-                // SEATS FULL STATE
-                isDisabled = true;
-                btnText = '<i class="fas fa-ban text-sm"></i> Task Over';
-                btnClass = 'bg-slate-100 text-slate-400 font-bold cursor-not-allowed border border-slate-200 shadow-inner';
-                cardOpacityClass = 'opacity-60 grayscale-[40%]';
-                statusBadge = `<span class="absolute -top-3 -right-2 bg-slate-500 text-white text-[9px] font-bold px-3 py-1 rounded-full shadow-md border-2 border-white tracking-wide">FULL</span>`;
-                containerBg = 'bg-slate-50 border-slate-200';
-            }
+                if (prio === 3) { isDisabled = true; btnText = '<i class="fas fa-check-circle text-sm"></i> Completed'; btnClass = 'bg-emerald-100 text-emerald-600 font-extrabold cursor-not-allowed border border-emerald-200 shadow-inner'; statusBadge = `<span class="absolute -top-3 -right-2 bg-emerald-500 text-white text-[9px] font-bold px-3 py-1 rounded-full shadow-md border-2 border-white tracking-wide">COMPLETED</span>`; containerBg = 'bg-emerald-50/50 border-emerald-100'; } 
+                else if (prio === 1) { isDisabled = false; btnText = 'Retry Tax <i class="fas fa-redo text-[10px]"></i>'; btnClass = 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white shadow-red-500/30'; statusBadge = `<span class="absolute -top-3 -right-2 bg-red-500 text-white text-[9px] font-bold px-3 py-1 rounded-full shadow-md border-2 border-white tracking-wide">REJECTED</span>`; containerBg = 'bg-red-50/50 border-red-100'; } 
+                else { isDisabled = true; btnText = '<i class="fas fa-spinner fa-spin text-sm"></i> Pending'; btnClass = 'bg-amber-100 text-amber-700 font-extrabold cursor-not-allowed border border-amber-200 shadow-inner'; statusBadge = `<span class="absolute -top-3 -right-2 bg-amber-500 text-white text-[9px] font-bold px-3 py-1 rounded-full shadow-md border-2 border-white tracking-wide">PENDING</span>`; containerBg = 'bg-amber-50/50 border-amber-100'; }
+            } else if (isOver) { isDisabled = true; btnText = '<i class="fas fa-ban text-sm"></i> Task Over'; btnClass = 'bg-slate-100 text-slate-400 font-bold cursor-not-allowed border border-slate-200 shadow-inner'; cardOpacityClass = 'opacity-60 grayscale-[40%]'; statusBadge = `<span class="absolute -top-3 -right-2 bg-slate-500 text-white text-[9px] font-bold px-3 py-1 rounded-full shadow-md border-2 border-white tracking-wide">FULL</span>`; containerBg = 'bg-slate-50 border-slate-200'; }
 
-            let iconHtml = `
-                <div class="relative w-14 h-14 shrink-0 rounded-[14px] overflow-hidden border-2 border-white shadow-sm bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                    <i class="fas fa-bolt text-white text-2xl absolute z-0"></i>
-                    ${(t.imageUrl && t.imageUrl.trim() !== '' && t.imageUrl.startsWith('http')) ? 
-                      `<img src="${t.imageUrl}" class="w-full h-full object-cover z-10 relative bg-white" onerror="this.style.display='none';">` : ''}
-                </div>
-            `;
-
+            let iconHtml = `<div class="relative w-14 h-14 shrink-0 rounded-[14px] overflow-hidden border-2 border-white shadow-sm bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center"><i class="fas fa-bolt text-white text-2xl absolute z-0"></i>${(t.imageUrl && t.imageUrl.trim() !== '' && t.imageUrl.startsWith('http')) ? `<img src="${t.imageUrl}" class="w-full h-full object-cover z-10 relative bg-white" onerror="this.style.display='none';">` : ''}</div>`;
             let titleHtml = t.title ? t.title : 'Complete Tax Action';
 
             html += `
                 <div class="relative ${containerBg} p-4 rounded-[20px] border ${containerBg.includes('border-') ? '' : 'border-slate-100'} shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-300 ${isDisabled ? '' : 'hover:shadow-lg hover:-translate-y-1 active:scale-[0.98]'} ${cardOpacityClass}">
                     ${statusBadge}
-                    <div class="flex items-center gap-4">
-                        ${iconHtml}
-                        <div class="flex-1 min-w-0">
-                            <h4 class="text-[14px] font-black text-slate-800 truncate drop-shadow-sm mb-1">${titleHtml}</h4>
-                            <div class="flex items-center gap-2 mt-0.5">
-                                <div class="bg-amber-100/90 px-2.5 py-1 rounded-lg flex items-center gap-1.5 border border-amber-200/60 shadow-inner">
-                                    <i class="fas fa-coins text-amber-500 text-[10px]"></i>
-                                    <span class="text-[12px] font-black text-amber-700 leading-none">₹${t.reward || 0}</span>
-                                </div>
-                                <div class="text-[10px] font-bold text-slate-500 flex items-center gap-1 bg-slate-100/80 px-2 py-1 rounded-lg border border-slate-200/60">
-                                    <i class="fas fa-users text-slate-400"></i> ${t.seatsLeft !== undefined ? t.seatsLeft : '∞'} Left
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-slate-200/60 border-dashed">
-                        <button ${isDisabled ? 'disabled' : `onclick="startTaskFlow('${t.id}')"`} class="w-full ${btnClass} font-extrabold text-[12px] py-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all tracking-wide uppercase">
-                            ${btnText}
-                        </button>
-                    </div>
+                    <div class="flex items-center gap-4">${iconHtml}<div class="flex-1 min-w-0"><h4 class="text-[14px] font-black text-slate-800 truncate drop-shadow-sm mb-1">${titleHtml}</h4><div class="flex items-center gap-2 mt-0.5"><div class="bg-amber-100/90 px-2.5 py-1 rounded-lg flex items-center gap-1.5 border border-amber-200/60 shadow-inner"><i class="fas fa-coins text-amber-500 text-[10px]"></i><span class="text-[12px] font-black text-amber-700 leading-none">₹${t.reward || 0}</span></div><div class="text-[10px] font-bold text-slate-500 flex items-center gap-1 bg-slate-100/80 px-2 py-1 rounded-lg border border-slate-200/60"><i class="fas fa-users text-slate-400"></i> ${t.seatsLeft !== undefined ? t.seatsLeft : '∞'} Left</div></div></div></div>
+                    <div class="mt-4 pt-3 border-t border-slate-200/60 border-dashed"><button ${isDisabled ? 'disabled' : `onclick="startTaskFlow('${t.id}')"`} class="w-full ${btnClass} font-extrabold text-[12px] py-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all tracking-wide uppercase">${btnText}</button></div>
                 </div>
             `;
         });
-        html += `</div>`;
-        container.innerHTML = html;
+        html += `</div>`; container.innerHTML = html;
     }
 
     function startTaskFlow(taskId) {
         if (!currentAuthUser) { showToast("Please login first", "error"); return; }
-        
         let subObj = userSubmissionsMap[taskId];
-        if (subObj && subObj.prio !== 1) { 
-            showToast("You have already submitted this task.", "info");
-            return;
-        }
+        if (subObj && subObj.prio !== 1) { showToast("You have already submitted this task.", "info"); return; }
 
         currentSelectedTask = tasksList.find(t => t.id === taskId);
         if (!currentSelectedTask) return;
         
-        let seatMsg = currentSelectedTask.seatsLeft > 0 ? `Only ${currentSelectedTask.seatsLeft} seats left for this task!` : `Task Over! No seats left.`;
-        showToast(seatMsg, 'info');
+        let seatMsg = currentSelectedTask.seatsLeft > 0 ? `Only ${currentSelectedTask.seatsLeft} seats left for this task!` : `Task Over! No seats left.`; showToast(seatMsg, 'info');
 
         document.getElementById('full-task-title').innerText = currentSelectedTask.title || 'Start Tax Action';
         document.getElementById('full-task-desc').innerText = currentSelectedTask.description || 'Follow instructions and complete the action to get reward.';
         document.getElementById('full-task-reward').innerText = currentSelectedTask.reward || 0;
-        
         document.getElementById('full-task-img').src = currentSelectedTask.imageUrl || '';
         document.getElementById('full-task-seats').innerText = currentSelectedTask.seatsLeft || 0;
-        
-        document.getElementById('full-action-reg-num').value = '';
-        document.getElementById('full-action-uid').value = '';
+        document.getElementById('full-action-reg-num').value = ''; document.getElementById('full-action-uid').value = '';
 
         if(currentSelectedTask.submitType === 'telegram') {
-            document.getElementById('in-app-submit-form').classList.add('hidden');
-            document.getElementById('telegram-submit-form').classList.remove('hidden');
-        } else {
-            document.getElementById('in-app-submit-form').classList.remove('hidden');
-            document.getElementById('telegram-submit-form').classList.add('hidden');
-        }
-        
+            document.getElementById('in-app-submit-form').classList.add('hidden'); document.getElementById('telegram-submit-form').classList.remove('hidden');
+        } else { document.getElementById('in-app-submit-form').classList.remove('hidden'); document.getElementById('telegram-submit-form').classList.add('hidden'); }
         document.getElementById('task-full-page').classList.remove('hidden');
     }
 
@@ -1835,76 +1557,37 @@
     function openAppLink() { if (currentSelectedTask && currentSelectedTask.appLink) window.open(currentSelectedTask.appLink, '_blank'); else showToast('App link not available', 'info'); }
 
     function submitActionTaskFull() {
-        const regNum = document.getElementById('full-action-reg-num').value.trim();
-        const uid = document.getElementById('full-action-uid').value.trim();
+        const regNum = document.getElementById('full-action-reg-num').value.trim(); const uid = document.getElementById('full-action-uid').value.trim();
         if (!regNum || !uid) { showToast('Please enter both Register Number & UID', 'error'); return; }
-        
         showLoader();
+        let existingSub = userSubmissionsMap[currentSelectedTask.id]; let subRef;
+        if (existingSub && existingSub.key) { subRef = db.ref('taskSubmissions/' + existingSub.key); } else { subRef = db.ref('taskSubmissions').push(); }
         
-        let existingSub = userSubmissionsMap[currentSelectedTask.id];
-        let subRef;
-        
-        if (existingSub && existingSub.key) {
-            subRef = db.ref('taskSubmissions/' + existingSub.key);
-        } else {
-            subRef = db.ref('taskSubmissions').push(); 
-        }
-        
-        userSubmissionsMap[currentSelectedTask.id] = { status: 'Wait for checking', key: subRef.key, prio: 2 };
-        renderTasksUI();
+        userSubmissionsMap[currentSelectedTask.id] = { status: 'Wait for checking', key: subRef.key, prio: 2 }; renderTasksUI();
         
         subRef.update({
-            userId: currentAuthUser.uid, userName: currentUserData.name || 'User', userUid: currentUserData.uid || '', 
-            taskId: currentSelectedTask.id, taskTitle: currentSelectedTask.title || 'Start Tax', reward: currentSelectedTask.reward || 0, 
-            date: new Date().toLocaleDateString(), status: 'Wait for checking', submitMethod: 'in-app',
-            registerNumber: regNum, submittedUid: uid,
-            commissionPaid: false, streakProcessed: false 
-        }).then(() => {
-            hideLoader(); closeTaskFullPage(); 
-            showToast('Proof submitted! Task is now Pending.', 'success');
-        });
+            userId: currentAuthUser.uid, userName: currentUserData.name || 'User', userUid: currentUserData.uid || '', taskId: currentSelectedTask.id, taskTitle: currentSelectedTask.title || 'Start Tax', reward: currentSelectedTask.reward || 0, date: new Date().toLocaleDateString(), status: 'Wait for checking', submitMethod: 'in-app', registerNumber: regNum, submittedUid: uid, commissionPaid: false, streakProcessed: false 
+        }).then(() => { hideLoader(); closeTaskFullPage(); showToast('Proof submitted! Task is now Pending.', 'success'); });
     }
 
-    function openTelegramAdmin() {
-        let link = currentSelectedTask.telegramSubmitLink || appSettings.telegramSupport || 'https://t.me/';
-        window.open(link, '_blank');
-    }
+    function openTelegramAdmin() { let link = currentSelectedTask.telegramSubmitLink || appSettings.telegramSupport || 'https://t.me/'; window.open(link, '_blank'); }
 
     function submitTaskTelegram() {
         let confirmAction = confirm("क्या आपने सच में इस टास्क (Tax) को पूरा कर लिया है?\n\nयदि हाँ, तो 'OK' पर क्लिक करें और Telegram पर स्क्रीनशॉट भेजें। (गलत सबमिशन पर अकाउंट ब्लॉक हो सकता है!)");
-        if (!confirmAction) return;
-
-        showLoader();
+        if (!confirmAction) return; showLoader();
+        let existingSub = userSubmissionsMap[currentSelectedTask.id]; let subRef;
+        if (existingSub && existingSub.key) { subRef = db.ref('taskSubmissions/' + existingSub.key); } else { subRef = db.ref('taskSubmissions').push(); }
         
-        let existingSub = userSubmissionsMap[currentSelectedTask.id];
-        let subRef;
-        
-        if (existingSub && existingSub.key) {
-            subRef = db.ref('taskSubmissions/' + existingSub.key);
-        } else {
-            subRef = db.ref('taskSubmissions').push();
-        }
-        
-        userSubmissionsMap[currentSelectedTask.id] = { status: 'Wait for checking', key: subRef.key, prio: 2 };
-        renderTasksUI();
-
+        userSubmissionsMap[currentSelectedTask.id] = { status: 'Wait for checking', key: subRef.key, prio: 2 }; renderTasksUI();
         subRef.update({
-            userId: currentAuthUser.uid, userName: currentUserData.name || 'User', userUid: currentUserData.uid || '', 
-            taskId: currentSelectedTask.id, taskTitle: currentSelectedTask.title || 'Start Tax', reward: currentSelectedTask.reward || 0, 
-            date: new Date().toLocaleDateString(), status: 'Wait for checking', submitMethod: 'Telegram',
-            commissionPaid: false, streakProcessed: false 
-        }).then(() => {
-            hideLoader(); closeTaskFullPage(); 
-            showToast('Task marked as Pending. We will verify soon.', 'success');
-        });
+            userId: currentAuthUser.uid, userName: currentUserData.name || 'User', userUid: currentUserData.uid || '', taskId: currentSelectedTask.id, taskTitle: currentSelectedTask.title || 'Start Tax', reward: currentSelectedTask.reward || 0, date: new Date().toLocaleDateString(), status: 'Wait for checking', submitMethod: 'Telegram', commissionPaid: false, streakProcessed: false 
+        }).then(() => { hideLoader(); closeTaskFullPage(); showToast('Task marked as Pending. We will verify soon.', 'success'); });
     }
 
     function loadUserTransactions() {
         if (!currentAuthUser) return;
         db.ref('transactions/' + currentAuthUser.uid).on('value', snapshot => {
-            const list = document.getElementById('transaction-list');
-            if (!list) return;
-            list.innerHTML = '';
+            const list = document.getElementById('transaction-list'); if (!list) return; list.innerHTML = '';
             if (snapshot.exists()) {
                 snapshot.forEach(child => {
                     const tx = child.val(); if (!tx) return;
@@ -1916,16 +1599,40 @@
         });
     }
 
-    function requestWithdrawal() {
-        const amountInput = document.getElementById('w-amount'); const upiInput = document.getElementById('w-upi-id');
-        const amount = Number(amountInput.value); const upi = upiInput.value.trim();
-        if (isNaN(amount) || amount < 100) { showToast('Minimum withdrawal is ₹100', 'error'); return; }
+    function setWithdrawMethod(method) {
+        currentSelectedWithdrawMethod = method;
+        const btnUpi = document.getElementById('btn-method-upi'); const btnBank = document.getElementById('btn-method-bank');
+        const secUpi = document.getElementById('withdraw-upi-section'); const secBank = document.getElementById('withdraw-bank-section');
+        if(method === 'UPI') { btnUpi.className = 'flex-1 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-bold border border-emerald-600 transition-all'; btnBank.className = 'flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-bold border border-slate-200 transition-all'; secUpi.classList.remove('hidden'); secBank.classList.add('hidden'); } 
+        else { btnBank.className = 'flex-1 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-bold border border-emerald-600 transition-all'; btnUpi.className = 'flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-bold border border-slate-200 transition-all'; secBank.classList.remove('hidden'); secUpi.classList.add('hidden'); }
+    }
+
+    async function requestWithdrawal() {
+        const amount = Number(document.getElementById('w-amount').value);
         if (currentUserData && amount > currentUserData.balance) { showToast('Insufficient balance', 'error'); return; }
-        if (!upi) { showToast('Enter UPI ID', 'error'); return; }
-        showLoader();
+
+        let withdrawData = { userId: currentAuthUser.uid, userName: currentUserData.name || 'User', userUid: currentUserData.uid || '', amount: amount, method: currentSelectedWithdrawMethod, date: new Date().toLocaleDateString(), status: 'Pending' };
+
+        if (currentSelectedWithdrawMethod === 'UPI') {
+            const upi = document.getElementById('w-upi-id').value.trim();
+            if (!upi) { showToast('Enter UPI ID', 'error'); return; }
+            showLoader();
+            
+            // Check Duplicate UPI
+            const snap = await db.ref('withdrawals').orderByChild('details').equalTo(upi).once('value');
+            let isUsedByOther = false;
+            if(snap.exists()) { snap.forEach(child => { if(child.val().userId !== currentAuthUser.uid) isUsedByOther = true; }); }
+            if(isUsedByOther) { hideLoader(); alert("आपका ID बैन हो सकता है! यह UPI ID पहले से किसी और ने यूज़ किया है। (Your ID can be banned. UPI ID already in use)"); return; }
+            withdrawData.details = upi;
+        } else {
+            const bankAcc = document.getElementById('w-bank-acc').value.trim(); const bankIfsc = document.getElementById('w-bank-ifsc').value.trim().toUpperCase(); const bankName = document.getElementById('w-bank-name').value.trim();
+            if (!bankAcc || !bankIfsc || !bankName) { showToast('Fill all Bank Details', 'error'); return; }
+            showLoader(); withdrawData.bankAcc = bankAcc; withdrawData.bankIfsc = bankIfsc; withdrawData.bankName = bankName; withdrawData.details = bankAcc;
+        }
+
         const uid = currentAuthUser.uid;
         db.ref('users/' + uid).update({ balance: Number(currentUserData.balance || 0) - amount }).then(() => {
-            db.ref('withdrawals').push({ userId: uid, userName: currentUserData.name || 'User', userUid: currentUserData.uid || '', amount, method: 'UPI', details: upi, date: new Date().toLocaleDateString(), status: 'Pending' });
+            db.ref('withdrawals').push(withdrawData);
             db.ref('transactions/' + uid).push({ type: 'Withdrawal Request', amount, date: new Date().toLocaleDateString(), status: 'Pending' });
             hideLoader(); showToast('Withdrawal requested successfully!', 'success'); closePage('withdraw-page');
         });
@@ -1950,14 +1657,11 @@
                     snap.forEach(c => { 
                         const sub = c.val(); 
                         if (sub) { 
-                            let st = (sub.status || '').toLowerCase();
-                            let statusColor = 'text-purple-600 bg-purple-50 px-2 py-1 rounded-lg'; 
+                            let st = (sub.status || '').toLowerCase(); let statusColor = 'text-purple-600 bg-purple-50 px-2 py-1 rounded-lg'; 
                             if(st.includes('wait') || st.includes('check') || st.includes('pend')) statusColor = 'text-blue-600 bg-blue-50 px-2 py-1 rounded-lg'; 
                             if(st.includes('success') || st.includes('done') || st.includes('approv') || st.includes('complete')) statusColor = 'text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg';
                             if(st.includes('reject') || st.includes('fail') || st.includes('cancel')) statusColor = 'text-red-600 bg-red-50 px-2 py-1 rounded-lg';
-                            
-                            let displayStatus = sub.status || 'Checking';
-                            let methodText = sub.submitMethod === 'Telegram' ? '<i class="fab fa-telegram text-blue-500"></i>' : '<i class="fas fa-mobile-alt text-slate-400"></i>';
+                            let displayStatus = sub.status || 'Checking'; let methodText = sub.submitMethod === 'Telegram' ? '<i class="fab fa-telegram text-blue-500"></i>' : '<i class="fas fa-mobile-alt text-slate-400"></i>';
                             content.innerHTML += `<div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex justify-between items-center text-xs"><div><div class="font-extrabold text-slate-800">${sub.taskTitle || 'Tax'} ${methodText}</div><div class="text-[10px] text-slate-500 font-medium">Reward: ₹${sub.reward || 0} | ${sub.date || ''}</div></div><div class="text-right font-bold ${statusColor}">${displayStatus}</div></div>`; 
                         } 
                     });
