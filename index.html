@@ -44,17 +44,20 @@
         </div>
     </div>
 
-    <!-- MATH QUESTION MODAL (Added Bottom Ad Banner Inside) -->
+    <!-- QUIZ QUESTION MODAL (Supports Math, GK, Logic & Riddles) -->
     <div id="math-question-modal" class="absolute inset-0 bg-slate-900/95 z-[300] hidden flex-col items-center justify-center p-6 text-center backdrop-blur-sm">
         <div class="bg-white rounded-[30px] p-6 w-full max-w-[320px] shadow-2xl relative border-4 border-slate-200 flex flex-col items-center">
             <button onclick="document.getElementById('math-question-modal').classList.add('hidden'); document.getElementById('math-question-modal').classList.remove('flex');" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
             <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-xs font-extrabold px-4 py-1.5 rounded-full shadow border-2 border-slate-900" id="math-modal-reward">Reward</div>
-            <h3 class="text-sm font-bold text-slate-500 mb-1 mt-3">Solve this to win:</h3>
-            <div class="text-4xl font-black text-blue-600 mb-4 drop-shadow-sm" id="math-question-text">2 + 2 = ?</div>
-            <input type="number" id="math-answer-input" placeholder="Enter Answer" class="w-full bg-slate-100 border border-slate-300 rounded-xl px-4 py-3 text-lg font-bold text-slate-800 text-center focus:outline-none focus:border-blue-500 mb-3 shadow-inner transition-colors">
-            <button onclick="submitLevelAnswer()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-black py-3 rounded-xl text-xs shadow-lg active:scale-95 transition-transform uppercase tracking-wider flex items-center justify-center gap-2 mb-3">SUBMIT ANSWER <i class="fas fa-check"></i></button>
+            <div id="quiz-category-badge" class="mt-3 text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Category</div>
+            <h3 class="text-xs font-bold text-slate-500 mb-1 mt-2">जीतने के लिए इसे हल करें:</h3>
+            <div class="text-2xl font-black text-blue-600 mb-4 drop-shadow-sm min-h-[50px] flex items-center justify-center px-2" id="math-question-text">Question?</div>
             
-            <!-- Added Ad Banner Inside Math Modal -->
+            <div id="quiz-options-container" class="w-full flex flex-col gap-2 mb-3">
+                <!-- 3 Options dynamically injected here -->
+            </div>
+            
+            <!-- Added Ad Banner Inside Quiz Modal -->
             <div class="w-full bg-slate-950 flex justify-center items-center rounded-lg overflow-hidden border border-slate-800 mt-1" style="height: 50px;">
                 <iframe srcdoc="<!DOCTYPE html><html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;background:#020617;}</style></head><body><script>atOptions={'key':'c42a343f4fb7a072d67bd6af046bbd08','format':'iframe','height':50,'width':320,'params':{}};</script><script src='https://www.highperformanceformat.com/c42a343f4fb7a072d67bd6af046bbd08/invoke.js'></script></body></html>" width="320" height="50" style="border:none; overflow:hidden;"></iframe>
             </div>
@@ -380,8 +383,8 @@
                 <div class="text-4xl font-black text-amber-400 drop-shadow-md mb-4 relative z-10" id="cz-total-coins">0</div>
                 
                 <div class="grid grid-cols-2 gap-3 relative z-10">
-                    <button onclick="openPage('coin-withdraw-page')" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md active:scale-95 transition-transform"><i class="fas fa-wallet"></i> Withdraw Coins</button>
-                    <button onclick="openPage('coin-refer-page')" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-2 backdrop-blur-sm shadow-md active:scale-95 transition-transform"><i class="fas fa-users"></i> Refer & Earn</button>
+                    <button onclick="showRealAd(() => openPage('coin-withdraw-page'))" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md active:scale-95 transition-transform"><i class="fas fa-wallet"></i> Withdraw Coins</button>
+                    <button onclick="showRealAd(() => openPage('coin-refer-page'))" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-2 backdrop-blur-sm shadow-md active:scale-95 transition-transform"><i class="fas fa-users"></i> Refer & Earn</button>
                 </div>
             </div>
             
@@ -391,13 +394,13 @@
                 <div class="space-y-3">
                     <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 text-xl"><i class="fas fa-calculator"></i></div>
+                            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 text-xl"><i class="fas fa-brain"></i></div>
                             <div>
-                                <h5 class="text-sm font-extrabold text-slate-800">Math Quiz</h5>
-                                <p class="text-[10px] font-medium text-slate-500">1000 Levels, Big Rewards!</p>
+                                <h5 class="text-sm font-extrabold text-slate-800">Quiz Zone</h5>
+                                <p class="text-[10px] font-medium text-slate-500">5000 Levels, Math, GK & Riddles!</p>
                             </div>
                         </div>
-                        <button onclick="openCoinMath()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-[11px] shadow-sm active:scale-95 transition-transform">PLAY</button>
+                        <button onclick="showRealAd(() => openCoinMath())" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-[11px] shadow-sm active:scale-95 transition-transform">PLAY</button>
                     </div>
                     
                     <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between">
@@ -408,7 +411,7 @@
                                 <p class="text-[10px] font-medium text-slate-500">Wait 2 mins, Get 10 coins</p>
                             </div>
                         </div>
-                        <button onclick="startCoinTelegram()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold px-4 py-2 rounded-xl text-[11px] shadow-sm active:scale-95 transition-transform">JOIN</button>
+                        <button onclick="showRealAd(() => startCoinTelegram())" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold px-4 py-2 rounded-xl text-[11px] shadow-sm active:scale-95 transition-transform">JOIN</button>
                     </div>
                 </div>
             </div>
@@ -417,13 +420,13 @@
                 <h4 class="text-xs font-black text-slate-800 uppercase tracking-wide mb-3 flex items-center gap-2"><i class="fas fa-dharmachakra text-amber-500 text-base"></i> Spin Section</h4>
                 
                 <div class="grid grid-cols-2 gap-3">
-                    <div onclick="openCoinSpin('normal')" class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl p-4 shadow-sm cursor-pointer hover:scale-105 transition-transform text-center">
+                    <div onclick="showRealAd(() => openCoinSpin('normal'))" class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl p-4 shadow-sm cursor-pointer hover:scale-105 transition-transform text-center">
                         <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-2"><i class="fas fa-sync"></i></div>
                         <h5 class="text-xs font-extrabold text-white">Daily Spin</h5>
                         <p class="text-[9px] font-medium text-purple-200 mt-0.5">3 Limits/Day, Win Coins</p>
                     </div>
                     
-                    <div onclick="openCoinSpin('unlimited')" class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-4 shadow-sm cursor-pointer hover:scale-105 transition-transform text-center relative overflow-hidden">
+                    <div onclick="showRealAd(() => openCoinSpin('unlimited'))" class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-4 shadow-sm cursor-pointer hover:scale-105 transition-transform text-center relative overflow-hidden">
                         <div class="absolute -right-2 -top-2 bg-amber-400 text-slate-900 text-[8px] font-black px-2 py-0.5 rounded shadow">FREE</div>
                         <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-2"><i class="fas fa-infinity"></i></div>
                         <h5 class="text-xs font-extrabold text-white">Unlimited Spin</h5>
@@ -506,15 +509,15 @@
         </div>
     </div>
 
-    <!-- COIN MATH 1000 LEVELS PAGE -->
+    <!-- COIN QUIZ LEVELS PAGE -->
     <div id="coin-math-page" class="absolute inset-0 bg-slate-50 z-[45] flex flex-col hidden">
         <div class="bg-slate-900 p-4 text-white flex items-center justify-between shadow-md sticky top-0 z-20">
             <button onclick="closePage('coin-math-page')" class="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center text-white hover:bg-white/20 transition-colors"><i class="fas fa-arrow-left"></i></button>
-            <h2 class="text-xs font-bold uppercase tracking-wider text-blue-300">Math Quiz Levels</h2>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-blue-300">Quiz Zone Levels</h2>
             <div class="w-8"></div>
         </div>
         <div class="flex-1 overflow-y-auto p-4 space-y-3 hide-scrollbar pb-20" id="math-levels-container">
-            <!-- Levels 1 to 1000 dynamically loaded here -->
+            <!-- Levels 1 to 5000 dynamically loaded here -->
         </div>
         <!-- Ad Banner at Bottom of Level List -->
         <div class="absolute bottom-0 left-0 w-full bg-slate-950 flex justify-center items-center border-t border-slate-800 z-30 pt-1 pb-1" style="height: 60px;">
@@ -950,7 +953,7 @@
     let isOriginalSpinning = false;
     let activeMathLevel = 1;
     let activeMathReward = 0;
-    let mathAns = 0;
+    let quizAns = "";
     let adToggleIndex = 0;
 
     function showLoader() { document.getElementById('loader').classList.remove('hidden'); document.getElementById('loader').classList.add('flex'); }
@@ -1023,7 +1026,7 @@
         iframeDoc.write(adHtml);
         iframeDoc.close();
         
-        let timeLeft = 3;
+        let timeLeft = 10;
         btn.innerText = `Wait ${timeLeft}s...`;
         btn.classList.remove('hidden');
         btn.disabled = true;
@@ -1034,7 +1037,7 @@
             btn.innerText = `Wait ${timeLeft}s...`;
             if(timeLeft <= 0) {
                 clearInterval(timer);
-                btn.innerText = "CLOSE AD & GET REWARD";
+                btn.innerText = "CLOSE AD & CONTINUE";
                 btn.disabled = false;
                 btn.className = "mt-6 w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold py-3 px-6 rounded-xl text-xs shadow-lg active:scale-95 transition-transform uppercase tracking-wider";
                 btn.onclick = () => {
@@ -1308,6 +1311,14 @@
         if (!upi) { showToast('Enter UPI ID', 'error'); return; } 
         if (currentUserData && amount > currentUserData.balance) { showToast('Insufficient balance', 'error'); return; }
         
+        let today = new Date().toLocaleDateString();
+        let wCount = (currentUserData.lastWithdrawDate === today) ? (currentUserData.dailyWithdrawCount || 0) : 0;
+        
+        if (wCount >= 2) {
+            showToast('Daily withdrawal limit (2/day) reached. Try again tomorrow.', 'error');
+            return;
+        }
+
         showLoader();
         db.ref('withdrawals').orderByChild('details').equalTo(upi).once('value', snap => {
             let usedByOther = false;
@@ -1324,7 +1335,11 @@
             }
             
             const uid = currentAuthUser.uid;
-            db.ref('users/' + uid).update({ balance: Number(currentUserData.balance || 0) - amount }).then(() => {
+            db.ref('users/' + uid).update({ 
+                balance: Number(currentUserData.balance || 0) - amount,
+                lastWithdrawDate: today,
+                dailyWithdrawCount: wCount + 1
+            }).then(() => {
                 db.ref('withdrawals').push({ userId: uid, userName: currentUserData.name || 'User', userUid: currentUserData.uid || '', amount, method: 'UPI', details: upi, date: new Date().toLocaleDateString(), status: 'Pending' });
                 db.ref('transactions/' + uid).push({ type: 'Withdrawal Request', amount, date: new Date().toLocaleDateString(), status: 'Pending' });
                 hideLoader(); showToast('Withdrawal requested successfully!', 'success'); closePage('withdraw-page');
@@ -1904,9 +1919,10 @@
     function openCoinZone() { openPage('coin-zone-page'); }
     function closeCoinZone() { closePage('coin-zone-page'); }
 
+    // Updated reward rule: 250 coins on every 50th level, 5 coins on all other levels
     function getMathReward(lvl) {
-        if(lvl % 50 === 0) return 500;
-        return 0;
+        if(lvl % 50 === 0) return 250;
+        return 5;
     }
 
     function openCoinMath() {
@@ -1917,7 +1933,7 @@
     function renderMathLevels() {
         let currentLvl = currentUserData.mathLevel || 1;
         let html = '';
-        for(let i=1; i<=1000; i++) {
+        for(let i=1; i<=5000; i++) {
             let reward = getMathReward(i);
             let bgClass = '', statusHtml = '';
             
@@ -1932,7 +1948,8 @@
                 statusHtml = '<div class="text-slate-500"><i class="fas fa-lock"></i></div>';
             }
 
-            let rewardText = reward > 0 ? `<div class="text-amber-400 font-bold text-[11px] mt-0.5"><i class="fas fa-coins"></i> ${reward} Coins</div>` : `<div class="text-slate-400 font-bold text-[11px] mt-0.5">No Bonus Coin</div>`;
+            let isSpecial = i % 50 === 0;
+            let rewardText = `<div class="${isSpecial ? 'text-amber-400 font-extrabold' : 'text-slate-300 font-bold'} text-[11px] mt-0.5"><i class="fas fa-coins"></i> ${reward} Coins ${isSpecial ? '⭐ BONUS!' : ''}</div>`;
 
             html += `
             <div class="p-4 rounded-[20px] border flex justify-between items-center ${bgClass} transition-all">
@@ -1951,31 +1968,132 @@
         }, 300);
     }
 
+    // Static question bank for non-math categories translated to Hindi with 3 options
+    const gkQuizBank = [
+        { cat: "सामान्य ज्ञान", q: "भारत की राजधानी क्या है?", options: ["नई दिल्ली", "मुंबई", "कोलकाता"], answer: "नई दिल्ली" },
+        { cat: "सामान्य ज्ञान", q: "एक दिन में कितने घंटे होते हैं?", options: ["24", "12", "48"], answer: "24" },
+        { cat: "विज्ञान", q: "पानी का रासायनिक सूत्र क्या है?", options: ["H2O", "CO2", "O2"], answer: "H2O" },
+        { cat: "सामान्य ज्ञान", q: "भारत का राष्ट्रीय पशु कौन सा है?", options: ["बाघ", "शेर", "हाथी"], answer: "बाघ" },
+        { cat: "सामान्य ज्ञान", q: "किस ग्रह को लाल ग्रह कहा जाता है?", options: ["मंगल", "शुक्र", "बृहस्पति"], answer: "मंगल" },
+        { cat: "सामान्य ज्ञान", q: "लीप वर्ष में कितने दिन होते हैं?", options: ["366", "365", "364"], answer: "366" },
+        { cat: "पहेलियाँ", q: "वह क्या है जिसके हाथ हैं लेकिन ताली नहीं बजा सकता?", options: ["घड़ी", "पेड़", "कुर्सी"], answer: "घड़ी" },
+        { cat: "सामान्य ज्ञान", q: "इंद्रधनुष में कितने रंग होते हैं?", options: ["7", "5", "8"], answer: "7" },
+        { cat: "सामान्य ज्ञान", q: "रेगिस्तान का जहाज किस जानवर को कहा जाता है?", options: ["ऊंट", "घोड़ा", "हाथी"], answer: "ऊंट" },
+        { cat: "पहेलियाँ", q: "किस महीने में 28 दिन होते हैं?", options: ["हर महीने में", "सिर्फ फरवरी", "इनमें से कोई नहीं"], answer: "हर महीने में" },
+        { cat: "सामान्य ज्ञान", q: "अंग्रेजी वर्णमाला में कितने अक्षर होते हैं?", options: ["26", "24", "28"], answer: "26" },
+        { cat: "विज्ञान", q: "पौधे कौन सी गैस सोखते हैं?", options: ["कार्बन डाइऑक्साइड", "ऑक्सीजन", "नाइट्रोजन"], answer: "कार्बन डाइऑक्साइड" },
+        { cat: "सामान्य ज्ञान", q: "पृथ्वी पर सबसे बड़ा महासागर कौन सा है?", options: ["प्रशांत महासागर", "हिंद महासागर", "अटलांटिक महासागर"], answer: "प्रशांत महासागर" },
+        { cat: "सामान्य ज्ञान", q: "दुनिया में कितने महाद्वीप हैं?", options: ["7", "5", "6"], answer: "7" }
+    ];
+
     function playMathLevel(lvl, reward) {
+        // 10 minutes break after every 100 levels (Updated from 30 mins)
+        if (lvl > 1 && (lvl - 1) % 100 === 0) {
+            let lastHundredTime = localStorage.getItem('math_cooldown_time') || 0;
+            let elapsed = Date.now() - parseInt(lastHundredTime);
+            if (elapsed < 10 * 60 * 1000) {
+                let minLeft = Math.ceil((10 * 60 * 1000 - elapsed) / 60000);
+                showToast(`10 Min Break! Wait ${minLeft} mins for next 100 levels.`, 'error');
+                return;
+            }
+        }
+
         activeMathLevel = lvl; 
         activeMathReward = reward;
-        let n1 = Math.floor(Math.random() * 20) + 1;
-        let n2 = Math.floor(Math.random() * 20) + 1;
-        mathAns = n1 + n2;
         
-        document.getElementById('math-modal-reward').innerText = reward > 0 ? `Win ${reward} Coins` : `Next Level`;
-        document.getElementById('math-question-text').innerText = `${n1} + ${n2} = ?`;
-        document.getElementById('math-answer-input').value = '';
+        let questionType = lvl % 3; // 0 & 1 = Math, 2 = GK/Riddle/Science
+        let categoryName = "गणित चुनौती";
+        let options = [];
+        
+        if (questionType === 2) {
+            let item = gkQuizBank[(lvl + Math.floor(Math.random() * gkQuizBank.length)) % gkQuizBank.length];
+            categoryName = item.cat;
+            document.getElementById('math-question-text').innerText = item.q;
+            quizAns = item.answer.toLowerCase().trim();
+            options = [...item.options];
+        } else {
+            // Hard scaling math question logic
+            categoryName = "गणित प्रश्न";
+            let op = '+';
+            let n1, n2;
+            
+            if (lvl <= 30) {
+                n1 = Math.floor(Math.random() * 25) + 5;
+                n2 = Math.floor(Math.random() * 25) + 5;
+                quizAns = String(n1 + n2);
+                document.getElementById('math-question-text').innerText = `${n1} + ${n2} = ?`;
+            } else if (lvl <= 100) {
+                op = Math.random() > 0.5 ? '+' : '-';
+                n1 = Math.floor(Math.random() * 60) + 20;
+                n2 = Math.floor(Math.random() * 20) + 1;
+                quizAns = String(op === '+' ? n1 + n2 : n1 - n2);
+                document.getElementById('math-question-text').innerText = `${n1} ${op} ${n2} = ?`;
+            } else if (lvl <= 300) {
+                let ops = ['+', '-', '*'];
+                op = ops[Math.floor(Math.random() * ops.length)];
+                if(op === '*') {
+                    n1 = Math.floor(Math.random() * 15) + 2;
+                    n2 = Math.floor(Math.random() * 12) + 2;
+                } else {
+                    n1 = Math.floor(Math.random() * 120) + 50;
+                    n2 = Math.floor(Math.random() * 50) + 10;
+                }
+                quizAns = String(op === '+' ? n1+n2 : (op === '-' ? n1-n2 : n1*n2));
+                document.getElementById('math-question-text').innerText = `${n1} ${op} ${n2} = ?`;
+            } else {
+                let ops = ['+', '-', '*'];
+                op = ops[Math.floor(Math.random() * ops.length)];
+                if(op === '*') {
+                    n1 = Math.floor(Math.random() * 25) + 5;
+                    n2 = Math.floor(Math.random() * 15) + 5;
+                } else {
+                    n1 = Math.floor(Math.random() * 500) + 100;
+                    n2 = Math.floor(Math.random() * 300) + 50;
+                }
+                quizAns = String(op === '+' ? n1+n2 : (op === '-' ? n1-n2 : n1*n2));
+                document.getElementById('math-question-text').innerText = `${n1} ${op} ${n2} = ?`;
+            }
+
+            // Generate 3 Options (1 Correct, 2 Wrong)
+            let wrong1 = String(parseInt(quizAns) + Math.floor(Math.random() * 10) + 1);
+            let wrong2 = String(parseInt(quizAns) - (Math.floor(Math.random() * 5) + 1));
+            if (wrong1 === wrong2 || wrong2 === quizAns) wrong2 = String(parseInt(quizAns) + 15);
+            options = [quizAns, wrong1, wrong2];
+            
+            // Shuffle the options array
+            options.sort(() => Math.random() - 0.5);
+        }
+        
+        document.getElementById('quiz-category-badge').innerText = categoryName;
+        document.getElementById('math-modal-reward').innerText = `जीतें ${reward} Coins`;
+        
+        // Render options in UI dynamically
+        let optionsHtml = '';
+        options.forEach(opt => {
+            optionsHtml += `<button onclick="submitLevelAnswer('${opt}')" class="w-full bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl px-4 py-3.5 text-base font-bold text-slate-800 text-center focus:outline-none focus:border-blue-500 shadow-sm transition-colors cursor-pointer active:scale-95">${opt}</button>`;
+        });
+        document.getElementById('quiz-options-container').innerHTML = optionsHtml;
         
         document.getElementById('math-question-modal').classList.remove('hidden');
         document.getElementById('math-question-modal').classList.add('flex');
     }
 
-    function submitLevelAnswer() {
-        let val = parseInt(document.getElementById('math-answer-input').value);
-        if(val === mathAns) {
+    function submitLevelAnswer(selectedAns) {
+        let val = String(selectedAns).toLowerCase().trim();
+        if(val === quizAns) {
             document.getElementById('math-question-modal').classList.add('hidden');
             document.getElementById('math-question-modal').classList.remove('flex');
             
             document.getElementById('math-success-modal').classList.remove('hidden');
             document.getElementById('math-success-modal').classList.add('flex');
         } else {
-            showToast('Wrong Answer! Try again.', 'error');
+            // 25 Coins penalty on wrong answer (Updated from 50 coins)
+            let newBalance = Math.max(0, (currentUserData.coinBalance || 0) - 25);
+            db.ref('users/' + currentAuthUser.uid).update({ coinBalance: newBalance });
+            showToast('Wrong Answer! 25 Coins deducted.', 'error');
+            
+            document.getElementById('math-question-modal').classList.add('hidden');
+            document.getElementById('math-question-modal').classList.remove('flex');
         }
     }
 
@@ -1988,6 +2106,12 @@
                 coinBalance: Number(currentUserData.coinBalance || 0) + activeMathReward,
                 mathLevel: activeMathLevel + 1
             });
+            
+            // Set 10-min cooldown timer marker if 100 levels completed
+            if (activeMathLevel % 100 === 0) {
+                localStorage.setItem('math_cooldown_time', Date.now());
+            }
+
             if(activeMathReward > 0) {
                 showToast(`Awesome! +${activeMathReward} Coins Added`, 'success');
             } else {
@@ -2102,8 +2226,20 @@
         if (amount < 1000) { showToast('Min withdraw 1000 Coins', 'error'); return; }
         if (currentUserData && amount > (currentUserData.coinBalance || 0)) { showToast('Not enough coins!', 'error'); return; }
         
+        let today = new Date().toLocaleDateString();
+        let cwCount = (currentUserData.lastCoinWithdrawDate === today) ? (currentUserData.dailyCoinWithdrawCount || 0) : 0;
+        
+        if (cwCount >= 2) {
+            showToast('Daily withdrawal limit (2/day) reached. Try again tomorrow.', 'error');
+            return;
+        }
+
         showLoader();
-        db.ref('users/' + currentAuthUser.uid).update({ coinBalance: Number(currentUserData.coinBalance || 0) - amount }).then(() => {
+        db.ref('users/' + currentAuthUser.uid).update({ 
+            coinBalance: Number(currentUserData.coinBalance || 0) - amount,
+            lastCoinWithdrawDate: today,
+            dailyCoinWithdrawCount: cwCount + 1
+        }).then(() => {
             let rsVal = amount / 100;
             db.ref('withdrawals').push({ userId: currentAuthUser.uid, userName: currentUserData.name, amount: rsVal, method: 'CoinUPI', details: upi, date: new Date().toLocaleDateString(), status: 'Pending' });
             hideLoader(); showToast('Withdrawal requested successfully!', 'success'); closePage('coin-withdraw-page');
