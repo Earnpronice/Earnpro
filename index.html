@@ -11,13 +11,30 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
         body { font-family: 'Poppins', sans-serif; background: #0f172a; }
-        .mobile-container { max-width: 430px; height: 100vh; height: 100dvh; margin: 0 auto; background: #f8fafc; position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .mobile-container { max-width: 430px; height: 100vh; height: 100dvh; margin: 0 auto; background: #f8fafc; position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); transform: translateZ(0); }
         @media(min-width: 431px) { .mobile-container { border-radius: 40px; border: 12px solid #1e293b; height: 884px; margin-top: 20px; margin-bottom: 20px; } }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         #scratch-canvas { touch-action: none; }
+        
+        /* Premium Sky Theme Overlay & Glassmorphism with Smooth Performance Rendering */
+        .sky-theme-bg {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #f0f9ff 100%);
+            will-change: transform;
+        }
+        .sky-glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 30px -5px rgba(14, 165, 233, 0.15);
+            transform: translateZ(0);
+        }
+        .sky-gradient-header {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #075985 100%);
+        }
     </style>
 </head>
 <body class="flex justify-center items-center">
@@ -30,34 +47,47 @@
         <p class="mt-4 text-sm font-medium tracking-wide">Please wait...</p>
     </div>
 
-    <!-- REAL AD OVERLAY FOR SPONSOR ADS (Perfect Size Scaling) -->
+    <!-- REAL AD OVERLAY FOR SPONSOR ADS (5s Skip) -->
     <div id="real-ad-overlay" class="absolute inset-0 bg-slate-950/95 z-[500] hidden flex-col items-center justify-center p-4 backdrop-blur-md text-center">
         <div class="w-full max-w-[320px] mb-4">
             <h3 class="text-white text-sm font-extrabold mb-1">Sponsor Advertisement</h3>
-            <p class="text-[10px] text-amber-400 font-medium mb-4">Please wait and watch the ad to claim your reward</p>
+            <p class="text-[10px] text-amber-400 font-medium mb-4">Please wait 5s to skip the ad and claim reward</p>
             
             <div id="ad-container-box" class="w-[300px] h-[60px] mx-auto bg-slate-900 flex justify-center items-center rounded-lg overflow-hidden border border-slate-700 shadow-xl relative">
-                <!-- Iframe dynamically injected here -->
+                <!-- Iframe injected -->
             </div>
             
             <button id="close-real-ad-btn" class="mt-6 w-full bg-slate-700 text-slate-400 font-bold py-3 px-6 rounded-xl text-xs hidden shadow-md transition-all uppercase tracking-wide"></button>
         </div>
     </div>
 
-    <!-- QUIZ QUESTION MODAL (Supports Math, GK, Logic & Riddles) -->
+    <!-- LANGUAGE SELECTOR MODAL -->
+    <div id="language-modal" class="absolute inset-0 bg-slate-900/90 z-[350] hidden flex-col items-center justify-center p-6 backdrop-blur-md">
+        <div class="bg-white rounded-[30px] p-6 w-full max-w-[340px] shadow-2xl relative border-2 border-sky-100 flex flex-col items-center">
+            <button onclick="closeLanguageModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
+            <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-inner"><i class="fas fa-language"></i></div>
+            <h3 class="text-base font-black text-slate-800 mb-1">Select Language / भाषा चुनें</h3>
+            <p class="text-[11px] text-slate-500 mb-4 font-medium">Choose your preferred Coin Zone language</p>
+            
+            <div class="w-full grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto hide-scrollbar p-1" id="language-options-list">
+                <!-- Languages dynamically generated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- QUIZ QUESTION MODAL -->
     <div id="math-question-modal" class="absolute inset-0 bg-slate-900/95 z-[300] hidden flex-col items-center justify-center p-6 text-center backdrop-blur-sm">
-        <div class="bg-white rounded-[30px] p-6 w-full max-w-[320px] shadow-2xl relative border-4 border-slate-200 flex flex-col items-center">
+        <div class="bg-white rounded-[30px] p-6 w-full max-w-[320px] shadow-2xl relative border-4 border-sky-100 flex flex-col items-center">
             <button onclick="document.getElementById('math-question-modal').classList.add('hidden'); document.getElementById('math-question-modal').classList.remove('flex');" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
-            <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-xs font-extrabold px-4 py-1.5 rounded-full shadow border-2 border-slate-900" id="math-modal-reward">Reward</div>
-            <div id="quiz-category-badge" class="mt-3 text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Category</div>
-            <h3 class="text-xs font-bold text-slate-500 mb-1 mt-2">जीतने के लिए इसे हल करें:</h3>
-            <div class="text-2xl font-black text-blue-600 mb-4 drop-shadow-sm min-h-[50px] flex items-center justify-center px-2" id="math-question-text">Question?</div>
+            <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-sky-500 text-white text-xs font-extrabold px-4 py-1.5 rounded-full shadow border-2 border-slate-900" id="math-modal-reward">Reward</div>
+            <div id="quiz-category-badge" class="mt-3 text-[10px] font-black uppercase tracking-wider text-sky-600 bg-sky-50 px-3 py-1 rounded-full border border-sky-100">Category</div>
+            <h3 class="text-xs font-bold text-slate-500 mb-1 mt-2" id="quiz-instruction-text">Solve to Win:</h3>
+            <div class="text-xl font-black text-sky-700 mb-4 drop-shadow-sm min-h-[55px] flex items-center justify-center px-2 bg-sky-50/80 rounded-2xl border border-sky-100 w-full" id="math-question-text">Question?</div>
             
             <div id="quiz-options-container" class="w-full flex flex-col gap-2 mb-3">
-                <!-- 3 Options dynamically injected here -->
+                <!-- Options dynamically injected -->
             </div>
             
-            <!-- Added Ad Banner Inside Quiz Modal -->
             <div class="w-full bg-slate-950 flex justify-center items-center rounded-lg overflow-hidden border border-slate-800 mt-1" style="height: 50px;">
                 <iframe srcdoc="<!DOCTYPE html><html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;background:#020617;}</style></head><body><script>atOptions={'key':'c42a343f4fb7a072d67bd6af046bbd08','format':'iframe','height':50,'width':320,'params':{}};</script><script src='https://www.highperformanceformat.com/c42a343f4fb7a072d67bd6af046bbd08/invoke.js'></script></body></html>" width="320" height="50" style="border:none; overflow:hidden;"></iframe>
             </div>
@@ -67,10 +97,10 @@
     <!-- MATH SUCCESS CONGRATS MODAL -->
     <div id="math-success-modal" class="absolute inset-0 bg-slate-950/90 z-[300] hidden flex-col items-center justify-center p-6 text-center">
         <div class="bg-white rounded-3xl p-6 w-full max-w-[300px] shadow-2xl relative overflow-hidden">
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-100 rounded-full opacity-50"></div>
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-sky-100 rounded-full opacity-50"></div>
             <i class="fas fa-check-circle text-6xl text-emerald-500 mb-4 animate-bounce relative z-10 drop-shadow-md"></i>
-            <h3 class="text-xl font-black text-slate-800 mb-2 relative z-10">Congratulations!</h3>
-            <p class="text-[11px] text-slate-500 mb-6 font-bold relative z-10 bg-slate-50 p-2 rounded-lg border border-slate-100">Correct Answer! Click Next to watch a short ad and claim your Coins.</p>
+            <h3 class="text-xl font-black text-slate-800 mb-2 relative z-10" id="quiz-success-title">Congratulations!</h3>
+            <p class="text-[11px] text-slate-500 mb-6 font-bold relative z-10 bg-slate-50 p-2 rounded-lg border border-slate-100" id="quiz-success-msg">Correct Answer! Click Next to watch a short ad and claim your Coins.</p>
             <button onclick="playMathAdAndReward()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black py-3.5 rounded-xl text-xs shadow-lg shadow-emerald-500/30 active:scale-95 transition-transform uppercase tracking-wider flex items-center justify-center gap-2 relative z-10">NEXT <i class="fas fa-arrow-right"></i></button>
         </div>
     </div>
@@ -235,7 +265,7 @@
         </div>
     </div>
 
-    <!-- FULL SCREEN SCRATCH MODAL (Original Cash) -->
+    <!-- FULL SCREEN SCRATCH MODAL -->
     <div id="scratch-modal" class="absolute inset-0 bg-slate-900/95 z-[120] hidden flex-col items-center justify-center p-6 backdrop-blur-md">
         <button id="close-scratch-btn" onclick="closeScratchModal()" class="absolute top-6 right-6 w-10 h-10 bg-white/10 rounded-full text-white text-lg flex items-center justify-center hidden active:scale-95 transition-transform"><i class="fas fa-times"></i></button>
         <h2 class="text-2xl font-black text-white mb-8 tracking-wider">Scratch & Win</h2>
@@ -251,9 +281,7 @@
         <p class="text-emerald-400 font-bold text-sm mt-8 animate-pulse" id="scratch-instruction">Use your finger to completely scratch the card!</p>
     </div>
 
-    <!-- ========================================================================= -->
     <!-- MAIN APP CONTENT (Home Tab) -->
-    <!-- ========================================================================= -->
     <div id="main-content" class="flex-1 overflow-y-auto hide-scrollbar pb-24 relative bg-slate-50">
         <!-- TOP PROFILE + WALLET HEADER -->
         <div class="bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 p-4 pb-8 text-white rounded-b-[30px] shadow-lg relative z-10">
@@ -273,14 +301,12 @@
                     </div>
                 </div>
                 <div class="flex flex-col gap-2 items-end">
-                    <!-- Original Cash Wallet -->
                     <div class="bg-teal-950/40 border border-white/10 px-3 py-1.5 rounded-xl flex items-center gap-2 cursor-pointer shadow-inner min-w-[90px]" onclick="openPage('wallet-page')">
                         <div class="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-[10px]"><i class="fas fa-wallet"></i></div>
                         <div>
                             <div class="text-[11px] font-extrabold text-white" id="header-balance">₹0.00</div>
                         </div>
                     </div>
-                    <!-- New Coin Wallet -->
                     <div class="bg-amber-950/40 border border-amber-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 cursor-pointer shadow-inner min-w-[90px]" onclick="openCoinZone()">
                         <div class="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400 text-[10px]"><i class="fas fa-coins"></i></div>
                         <div>
@@ -337,7 +363,7 @@
             </div>
         </div>
         
-        <!-- RESTORED: TELEGRAM BANNER -->
+        <!-- TELEGRAM BANNER -->
         <div class="px-4 mt-4 mb-2">
             <div class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -351,7 +377,7 @@
             </div>
         </div>
 
-        <!-- NEW: COIN ZONE ENTRY BANNER -->
+        <!-- COIN ZONE ENTRY BANNER -->
         <div class="px-4 mt-4 mb-8">
             <div onclick="openCoinZone()" class="bg-slate-900 rounded-2xl p-4 shadow-lg flex items-center justify-between cursor-pointer border border-amber-500/30 hover:scale-[1.02] transition-transform">
                 <div class="flex items-center gap-3">
@@ -366,72 +392,107 @@
         </div>
     </div>
 
-    <!-- ========================================================================= -->
-    <!-- COIN ZONE MAIN PAGE & FEATURES                                            -->
-    <!-- ========================================================================= -->
-    <div id="coin-zone-page" class="absolute inset-0 bg-slate-50 z-[40] flex flex-col hidden">
-        <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-4 text-white flex items-center justify-between shadow-md shrink-0 sticky top-0 z-20">
+    <!-- COIN ZONE MAIN PAGE & UPGRADED SKY DESIGN FEATURES -->
+    <div id="coin-zone-page" class="absolute inset-0 sky-theme-bg z-[40] flex flex-col hidden">
+        <div class="sky-gradient-header p-4 text-white flex items-center justify-between shadow-lg shrink-0 sticky top-0 z-20">
             <button onclick="closeCoinZone()" class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center text-white hover:bg-white/30 active:scale-95 transition-all"><i class="fas fa-chevron-left text-sm"></i></button>
-            <h2 class="text-base font-black text-white tracking-wide uppercase"><i class="fas fa-coins"></i> Coin Zone</h2>
-            <div class="w-8"></div>
+            <h2 class="text-base font-black text-white tracking-wide uppercase flex items-center gap-2"><i class="fas fa-coins text-amber-300"></i> <span id="lang-cz-title">Coin Zone</span></h2>
+            <button onclick="openLanguageModal()" class="bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1 backdrop-blur-sm border border-white/20 transition-all">
+                <i class="fas fa-globe text-sky-200"></i> <span id="current-lang-code">HI</span>
+            </button>
         </div>
         
-        <div class="flex-1 overflow-y-auto hide-scrollbar pb-20 relative bg-slate-50">
-            <div class="bg-slate-900 p-6 rounded-b-[30px] shadow-lg text-center text-white relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 opacity-5 text-9xl text-amber-500"><i class="fas fa-coins"></i></div>
-                <div class="text-[10px] text-amber-200 font-bold uppercase tracking-widest mb-1 relative z-10">Total Coin Balance</div>
-                <div class="text-4xl font-black text-amber-400 drop-shadow-md mb-4 relative z-10" id="cz-total-coins">0</div>
+        <div class="flex-1 overflow-y-auto hide-scrollbar pb-24 relative">
+            <!-- Header Balance Display Card -->
+            <div class="sky-gradient-header mx-4 mt-4 p-5 rounded-[28px] shadow-xl text-center text-white relative overflow-hidden border border-sky-400/30">
+                <div class="absolute -right-8 -top-8 opacity-10 text-9xl text-white"><i class="fas fa-coins"></i></div>
+                <div class="text-[10px] text-sky-100 font-bold uppercase tracking-widest mb-1 relative z-10" id="lang-cz-bal-title">Total Coin Balance</div>
+                <div class="text-4xl font-black text-amber-300 drop-shadow-md mb-4 relative z-10" id="cz-total-coins">0</div>
                 
                 <div class="grid grid-cols-2 gap-3 relative z-10">
-                    <button onclick="showRealAd(() => openPage('coin-withdraw-page'))" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md active:scale-95 transition-transform"><i class="fas fa-wallet"></i> Withdraw Coins</button>
-                    <button onclick="showRealAd(() => openPage('coin-refer-page'))" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-2 backdrop-blur-sm shadow-md active:scale-95 transition-transform"><i class="fas fa-users"></i> Refer & Earn</button>
+                    <button onclick="openPage('coin-withdraw-page')" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md active:scale-95 transition-transform"><i class="fas fa-wallet"></i> <span id="lang-cz-withdraw-btn">Withdraw Coins</span></button>
+                    <button onclick="showRealAd(() => openPage('coin-refer-page'))" class="bg-white/15 hover:bg-white/25 border border-white/30 text-white font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-2 backdrop-blur-md shadow-md active:scale-95 transition-transform"><i class="fas fa-users"></i> <span id="lang-cz-refer-btn">Refer & Earn</span></button>
                 </div>
             </div>
             
             <div class="px-4 mt-6">
-                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wide mb-3 flex items-center gap-2"><i class="fas fa-tasks text-amber-500 text-base"></i> Coin Tasks</h4>
+                <h4 class="text-xs font-black text-sky-950 uppercase tracking-wide mb-3 flex items-center gap-2"><i class="fas fa-tasks text-sky-600 text-base"></i> <span id="lang-cz-tasks-title">Coin Tasks (5000+ Levels)</span></h4>
                 
                 <div class="space-y-3">
-                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between">
+                    <!-- Math Task Card -->
+                    <div class="sky-glass-card rounded-[22px] p-4 flex items-center justify-between hover:scale-[1.01] transition-transform">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 text-xl"><i class="fas fa-brain"></i></div>
+                            <div class="w-12 h-12 bg-sky-500/10 rounded-2xl flex items-center justify-center text-sky-600 text-xl border border-sky-200/50"><i class="fas fa-calculator"></i></div>
                             <div>
-                                <h5 class="text-sm font-extrabold text-slate-800">Quiz Zone</h5>
-                                <p class="text-[10px] font-medium text-slate-500">5000 Levels, Math, GK & Riddles!</p>
+                                <h5 class="text-sm font-extrabold text-slate-800" id="lang-math-title">Math Quiz Task</h5>
+                                <p class="text-[10px] font-semibold text-slate-500">5000+ Levels | +5 Coins/Lvl (+250 @ 50th)</p>
                             </div>
                         </div>
-                        <button onclick="showRealAd(() => openCoinMath())" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded-xl text-[11px] shadow-sm active:scale-95 transition-transform">PLAY</button>
+                        <button onclick="showRealAd(() => openCoinTaskCategory('math'))" class="bg-sky-600 hover:bg-sky-700 text-white font-black px-4 py-2 rounded-xl text-[11px] shadow-md active:scale-95 transition-transform uppercase tracking-wider" id="lang-play-btn-1">PLAY</button>
                     </div>
                     
-                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between">
+                    <!-- GK & Riddles Task Card -->
+                    <div class="sky-glass-card rounded-[22px] p-4 flex items-center justify-between hover:scale-[1.01] transition-transform">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500 text-xl"><i class="fab fa-telegram-plane"></i></div>
+                            <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-600 text-xl border border-emerald-200/50"><i class="fas fa-lightbulb"></i></div>
                             <div>
-                                <h5 class="text-sm font-extrabold text-slate-800">Join Telegram</h5>
-                                <p class="text-[10px] font-medium text-slate-500">Wait 2 mins, Get 10 coins</p>
+                                <h5 class="text-sm font-extrabold text-slate-800" id="lang-gk-title">GK & Riddles Task</h5>
+                                <p class="text-[10px] font-semibold text-slate-500">5000+ Levels | +5 Coins/Lvl (+250 @ 50th)</p>
                             </div>
                         </div>
-                        <button onclick="showRealAd(() => startCoinTelegram())" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold px-4 py-2 rounded-xl text-[11px] shadow-sm active:scale-95 transition-transform">JOIN</button>
+                        <button onclick="showRealAd(() => openCoinTaskCategory('gk'))" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2 rounded-xl text-[11px] shadow-md active:scale-95 transition-transform uppercase tracking-wider" id="lang-play-btn-2">PLAY</button>
+                    </div>
+
+                    <!-- Science & Logic Task Card -->
+                    <div class="sky-glass-card rounded-[22px] p-4 flex items-center justify-between hover:scale-[1.01] transition-transform">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-600 text-xl border border-purple-200/50"><i class="fas fa-atom"></i></div>
+                            <div>
+                                <h5 class="text-sm font-extrabold text-slate-800" id="lang-science-title">Science & Logic Task</h5>
+                                <p class="text-[10px] font-semibold text-slate-500">5000+ Levels | +5 Coins/Lvl (+250 @ 50th)</p>
+                            </div>
+                        </div>
+                        <button onclick="showRealAd(() => openCoinTaskCategory('science'))" class="bg-purple-600 hover:bg-purple-700 text-white font-black px-4 py-2 rounded-xl text-[11px] shadow-md active:scale-95 transition-transform uppercase tracking-wider" id="lang-play-btn-3">PLAY</button>
+                    </div>
+
+                    <!-- Telegram Task Card -->
+                    <div class="sky-glass-card rounded-[22px] p-4 flex items-center justify-between hover:scale-[1.01] transition-transform">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-600 text-xl border border-indigo-200/50"><i class="fab fa-telegram-plane"></i></div>
+                            <div>
+                                <h5 class="text-sm font-extrabold text-slate-800" id="lang-tg-task-title">Join Official Telegram</h5>
+                                <p class="text-[10px] font-semibold text-slate-500">Wait 2 mins, Get 200 Coins (1 Time Only)</p>
+                            </div>
+                        </div>
+                        <button onclick="showRealAd(() => startCoinTelegram())" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-4 py-2 rounded-xl text-[11px] shadow-md active:scale-95 transition-transform uppercase tracking-wider" id="lang-join-btn">JOIN</button>
                     </div>
                 </div>
             </div>
             
-            <div class="px-4 mt-6 mb-6">
-                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wide mb-3 flex items-center gap-2"><i class="fas fa-dharmachakra text-amber-500 text-base"></i> Spin Section</h4>
+            <!-- Spin Sections -->
+            <div class="px-4 mt-6">
+                <h4 class="text-xs font-black text-sky-950 uppercase tracking-wide mb-3 flex items-center gap-2"><i class="fas fa-dharmachakra text-sky-600 text-base"></i> <span id="lang-spins-section-title">Spin Section</span></h4>
                 
                 <div class="grid grid-cols-2 gap-3">
-                    <div onclick="showRealAd(() => openCoinSpin('normal'))" class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl p-4 shadow-sm cursor-pointer hover:scale-105 transition-transform text-center">
-                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-2"><i class="fas fa-sync"></i></div>
-                        <h5 class="text-xs font-extrabold text-white">Daily Spin</h5>
-                        <p class="text-[9px] font-medium text-purple-200 mt-0.5">3 Limits/Day, Win Coins</p>
+                    <div onclick="showRealAd(() => openCoinSpin('normal'))" class="bg-gradient-to-br from-sky-600 to-blue-700 rounded-[22px] p-4 shadow-lg cursor-pointer hover:scale-[1.02] transition-transform text-center border border-sky-400/30">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-2 border border-white/20"><i class="fas fa-sync"></i></div>
+                        <h5 class="text-xs font-extrabold text-white" id="lang-spin-normal-title">Daily Spin</h5>
+                        <p class="text-[9px] font-medium text-sky-100 mt-0.5">3 Limits/Day, Win Coins</p>
                     </div>
                     
-                    <div onclick="showRealAd(() => openCoinSpin('unlimited'))" class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-4 shadow-sm cursor-pointer hover:scale-105 transition-transform text-center relative overflow-hidden">
+                    <div onclick="showRealAd(() => openCoinSpin('unlimited'))" class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-[22px] p-4 shadow-lg cursor-pointer hover:scale-[1.02] transition-transform text-center relative overflow-hidden border border-rose-400/30">
                         <div class="absolute -right-2 -top-2 bg-amber-400 text-slate-900 text-[8px] font-black px-2 py-0.5 rounded shadow">FREE</div>
-                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-2"><i class="fas fa-infinity"></i></div>
-                        <h5 class="text-xs font-extrabold text-white">Unlimited Spin</h5>
-                        <p class="text-[9px] font-medium text-rose-200 mt-0.5">Watch Ad & Spin (5m)</p>
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-2 border border-white/20"><i class="fas fa-infinity"></i></div>
+                        <h5 class="text-xs font-extrabold text-white" id="lang-spin-unlimited-title">Unlimited Spin</h5>
+                        <p class="text-[9px] font-medium text-rose-100 mt-0.5">Watch Ad & Win (5, 2, 3 Coins)</p>
                     </div>
+                </div>
+            </div>
+
+            <!-- Banner Ads Area (Full Responsive Container) -->
+            <div class="px-4 mt-6 mb-6">
+                <div class="w-full sky-glass-card p-2 rounded-[22px] border border-sky-200/60 shadow-md flex justify-center items-center overflow-hidden min-h-[60px]">
+                    <iframe srcdoc="<!DOCTYPE html><html><head><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;}</style></head><body><script>atOptions={'key':'c42a343f4fb7a072d67bd6af046bbd08','format':'iframe','height':50,'width':320,'params':{}};</script><script src='https://www.highperformanceformat.com/c42a343f4fb7a072d67bd6af046bbd08/invoke.js'></script></body></html>" width="320" height="50" style="border:none; overflow:hidden; max-width: 100%;"></iframe>
                 </div>
             </div>
         </div>
@@ -465,46 +526,68 @@
                     <input type="text" id="cw-upi-id" placeholder="username@upi" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-amber-500 transition-colors">
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-slate-700 mb-1 block">Coins to Withdraw</label>
-                    <select id="cw-amount" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-black text-slate-800 focus:outline-none focus:border-amber-500 transition-colors">
-                        <option value="1000">1000 Coins (₹10)</option>
-                        <option value="2000">2000 Coins (₹20)</option>
-                        <option value="5000">5000 Coins (₹50)</option>
-                        <option value="10000">10000 Coins (₹100)</option>
-                    </select>
+                    <label class="text-[11px] font-bold text-slate-700 mb-1 block">Coins to Withdraw (Min 1000 Coins)</label>
+                    <input type="number" id="cw-amount-input" min="1000" placeholder="Enter coins (e.g. 1500)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-black text-slate-800 focus:outline-none focus:border-amber-500 transition-colors">
                 </div>
                 <button onclick="requestCoinWithdrawal()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-black py-3.5 rounded-xl text-xs shadow-md uppercase tracking-wider mt-2 active:scale-95 transition-transform">REDEEM NOW</button>
             </div>
         </div>
     </div>
 
-    <!-- COIN REFER PAGE -->
-    <div id="coin-refer-page" class="absolute inset-0 bg-slate-50 z-[45] flex flex-col hidden">
-        <div class="bg-slate-900 p-4 text-white flex items-center justify-between shadow-md sticky top-0">
-            <button onclick="closePage('coin-refer-page')" class="text-white text-base hover:text-amber-400"><i class="fas fa-arrow-left"></i></button>
-            <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400">Coin Referral</h2>
+    <!-- UPGRADED PROFESSIONAL COIN REFERRAL PAGE WITH FULL ANALYTICS -->
+    <div id="coin-refer-page" class="absolute inset-0 sky-theme-bg z-[45] flex flex-col hidden">
+        <div class="sky-gradient-header p-4 text-white flex items-center justify-between shadow-md sticky top-0 z-20">
+            <button onclick="closePage('coin-refer-page')" class="text-white text-base hover:text-amber-300"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="text-xs font-extrabold uppercase tracking-wider text-white flex items-center gap-1.5"><i class="fas fa-users-cog"></i> Referral Analytics</h2>
             <div class="w-5"></div>
         </div>
-        <div class="flex-1 overflow-y-auto p-5 text-center">
-            <div class="w-32 h-32 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 text-6xl mx-auto mb-4 border-4 border-amber-200"><i class="fas fa-gift"></i></div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">Get 50 Coins per Refer!</h2>
-            <p class="text-xs text-slate-500 font-medium mb-6 px-4">Share your link and earn 50 coins instantly when your friend registers using your code.</p>
-            
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Your Code</div>
-                <div class="text-2xl font-black text-amber-500 tracking-widest" id="coin-ref-code">00000</div>
-                <div class="grid grid-cols-2 gap-3 mt-4">
-                    <button onclick="copyReferralCode()" class="bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold py-3 rounded-xl text-xs active:scale-95 transition-transform">COPY CODE</button>
-                    <button onclick="shareReferral()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl text-xs active:scale-95 transition-transform"><i class="fab fa-whatsapp"></i> SHARE</button>
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 hide-scrollbar pb-20">
+            <div class="sky-glass-card rounded-[28px] p-5 text-center shadow-lg border border-sky-200/60 relative overflow-hidden">
+                <div class="w-20 h-20 bg-sky-500/10 rounded-full flex items-center justify-center text-sky-600 text-4xl mx-auto mb-3 border border-sky-200"><i class="fas fa-gift"></i></div>
+                <h2 class="text-xl font-black text-slate-800 mb-1">Get 200 Coins per Refer!</h2>
+                <p class="text-[11px] text-slate-500 font-medium mb-4 px-2">Share your link and earn 200 coins instantly per active user.</p>
+                
+                <div class="bg-white p-3.5 rounded-2xl border border-sky-100 shadow-inner">
+                    <div class="text-[9px] font-black text-sky-600 uppercase tracking-widest mb-1">Your Code</div>
+                    <div class="text-2xl font-black text-amber-500 tracking-widest" id="coin-ref-code">00000</div>
+                    <div class="grid grid-cols-2 gap-2 mt-3">
+                        <button onclick="copyReferralCode()" class="bg-sky-100 text-sky-800 hover:bg-sky-200 font-extrabold py-2.5 rounded-xl text-xs active:scale-95 transition-transform">COPY CODE</button>
+                        <button onclick="shareReferral()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold py-2.5 rounded-xl text-xs active:scale-95 transition-transform"><i class="fab fa-whatsapp"></i> SHARE</button>
+                    </div>
                 </div>
             </div>
-            
-            <div class="mt-8 bg-slate-900 rounded-2xl p-4 flex justify-between items-center text-white shadow-inner border border-slate-800">
-                <div class="text-left">
-                    <div class="text-[10px] font-medium text-slate-400 uppercase">Coin Ref Earnings</div>
-                    <div class="text-lg font-black text-amber-400" id="coin-ref-earnings">0 Coins</div>
+
+            <!-- Detailed Analytics Display -->
+            <div class="sky-glass-card rounded-[24px] p-4 border border-sky-200/60 shadow-md">
+                <h4 class="text-xs font-black text-sky-950 uppercase tracking-wide mb-3 flex items-center gap-2"><i class="fas fa-chart-pie text-sky-600"></i> Referral Performance</h4>
+                
+                <div class="grid grid-cols-3 gap-2 text-center mb-3">
+                    <div class="bg-white/80 p-2.5 rounded-2xl border border-sky-100 shadow-sm"><div class="text-[8px] text-slate-500 font-extrabold uppercase">Total Ref</div><div class="text-base font-black text-sky-700" id="analytic-total-ref">0</div></div>
+                    <div class="bg-white/80 p-2.5 rounded-2xl border border-sky-100 shadow-sm"><div class="text-[8px] text-emerald-600 font-extrabold uppercase">Active</div><div class="text-base font-black text-emerald-600" id="analytic-active-ref">0</div></div>
+                    <div class="bg-white/80 p-2.5 rounded-2xl border border-sky-100 shadow-sm"><div class="text-[8px] text-rose-500 font-extrabold uppercase">Inactive</div><div class="text-base font-black text-rose-500" id="analytic-inactive-ref">0</div></div>
                 </div>
-                <i class="fas fa-coins text-3xl opacity-20"></i>
+
+                <div class="grid grid-cols-2 gap-2 text-center mb-3">
+                    <div class="bg-white/80 p-2.5 rounded-2xl border border-sky-100 shadow-sm"><div class="text-[8px] text-slate-500 font-extrabold uppercase">Today's Refs</div><div class="text-sm font-black text-slate-800" id="analytic-today-ref">0</div></div>
+                    <div class="bg-white/80 p-2.5 rounded-2xl border border-sky-100 shadow-sm"><div class="text-[8px] text-slate-500 font-extrabold uppercase">Yesterday's Refs</div><div class="text-sm font-black text-slate-800" id="analytic-yesterday-ref">0</div></div>
+                </div>
+
+                <div class="space-y-2 bg-white/60 p-3 rounded-2xl border border-sky-100">
+                    <div class="flex justify-between items-center text-xs font-bold">
+                        <span class="text-slate-600">Total Coins Earned:</span>
+                        <span class="text-amber-500 font-black" id="analytic-earned-coins">0 Coins</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs font-bold">
+                        <span class="text-slate-600">Pending Coins:</span>
+                        <span class="text-sky-600 font-black" id="analytic-pending-coins">0 Coins</span>
+                    </div>
+                    <div class="mt-2">
+                        <div class="flex justify-between text-[9px] font-black text-slate-500 mb-1"><span>Daily Refer Limit</span><span id="ref-progress-text">0/5 Today</span></div>
+                        <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-sky-500 transition-all duration-500" id="ref-progress-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -513,13 +596,12 @@
     <div id="coin-math-page" class="absolute inset-0 bg-slate-50 z-[45] flex flex-col hidden">
         <div class="bg-slate-900 p-4 text-white flex items-center justify-between shadow-md sticky top-0 z-20">
             <button onclick="closePage('coin-math-page')" class="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center text-white hover:bg-white/20 transition-colors"><i class="fas fa-arrow-left"></i></button>
-            <h2 class="text-xs font-bold uppercase tracking-wider text-blue-300">Quiz Zone Levels</h2>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-blue-300" id="coin-math-title">Task Levels</h2>
             <div class="w-8"></div>
         </div>
         <div class="flex-1 overflow-y-auto p-4 space-y-3 hide-scrollbar pb-20" id="math-levels-container">
-            <!-- Levels 1 to 5000 dynamically loaded here -->
+            <!-- Levels loaded dynamically -->
         </div>
-        <!-- Ad Banner at Bottom of Level List -->
         <div class="absolute bottom-0 left-0 w-full bg-slate-950 flex justify-center items-center border-t border-slate-800 z-30 pt-1 pb-1" style="height: 60px;">
             <iframe srcdoc="<!DOCTYPE html><html><head><style>body{margin:0;display:flex;justify-content:center;align-items:center;background:#020617;}</style></head><body><script>atOptions={'key':'c42a343f4fb7a072d67bd6af046bbd08','format':'iframe','height':50,'width':320,'params':{}};</script><script src='https://www.highperformanceformat.com/c42a343f4fb7a072d67bd6af046bbd08/invoke.js'></script></body></html>" width="320" height="50" style="border:none; overflow:hidden;"></iframe>
         </div>
@@ -786,14 +868,8 @@
                     <input type="text" id="w-upi-id" placeholder="username@paytm" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
-                    <label class="text-[10px] font-medium text-slate-600">Withdrawal Amount (₹)</label>
-                    <select id="w-amount" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 font-bold text-slate-700">
-                        <option value="100">₹100</option>
-                        <option value="200">₹200</option>
-                        <option value="500">₹500</option>
-                        <option value="1000">₹1000</option>
-                        <option value="10000">₹10000</option>
-                    </select>
+                    <label class="text-[10px] font-medium text-slate-600">Withdrawal Amount (Min ₹200)</label>
+                    <input type="number" id="w-amount-input" min="200" placeholder="Enter amount (e.g. 250)" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 font-bold text-slate-700">
                 </div>
                 <button onclick="requestWithdrawal()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-3 rounded-xl text-xs shadow-md">REQUEST WITHDRAWAL</button>
             </div>
@@ -953,8 +1029,154 @@
     let isOriginalSpinning = false;
     let activeMathLevel = 1;
     let activeMathReward = 0;
+    let activeTaskCategory = 'math';
     let quizAns = "";
     let adToggleIndex = 0;
+
+    // --- LANGUAGE DICTIONARY SYSTEM ---
+    let currentLang = localStorage.getItem('earnpro_lang') || 'hi';
+    const langDict = {
+        hi: {
+            code: "HI", name: "हिंदी",
+            title: "कॉइन ज़ोन", balTitle: "कुल कॉइन बैलेंस", withdrawBtn: "कॉइन निकालें", referBtn: "रेफर और कमाएं",
+            tasksTitle: "कॉइन टास्क (5000+ लेवल)", mathTitle: "गणित क्विज़ टास्क", gkTitle: "सामान्य ज्ञान व पहेलियां",
+            scienceTitle: "विज्ञान व तर्कशास्त्र", tgTitle: "ऑफ़िशियल टेलीग्राम ज्वाइन करें",
+            spinsTitle: "स्पिन सेक्शन", spinNormal: "दैनिक स्पिन", spinUnlimited: "अनलिमिटेड फ्री स्पिन",
+            playBtn: "खेलें", joinBtn: "जुड़ें", solveToWin: "जीतने के लिए इसे हल करें:"
+        },
+        en: {
+            code: "EN", name: "English",
+            title: "Coin Zone", balTitle: "Total Coin Balance", withdrawBtn: "Withdraw Coins", referBtn: "Refer & Earn",
+            tasksTitle: "Coin Tasks (5000+ Levels)", mathTitle: "Math Quiz Task", gkTitle: "GK & Riddles Task",
+            scienceTitle: "Science & Logic Task", tgTitle: "Join Official Telegram",
+            spinsTitle: "Spin Section", spinNormal: "Daily Spin", spinUnlimited: "Unlimited Free Spin",
+            playBtn: "PLAY", joinBtn: "JOIN", solveToWin: "Solve to Win:"
+        },
+        bn: {
+            code: "BN", name: "বাংলা",
+            title: "কয়েন জোন", balTitle: "মোট কয়েন ব্যালেন্স", withdrawBtn: "কয়েন তুলুন", referBtn: "রেফার ও ইনকাম",
+            tasksTitle: "কয়েন টাস্ক (5000+ লেভেল)", mathTitle: "গণিত কুইজ টাস্ক", gkTitle: "সাধারণ জ্ঞান ও ধাঁধা",
+            scienceTitle: "বিজ্ঞান ও যুক্তি", tgTitle: "অফিসিয়াল টেলিগ্রাম যোগ দিন",
+            spinsTitle: "স্পিন সেকশন", spinNormal: "দৈনিক স্পিন", spinUnlimited: "আনলিমিটেড ফ্রি স্পিন",
+            playBtn: "খেলুন", joinBtn: "যোগ দিন", solveToWin: "জিততে সমাধান করুন:"
+        },
+        te: {
+            code: "TE", name: "తెలుగు",
+            title: "కాయిన్ జోన్", balTitle: "మొత్తం నాణేల నిల్వ", withdrawBtn: "నాణేలు ఉపసంహరించుకోండి", referBtn: "రెఫర్ & సంపాదించండి",
+            tasksTitle: "కాయిన్ టాస్క్‌లు (5000+ లెవెల్స్)", mathTitle: "గణిత క్విజ్ టాస్క్", gkTitle: "జనరల్ నాలెడ్జ్ & పొడుపుకథలు",
+            scienceTitle: "సైన్స్ & లాజిక్ టాస్క్", tgTitle: "ఆఫీషియల్ టెలిగ్రామ్‌లో చేరండి",
+            spinsTitle: "స్పిన్ విభాగం", spinNormal: "డైలీ స్పిన్", spinUnlimited: "అపరిమిత ఉచిత స్పిన్",
+            playBtn: "ఆడండి", joinBtn: "చేరండి", solveToWin: "గెలవడానికి పరిష్కరించండి:"
+        },
+        ta: {
+            code: "TA", name: "தமிழ்",
+            title: "நாணய மண்டலம்", balTitle: "மொத்த நாணய இருப்பு", withdrawBtn: "நாணயங்களை திரும்பப் பெறுக", referBtn: "பரிந்துரைத்து சம்பாதிக்க",
+            tasksTitle: "நாணய பணிகள் (5000+ நிலைகள்)", mathTitle: "கணித வினாடி வினா பணி", gkTitle: "பொது அறிவு & புதிர்கள்",
+            scienceTitle: "அறிவியல் & தர்க்க பணி", tgTitle: "அதிகாரப்பூர்வ டெலிகிராமில் சேரவும்",
+            spinsTitle: "சுழல் பிரிவு", spinNormal: "தினசரி சுழற்சி", spinUnlimited: "வரம்பற்ற இலவச சுழற்சி",
+            playBtn: "விளையாடு", joinBtn: "சேரவும்", solveToWin: "வெல்ல தீர்வு காணுங்கள்:"
+        },
+        mr: {
+            code: "MR", name: "मराठी",
+            title: "कॉईन झोन", balTitle: "एकूण कॉईन शिल्लक", withdrawBtn: "कॉईन काढा", referBtn: "रेफर करा आणि कमवा",
+            tasksTitle: "कॉईन टास्क (5000+ लेव्हल्स)", mathTitle: "गणित क्विझ टास्क", gkTitle: "सामान्य ज्ञान आणि कोडी",
+            scienceTitle: "विज्ञान आणि तर्कशास्त्र", tgTitle: "अधिकृत टेलिग्राम जॉईन करा",
+            spinsTitle: "स्पिन विभाग", spinNormal: "दैनिक स्पिन", spinUnlimited: "अमर्यादित मोफत स्पिन",
+            playBtn: "खेळा", joinBtn: "जॉईन करा", solveToWin: "जिंकण्यासाठी सोडवा:"
+        },
+        gu: {
+            code: "GU", name: "ગુજરાતી",
+            title: "કોઈન ઝોન", balTitle: "કુલ કોઈન બેલેન્સ", withdrawBtn: "કોઈન ઉપાડો", referBtn: "રેફર કરો અને કમાઓ",
+            tasksTitle: "કોઈન ટાસ્ક (5000+ લેવલ્સ)", mathTitle: "ગણિત ક્વિઝ ટાસ્ક", gkTitle: "સામાન્ય જ્ઞાન અને ઉખાણાં",
+            scienceTitle: "વિજ્ઞાન અને તર્કશાસ્ત્ર", tgTitle: "ઓફિશિયલ ટેલિગ્રામ જોડાઓ",
+            spinsTitle: "સ્પિન વિભાગ", spinNormal: "દૈનિક સ્પિન", spinUnlimited: "અનલિમિટેડ ફ્રી સ્પિન",
+            playBtn: "રમો", joinBtn: "જોડાઓ", solveToWin: "જીતવા માટે ઉકેલો:"
+        },
+        kn: {
+            code: "KN", name: "ಕನ್ನಡ",
+            title: "ನಾಣ್ಯ ವಲಯ", balTitle: "ಒಟ್ಟು ನಾಣ್ಯಗಳ ಬಾಕಿ", withdrawBtn: "ನಾಣ್ಯಗಳನ್ನು ಹಿಂಪಡೆಯಿರಿ", referBtn: "ಉಲ್ಲೇಖಿಸಿ ಮತ್ತು ಗಳಿಸಿ",
+            tasksTitle: "ನಾಣ್ಯ ಕಾರ್ಯಗಳು (5000+ ಹಂತಗಳು)", mathTitle: "ಗಣಿತ ರಸಪ್ರಶ್ನೆ ಕಾರ್ಯ", gkTitle: "ಸಾಮಾನ್ಯ ಜ್ಞಾನ ಮತ್ತು ಒಡಪುಗಳು",
+            scienceTitle: "ವಿಜ್ಞಾನ ಮತ್ತು ತರ್ಕ ಕಾರ್ಯ", tgTitle: "ಅಧಿಕೃತ ಟೆಲಿಗ್ರಾಮ್‌ಗೆ ಸೇರಿ",
+            spinsTitle: "ಸ್ಪಿನ್ ವಿಭಾಗ", spinNormal: "ದೈನಂದಿನ ಸ್ಪಿನ್", spinUnlimited: "ಅನಿಯಮಿತ ಉಚಿತ ಸ್ಪಿನ್",
+            playBtn: "ಪ್ಲೇ ಮಾಡಿ", joinBtn: "ಸೇರಿ", solveToWin: "ಗೆಲ್ಲಲು ಪರಿಹರಿಸಿ:"
+        },
+        ml: {
+            code: "ML", name: "മലയാളം",
+            title: "കോയിൻ സോൺ", balTitle: "ആകെ കോയിൻ ബാലൻസ്", withdrawBtn: "കോയിനുകൾ പിൻവലിക്കുക", referBtn: "റഫർ ചെയ്തു സമ്പാദിക്കൂ",
+            tasksTitle: "കോയിൻ ടാസ്കുകൾ (5000+ ലെവലുകൾ)", mathTitle: "ഗണിത ക്വിസ് ടാസ്ക്", gkTitle: "പൊതുവിജ്ഞാനവും കടങ്കഥകളും",
+            scienceTitle: "സയൻസ് & ലോജിക് ടാസ്ക്", tgTitle: "ഔദ്യോഗിക ടെലഗ്രാമിൽ ചേരുക",
+            spinsTitle: "സ്പിൻ വിഭാഗം", spinNormal: "ദിനചര്യ സ്പിൻ", spinUnlimited: "അൺലിമിറ്റഡ് ഫ്രീ സ്പിൻ",
+            playBtn: "പ്ലേ ചെയ്യുക", joinBtn: "ചേരുക", solveToWin: "ജയിക്കാൻ പരിഹരിക്കുക:"
+        },
+        pa: {
+            code: "PA", name: "ਪੰਜਾਬੀ",
+            title: "ਕੋਇਨ ਜ਼ੋਨ", balTitle: "ਕੁੱਲ ਕੋਇਨ ਬੈਲੇਂਸ", withdrawBtn: "ਕੋਇਨ ਕਢਵਾਓ", referBtn: "ਰੈਫਰ ਕਰੋ ਅਤੇ ਕਮਾਓ",
+            tasksTitle: "ਕੋਇਨ ਟਾਸਕ (5000+ ਲੈਵਲ)", mathTitle: "ਗਣਿਤ ਕੁਇਜ਼ ਟਾਸਕ", gkTitle: "ਜਨਰਲ ਗਿਆਨ ਅਤੇ ਬੁਝਾਰਤਾਂ",
+            scienceTitle: "ਸਾਇੰਸ ਅਤੇ ਲਾਜਿਕ ਟਾਸਕ", tgTitle: "ਅਧਿਕਾਰਤ ਟੈਲੀਗ੍ਰਾਮ ਜੁੜੋ",
+            spinsTitle: "ਸਪਿਨ ਸੈਕਸ਼ਨ", spinNormal: "ਰੋਜ਼ਾਨਾ ਸਪਿਨ", spinUnlimited: "ਅਸੀਮਤ ਮੁਫ਼ਤ ਸਪਿਨ",
+            playBtn: "ਖੇਡੋ", joinBtn: "ਜੁੜੋ", solveToWin: "ਜਿੱਤਣ ਲਈ ਹੱਲ ਕਰੋ:"
+        },
+        or: {
+            code: "OR", name: "ଓଡ଼ିଆ",
+            title: "କଏନ୍ ଜୋନ୍", balTitle: "ମୋଟ କଏନ୍ ବାଲାନ୍ସ", withdrawBtn: "କଏନ୍ ଉଠାନ୍ତୁ", referBtn: "ରେଫର୍ କରନ୍ତୁ ଓ ରୋଜଗାର କରନ୍ତୁ",
+            tasksTitle: "କଏନ୍ ଟାସ୍କ (5000+ ଲେଭଲ୍)", mathTitle: "ଗଣିତ କୁଇଜ୍ ଟାସ୍କ", gkTitle: "ସାଧାରଣ ଜ୍ଞାନ ଓ ନାଆଁ",
+            scienceTitle: "ବିଜ୍ଞାନ ଓ ତର୍କ", tgTitle: "ଅଫିସିଆଲ୍ ଟେଲିଗ୍ରାମ୍ ଯୋଗ ଦିଅନ୍ତୁ",
+            spinsTitle: "ସ୍ପିନ୍ ସେକ୍ସନ୍", spinNormal: "ଦୈନିକ ସ୍ପିନ୍", spinUnlimited: "ଅସୀମିତ ମାଗଣା ସ୍ପିନ୍",
+            playBtn: "ଖେଳନ୍ତୁ", joinBtn: "ଯୋଗ ଦିଅନ୍ତୁ", solveToWin: "ଜିତିବା ପାଇଁ ସମାଧାନ କରନ୍ତୁ:"
+        }
+    };
+
+    function updateCoinZoneLanguageUI() {
+        let d = langDict[currentLang] || langDict.hi;
+        document.getElementById('current-lang-code').innerText = d.code;
+        if(document.getElementById('lang-cz-title')) document.getElementById('lang-cz-title').innerText = d.title;
+        if(document.getElementById('lang-cz-bal-title')) document.getElementById('lang-cz-bal-title').innerText = d.balTitle;
+        if(document.getElementById('lang-cz-withdraw-btn')) document.getElementById('lang-cz-withdraw-btn').innerText = d.withdrawBtn;
+        if(document.getElementById('lang-cz-refer-btn')) document.getElementById('lang-cz-refer-btn').innerText = d.referBtn;
+        if(document.getElementById('lang-cz-tasks-title')) document.getElementById('lang-cz-tasks-title').innerText = d.tasksTitle;
+        if(document.getElementById('lang-math-title')) document.getElementById('lang-math-title').innerText = d.mathTitle;
+        if(document.getElementById('lang-gk-title')) document.getElementById('lang-gk-title').innerText = d.gkTitle;
+        if(document.getElementById('lang-science-title')) document.getElementById('lang-science-title').innerText = d.scienceTitle;
+        if(document.getElementById('lang-tg-task-title')) document.getElementById('lang-tg-task-title').innerText = d.tgTitle;
+        if(document.getElementById('lang-spins-section-title')) document.getElementById('lang-spins-section-title').innerText = d.spinsTitle;
+        if(document.getElementById('lang-spin-normal-title')) document.getElementById('lang-spin-normal-title').innerText = d.spinNormal;
+        if(document.getElementById('lang-spin-unlimited-title')) document.getElementById('lang-spin-unlimited-title').innerText = d.spinUnlimited;
+        if(document.getElementById('lang-play-btn-1')) document.getElementById('lang-play-btn-1').innerText = d.playBtn;
+        if(document.getElementById('lang-play-btn-2')) document.getElementById('lang-play-btn-2').innerText = d.playBtn;
+        if(document.getElementById('lang-play-btn-3')) document.getElementById('lang-play-btn-3').innerText = d.playBtn;
+        if(document.getElementById('lang-join-btn')) document.getElementById('lang-join-btn').innerText = d.joinBtn;
+        if(document.getElementById('quiz-instruction-text')) document.getElementById('quiz-instruction-text').innerText = d.solveToWin;
+    }
+
+    function openLanguageModal() {
+        let listContainer = document.getElementById('language-options-list');
+        listContainer.innerHTML = '';
+        Object.keys(langDict).forEach(key => {
+            let item = langDict[key];
+            let activeClass = key === currentLang ? 'bg-sky-500 text-white border-sky-600' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-sky-50';
+            listContainer.innerHTML += `
+                <button onclick="setAppLanguage('${key}')" class="p-3 rounded-2xl border text-xs font-black flex items-center justify-between shadow-sm transition-all ${activeClass}">
+                    <span>${item.name}</span>
+                    <span class="text-[9px] opacity-80 uppercase">${item.code}</span>
+                </button>
+            `;
+        });
+        document.getElementById('language-modal').classList.remove('hidden');
+        document.getElementById('language-modal').classList.add('flex');
+    }
+
+    function closeLanguageModal() {
+        document.getElementById('language-modal').classList.add('hidden');
+        document.getElementById('language-modal').classList.remove('flex');
+    }
+
+    function setAppLanguage(langKey) {
+        currentLang = langKey;
+        localStorage.setItem('earnpro_lang', langKey);
+        updateCoinZoneLanguageUI();
+        closeLanguageModal();
+        showToast('Language updated!', 'success');
+    }
 
     function showLoader() { document.getElementById('loader').classList.remove('hidden'); document.getElementById('loader').classList.add('flex'); }
     function hideLoader() { document.getElementById('loader').classList.add('hidden'); document.getElementById('loader').classList.remove('flex'); }
@@ -1005,7 +1227,7 @@
             iframe.style.top = "2px";
             iframe.style.left = "0";
 
-            adHtml = `<!DOCTYPE html><html><head><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:#0f172a;overflow:hidden;}</style></head><body><script>atOptions={'key':'c6d5a88abf9abec3fbcab7d72f28f1a2','format':'iframe','height':90,'width':728,'params':{}};<\/script><script src="https://www.highperformanceformat.com/c6d5a88abf9abec3fbcab7d72f28f1a2/invoke.js"><\/script></body></html>`;
+            adHtml = `<!DOCTYPE html><html><head><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:#0f172a;overflow:hidden;}</style></head><body><script>atOptions={'key':'c6d5a88abf9abec3fbcab7d72f28f1a2','format':'iframe','height':90,'width':728,'params':{}};\x3c/script><script src="https://www.highperformanceformat.com/c6d5a88abf9abec3fbcab7d72f28f1a2/invoke.js">\x3c/script></body></html>`;
         } else {
             adContainer.style.width = "300px";
             adContainer.style.height = "50px";
@@ -1016,7 +1238,7 @@
             iframe.style.top = "0";
             iframe.style.left = "0";
 
-            adHtml = `<!DOCTYPE html><html><head><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:#0f172a;overflow:hidden;}</style></head><body><script>atOptions={'key':'c42a343f4fb7a072d67bd6af046bbd08','format':'iframe','height':50,'width':320,'params':{}};<\/script><script src="https://www.highperformanceformat.com/c42a343f4fb7a072d67bd6af046bbd08/invoke.js"><\/script></body></html>`;
+            adHtml = `<!DOCTYPE html><html><head><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:#0f172a;overflow:hidden;}</style></head><body><script>atOptions={'key':'c42a343f4fb7a072d67bd6af046bbd08','format':'iframe','height':50,'width':320,'params':{}};\x3c/script><script src="https://www.highperformanceformat.com/c42a343f4fb7a072d67bd6af046bbd08/invoke.js">\x3c/script></body></html>`;
         }
 
         adToggleIndex++;
@@ -1026,7 +1248,7 @@
         iframeDoc.write(adHtml);
         iframeDoc.close();
         
-        let timeLeft = 10;
+        let timeLeft = 5;
         btn.innerText = `Wait ${timeLeft}s...`;
         btn.classList.remove('hidden');
         btn.disabled = true;
@@ -1106,6 +1328,7 @@
             loadUserData(user.uid); 
             listenForAdminMessages(user.uid);
             generateAvatars();
+            updateCoinZoneLanguageUI();
         } else {
             currentAuthUser = null; 
             hideLoader();
@@ -1161,14 +1384,23 @@
                 if(snap.exists()) {
                     let referrerKey = Object.keys(snap.val())[0];
                     let referrer = snap.val()[referrerKey];
-                    rL1 = String(referrer.uid).trim() || "";
-                    rL2 = String(referrer.referredByL1 || referrer.referredBy || "").trim() || "";
-                    rL3 = String(referrer.referredByL2 || "").trim() || "";
-                    
-                    db.ref('users/'+referrerKey).update({ 
-                        coinBalance: Number(referrer.coinBalance||0) + 50, 
-                        coinRefEarnings: Number(referrer.coinRefEarnings||0) + 50 
-                    });
+
+                    let today = new Date().toLocaleDateString();
+                    let refDate = referrer.lastCoinRefDate === today ? referrer.lastCoinRefDate : today;
+                    let refCount = referrer.lastCoinRefDate === today ? (referrer.dailyCoinRefCount || 0) : 0;
+
+                    if(refCount < 5) {
+                        rL1 = String(referrer.uid).trim() || "";
+                        rL2 = String(referrer.referredByL1 || referrer.referredBy || "").trim() || "";
+                        rL3 = String(referrer.referredByL2 || "").trim() || "";
+                        
+                        db.ref('users/'+referrerKey).update({ 
+                            coinBalance: Number(referrer.coinBalance||0) + 200, 
+                            coinRefEarnings: Number(referrer.coinRefEarnings||0) + 200,
+                            dailyCoinRefCount: refCount + 1,
+                            lastCoinRefDate: refDate
+                        });
+                    }
                 } else {
                     hideLoader(); showToast('Invalid Referral Code', 'error'); return;
                 }
@@ -1184,7 +1416,9 @@
                 coinRefEarnings: 0,
                 coinSpinsLeft: 3,
                 lastCoinSpinDate: new Date().toLocaleDateString(),
-                mathLevel: 1, 
+                mathLevel: 1,
+                gkLevel: 1,
+                scienceLevel: 1, 
                 spinsLeft: 3, 
                 lastSpinDate: new Date().toLocaleDateString(), 
                 status: 'Active', 
@@ -1193,7 +1427,8 @@
                 taskBypass: false,
                 referredByL1: rL1,
                 referredByL2: rL2,
-                referredByL3: rL3
+                referredByL3: rL3,
+                joinedDate: new Date().toLocaleDateString()
             };
             
             await db.ref('users/' + res.user.uid).set(newUser); 
@@ -1216,6 +1451,8 @@
                 if(currentUserData.lastCoinSpinDate !== new Date().toLocaleDateString()) { updatesNeeded.coinSpinsLeft = 3; updatesNeeded.lastCoinSpinDate = new Date().toLocaleDateString(); }
                 if(currentUserData.lastSpinDate !== new Date().toLocaleDateString()) { updatesNeeded.spinsLeft = 3; updatesNeeded.lastSpinDate = new Date().toLocaleDateString(); }
                 if(currentUserData.mathLevel === undefined) { updatesNeeded.mathLevel = 1; }
+                if(currentUserData.gkLevel === undefined) { updatesNeeded.gkLevel = 1; }
+                if(currentUserData.scienceLevel === undefined) { updatesNeeded.scienceLevel = 1; }
                 
                 if(Object.keys(updatesNeeded).length > 0) {
                     db.ref('users/' + uid).update(updatesNeeded);
@@ -1271,7 +1508,6 @@
         if(document.getElementById('cz-total-coins')) document.getElementById('cz-total-coins').innerText = coins;
         if(document.getElementById('cw-avail-bal')) document.getElementById('cw-avail-bal').innerText = coins;
         if(document.getElementById('coin-ref-code')) document.getElementById('coin-ref-code').innerText = currentUserData.uid || '00000';
-        if(document.getElementById('coin-ref-earnings')) document.getElementById('coin-ref-earnings').innerText = (currentUserData.coinRefEarnings || 0) + ' Coins';
 
         document.getElementById('profile-name').innerText = currentUserData.name || 'User Name'; 
         document.getElementById('profile-email').innerText = currentUserData.email || 'Email';
@@ -1305,10 +1541,11 @@
     }
 
     function requestWithdrawal() {
-        const amount = Number(document.getElementById('w-amount').value); 
+        const amount = Number(document.getElementById('w-amount-input').value); 
         const upi = document.getElementById('w-upi-id').value.trim();
         
         if (!upi) { showToast('Enter UPI ID', 'error'); return; } 
+        if (!amount || amount < 200) { showToast('Min withdrawal amount is ₹200', 'error'); return; }
         if (currentUserData && amount > currentUserData.balance) { showToast('Insufficient balance', 'error'); return; }
         
         let today = new Date().toLocaleDateString();
@@ -1649,16 +1886,18 @@
         }
     }
 
+    // --- UPGRADED PROFESSIONAL REFERRAL ANALYTICS SYSTEM ---
     function loadReferralData() {
         if (!currentUserData || !currentUserData.uid) return;
         const myUid = String(currentUserData.uid).trim();
+        const today = new Date().toLocaleDateString();
+        const yesterday = new Date(Date.now() - 86400000).toLocaleDateString();
         
         db.ref('users').orderByChild('referredByL1').equalTo(myUid).on('value', snap => {
             const container = document.getElementById('referral-list-container');
-            if(!container) return;
             
-            let totalRefs = 0;
-            let activeRefs = 0;
+            let totalRefs = 0, activeRefs = 0, inactiveRefs = 0;
+            let todayRefs = 0, yesterdayRefs = 0;
             let html = '';
             
             if(snap.exists()) {
@@ -1668,14 +1907,18 @@
                     
                     let hasCompletedTask = u.firstTaskCompleted === true || (u.breakdown && u.breakdown.tasks > 0);
                     if(hasCompletedTask) activeRefs++;
+                    else inactiveRefs++;
+
+                    if(u.joinedDate === today) todayRefs++;
+                    if(u.joinedDate === yesterday) yesterdayRefs++;
                     
                     let statusHtml = hasCompletedTask 
-                        ? `<span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1.5 rounded-lg"><i class="fas fa-check-circle"></i> Completed Task</span>` 
-                        : `<span class="text-[9px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1.5 rounded-lg"><i class="fas fa-clock"></i> Waiting</span>`;
+                        ? `<span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1.5 rounded-lg"><i class="fas fa-check-circle"></i> Active</span>` 
+                        : `<span class="text-[9px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1.5 rounded-lg"><i class="fas fa-clock"></i> Pending</span>`;
                         
                     html += `
                         <div class="flex items-center justify-between p-3.5 bg-slate-50/50 rounded-xl border border-slate-100 mb-2">
-                            <div><div class="text-xs font-extrabold text-slate-800">${u.name}</div><div class="text-[10px] text-slate-500 font-medium">Joined UID: ${u.uid}</div></div>
+                            <div><div class="text-xs font-extrabold text-slate-800">${u.name}</div><div class="text-[10px] text-slate-500 font-medium">Joined: ${u.joinedDate || 'N/A'} | UID: ${u.uid}</div></div>
                             ${statusHtml}
                         </div>
                     `;
@@ -1684,10 +1927,24 @@
             
             if (totalRefs === 0) html = '<div class="text-center p-6 text-[12px] text-slate-400 bg-slate-50 rounded-xl border border-slate-100 border-dashed">No referrals yet. Share your code with friends!</div>';
             
-            container.innerHTML = html;
-            document.getElementById('ref-total-count').innerText = totalRefs;
-            document.getElementById('ref-active-count').innerText = activeRefs;
-            document.getElementById('ref-total-earnings').innerText = '₹' + Number(currentUserData.refEarnings || 0).toFixed(2);
+            if(container) container.innerHTML = html;
+            
+            if(document.getElementById('ref-total-count')) document.getElementById('ref-total-count').innerText = totalRefs;
+            if(document.getElementById('ref-active-count')) document.getElementById('ref-active-count').innerText = activeRefs;
+            if(document.getElementById('ref-total-earnings')) document.getElementById('ref-total-earnings').innerText = '₹' + Number(currentUserData.refEarnings || 0).toFixed(2);
+            
+            // Analytics UI Updates
+            if(document.getElementById('analytic-total-ref')) document.getElementById('analytic-total-ref').innerText = totalRefs;
+            if(document.getElementById('analytic-active-ref')) document.getElementById('analytic-active-ref').innerText = activeRefs;
+            if(document.getElementById('analytic-inactive-ref')) document.getElementById('analytic-inactive-ref').innerText = inactiveRefs;
+            if(document.getElementById('analytic-today-ref')) document.getElementById('analytic-today-ref').innerText = todayRefs;
+            if(document.getElementById('analytic-yesterday-ref')) document.getElementById('analytic-yesterday-ref').innerText = yesterdayRefs;
+            if(document.getElementById('analytic-earned-coins')) document.getElementById('analytic-earned-coins').innerText = (currentUserData.coinRefEarnings || 0) + ' Coins';
+            if(document.getElementById('analytic-pending-coins')) document.getElementById('analytic-pending-coins').innerText = (inactiveRefs * 200) + ' Coins';
+            
+            let dailyCount = currentUserData.lastCoinRefDate === today ? (currentUserData.dailyCoinRefCount || 0) : 0;
+            if(document.getElementById('ref-progress-text')) document.getElementById('ref-progress-text').innerText = `${dailyCount}/5 Today`;
+            if(document.getElementById('ref-progress-bar')) document.getElementById('ref-progress-bar').style.width = `${(dailyCount / 5) * 100}%`;
         });
     }
 
@@ -1911,38 +2168,53 @@
             } else { content.innerHTML = "<p class='text-center py-4 text-slate-400'>No history found.</p>"; }
         });
     }
-    
-    function openVideoLink() { if(currentSelectedTask?.videoLink) window.open(currentSelectedTask.videoLink); }
-    function openAppLink() { if(currentSelectedTask?.appLink) window.open(currentSelectedTask.appLink); }
-    function openTelegramAdmin() { window.open(appSettings.telegramSupport || 'https://t.me/', '_blank'); }
 
-    function openCoinZone() { openPage('coin-zone-page'); }
+    function openCoinZone() { updateCoinZoneLanguageUI(); openPage('coin-zone-page'); }
     function closeCoinZone() { closePage('coin-zone-page'); }
 
-    // Updated reward rule: 250 coins on every 50th level, 5 coins on all other levels
-    function getMathReward(lvl) {
+    function getTaskReward(lvl) {
         if(lvl % 50 === 0) return 250;
         return 5;
     }
 
-    function openCoinMath() {
+    function openCoinTaskCategory(cat) {
+        activeTaskCategory = cat;
+        let d = langDict[currentLang] || langDict.hi;
+        let title = d.mathTitle;
+        if(cat === 'gk') title = d.gkTitle;
+        if(cat === 'science') title = d.scienceTitle;
+        
+        document.getElementById('coin-math-title').innerText = title;
         openPage('coin-math-page');
-        renderMathLevels();
+        renderTaskLevels();
     }
 
-    function renderMathLevels() {
-        let currentLvl = currentUserData.mathLevel || 1;
-        let html = '';
-        for(let i=1; i<=5000; i++) {
-            let reward = getMathReward(i);
+    // --- LAZY DYNAMIC BATCHED LEVEL RENDERING (SOLVES 5000+ DOM LAG COMPLETELY) ---
+    function renderTaskLevels() {
+        let currentLvl = 1;
+        if(activeTaskCategory === 'math') currentLvl = currentUserData.mathLevel || 1;
+        else if(activeTaskCategory === 'gk') currentLvl = currentUserData.gkLevel || 1;
+        else if(activeTaskCategory === 'science') currentLvl = currentUserData.scienceLevel || 1;
+
+        const container = document.getElementById('math-levels-container');
+        container.innerHTML = '';
+
+        // Render Current Level Window (Range: Current - 5 to Current + 45) to prevent lag
+        let startLvl = Math.max(1, currentLvl - 5);
+        let endLvl = Math.min(5000, startLvl + 50);
+
+        let html = `<div class="bg-sky-100/70 text-sky-800 p-2.5 rounded-xl text-[11px] font-extrabold text-center mb-2">Displaying Levels ${startLvl} to ${endLvl} of 5000</div>`;
+
+        for(let i = startLvl; i <= endLvl; i++) {
+            let reward = getTaskReward(i);
             let bgClass = '', statusHtml = '';
             
             if(i < currentLvl) {
                 bgClass = 'bg-emerald-500/10 border-emerald-500/30';
                 statusHtml = '<div class="text-emerald-500 text-lg"><i class="fas fa-check-circle"></i></div>';
             } else if(i === currentLvl) {
-                bgClass = 'bg-blue-500/20 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.2)]';
-                statusHtml = `<button onclick="playMathLevel(${i}, ${reward})" class="bg-blue-600 hover:bg-blue-500 text-white font-black px-5 py-2 rounded-xl text-[11px] shadow-lg animate-pulse tracking-wide">PLAY</button>`;
+                bgClass = 'bg-sky-500/20 border-sky-500/50 shadow-[0_0_15px_rgba(14,165,233,0.2)]';
+                statusHtml = `<button onclick="playTaskLevel(${i}, ${reward})" class="bg-sky-600 hover:bg-sky-500 text-white font-black px-5 py-2 rounded-xl text-[11px] shadow-lg animate-pulse tracking-wide">PLAY</button>`;
             } else {
                 bgClass = 'bg-slate-800 border-slate-700 opacity-50';
                 statusHtml = '<div class="text-slate-500"><i class="fas fa-lock"></i></div>';
@@ -1960,40 +2232,359 @@
                 ${statusHtml}
             </div>`;
         }
-        document.getElementById('math-levels-container').innerHTML = html;
+        
+        container.innerHTML = html;
         
         setTimeout(() => {
-            let activeEl = document.querySelector('.bg-blue-500\\/20');
+            let activeEl = document.querySelector('.bg-sky-500\\/20');
             if(activeEl) activeEl.scrollIntoView({behavior: 'smooth', block: 'center'});
-        }, 300);
+        }, 100);
     }
 
-    // Static question bank for non-math categories translated to Hindi with 3 options
-    const gkQuizBank = [
-        { cat: "सामान्य ज्ञान", q: "भारत की राजधानी क्या है?", options: ["नई दिल्ली", "मुंबई", "कोलकाता"], answer: "नई दिल्ली" },
-        { cat: "सामान्य ज्ञान", q: "एक दिन में कितने घंटे होते हैं?", options: ["24", "12", "48"], answer: "24" },
-        { cat: "विज्ञान", q: "पानी का रासायनिक सूत्र क्या है?", options: ["H2O", "CO2", "O2"], answer: "H2O" },
-        { cat: "सामान्य ज्ञान", q: "भारत का राष्ट्रीय पशु कौन सा है?", options: ["बाघ", "शेर", "हाथी"], answer: "बाघ" },
-        { cat: "सामान्य ज्ञान", q: "किस ग्रह को लाल ग्रह कहा जाता है?", options: ["मंगल", "शुक्र", "बृहस्पति"], answer: "मंगल" },
-        { cat: "सामान्य ज्ञान", q: "लीप वर्ष में कितने दिन होते हैं?", options: ["366", "365", "364"], answer: "366" },
-        { cat: "पहेलियाँ", q: "वह क्या है जिसके हाथ हैं लेकिन ताली नहीं बजा सकता?", options: ["घड़ी", "पेड़", "कुर्सी"], answer: "घड़ी" },
-        { cat: "सामान्य ज्ञान", q: "इंद्रधनुष में कितने रंग होते हैं?", options: ["7", "5", "8"], answer: "7" },
-        { cat: "सामान्य ज्ञान", q: "रेगिस्तान का जहाज किस जानवर को कहा जाता है?", options: ["ऊंट", "घोड़ा", "हाथी"], answer: "ऊंट" },
-        { cat: "पहेलियाँ", q: "किस महीने में 28 दिन होते हैं?", options: ["हर महीने में", "सिर्फ फरवरी", "इनमें से कोई नहीं"], answer: "हर महीने में" },
-        { cat: "सामान्य ज्ञान", q: "अंग्रेजी वर्णमाला में कितने अक्षर होते हैं?", options: ["26", "24", "28"], answer: "26" },
-        { cat: "विज्ञान", q: "पौधे कौन सी गैस सोखते हैं?", options: ["कार्बन डाइऑक्साइड", "ऑक्सीजन", "नाइट्रोजन"], answer: "कार्बन डाइऑक्साइड" },
-        { cat: "सामान्य ज्ञान", q: "पृथ्वी पर सबसे बड़ा महासागर कौन सा है?", options: ["प्रशांत महासागर", "हिंद महासागर", "अटलांटिक महासागर"], answer: "प्रशांत महासागर" },
-        { cat: "सामान्य ज्ञान", q: "दुनिया में कितने महाद्वीप हैं?", options: ["7", "5", "6"], answer: "7" }
-    ];
+    // --- MULTILINGUAL QUESTION AND ANSWER GENERATOR ---
+    const quizTranslations = {
+        gk: [
+            {
+                en: { q: "Capital of India?", a: "New Delhi", w: ["Mumbai", "Kolkata"] },
+                hi: { q: "भारत की राजधानी क्या है?", a: "नई दिल्ली", w: ["मुंबई", "कोलकाता"] },
+                bn: { q: "ভারতের রাজধানী কোনটি?", a: "নয়াদিল্লি", w: ["মুম্বাই", "কলকাতা"] },
+                te: { q: "భారతదేశ రాజధాని ఏది?", a: "న్యూఢిల్లీ", w: ["ముంబై", "కోల్‌కతా"] },
+                ta: { q: "இந்தியாவின் தலைநகரம் எது?", a: "புதுடெல்லி", w: ["மும்பை", "கொல்கத்தா"] },
+                mr: { q: "भारताची राजधानी कोणती?", a: "नवी दिल्ली", w: ["मुंबई", "कोलकाता"] },
+                gu: { q: "ભારતનું પાટનગર કયું છે?", a: "નવી દિલ્હી", w: ["મુંબઈ", "કોલકાતા"] },
+                kn: { q: "ಭಾರತದ ರಾಜಧಾನಿ ಯಾವುದು?", a: "ನವದೆಹಲಿ", w: ["ಮುಂಬೈ", "ಕೋಲ್ಕತ್ತಾ"] },
+                ml: { q: "ഇന്ത്യയുടെ തലസ്ഥാനം ഏതാണ്?", a: "ന്യൂഡൽഹി", w: ["മുംബൈ", "കൊൽക്കത്ത"] },
+                pa: { q: "ਭਾਰਤ ਦੀ ਰਾਜਧਾਨੀ ਕਿਹੜੀ ਹੈ?", a: "ਨਵੀਂ ਦਿੱਲੀ", w: ["ਮੁੰਬਈ", "ਕੋਲਕਾਤਾ"] },
+                or: { q: "ଭାରତର ରାଜଧାନୀ କିଏ?", a: "ନୂଆଦିଲ୍ଲୀ", w: ["ମୁମ୍ବାଇ", "କୋଲକାତା"] }
+            },
+            {
+                en: { q: "How many hours in a day?", a: "24", w: ["12", "48"] },
+                hi: { q: "एक दिन में कितने घंटे होते हैं?", a: "24", w: ["12", "48"] },
+                bn: { q: "এক দিনে কত ঘণ্টা থাকে?", a: "24", w: ["12", "48"] },
+                te: { q: "ఒక రోజులో ఎన్ని గంటలు ఉంటాయి?", a: "24", w: ["12", "48"] },
+                ta: { q: "ஒரு நாளில் எத்தனை மணிநேரம் உள்ளது?", a: "24", w: ["12", "48"] },
+                mr: { q: "एका दिवसात किती तास असतात?", a: "24", w: ["12", "48"] },
+                gu: { q: "એક દિવસમાં કેટલા કલાક હોય છે?", a: "24", w: ["12", "48"] },
+                kn: { q: "ಒಂದು ದಿನದಲ್ಲಿ ಎಷ್ಟು ಗಂಟೆಗಳಿವೆ?", a: "24", w: ["12", "48"] },
+                ml: { q: "ഒരു ദിവസത്തിൽ എത്ര മണിക്കൂറുകളുണ്ട്?", a: "24", w: ["12", "48"] },
+                pa: { q: "ਇੱਕ ਦਿਨ ਵਿੱਚ ਕਿੰਨੇ ਘੰਟੇ ਹੁੰਦੇ ਹਨ?", a: "24", w: ["12", "48"] },
+                or: { q: "ଗୋଟିଏ ଦିନରେ କେତେ ଘଣ୍ଟା ଥାଏ?", a: "24", w: ["12", "48"] }
+            },
+            {
+                en: { q: "National Animal of India?", a: "Tiger", w: ["Lion", "Elephant"] },
+                hi: { q: "भारत का राष्ट्रीय पशु कौन सा है?", a: "बाघ", w: ["शेर", "हाथी"] },
+                bn: { q: "ভারতের জাতীয় পশু কোনটি?", a: "বাঘ", w: ["সিংহ", "হাতি"] },
+                te: { q: "భారత జాతీయ జంతువు ఏది?", a: "పులి", w: ["సింహం", "ఏనుగు"] },
+                ta: { q: "இந்தியாவின் தேசிய விலங்கு எது?", a: "புலி", w: ["சிங்கம்", "யானை"] },
+                mr: { q: "भारताचा राष्ट्रीय प्राणी कोणता?", a: "वाघ", w: ["सिंह", "हत्ती"] },
+                gu: { q: "ભારતનું રાષ્ટ્રીય પ્રાણી કયું છે?", a: "વાઘ", w: ["સિંહ", "હાથી"] },
+                kn: { q: "ಭಾರತದ ರಾಷ್ಟ್ರೀಯ ಪ್ರಾಣಿ ಯಾವುದು?", a: "ಹುಲಿ", w: ["ಸಿಂಹ", "ಆನೆ"] },
+                ml: { q: "ഇന്ത്യയുടെ ദേശീയ മൃഗം ഏതാണ്?", a: "കടുവ", w: ["സിംഹം", "ആന"] },
+                pa: { q: "ਭਾਰਤ ਦਾ ਰਾਸ਼ਟਰੀ ਜਾਨਵਰ ਕਿਹੜਾ ਹੈ?", a: "ਬਾਘ", w: ["ਸ਼ੇਰ", "ਹਾਥੀ"] },
+                or: { q: "ଭାରତର ଜାତୀୟ ପଶୁ କିଏ?", a: "ବାଘ", w: ["ସିଂହ", "ହାତୀ"] }
+            },
+            {
+                en: { q: "Which animal is called Ship of the Desert?", a: "Camel", w: ["Horse", "Elephant"] },
+                hi: { q: "रेगिस्तान का जहाज किसे कहा जाता है?", a: "ऊंट", w: ["घोड़ा", "हाथी"] },
+                bn: { q: "মরুভূমির জাহাজ কাকে বলা হয়?", a: "উট", w: ["ঘোড়া", "হাতি"] },
+                te: { q: "ఎడారి ఓడ అని దేనిని పిలుస్తారు?", a: "ఒంటె", w: ["గుర్రం", "ఏనుగు"] },
+                ta: { q: "பாலைவனக் கப்பல் என்று அழைக்கப்படும் விலங்கு எது?", a: "ஒட்டகம்", w: ["குதிரை", "யானை"] },
+                mr: { q: "वाळवंटातील जहाज कोणाला म्हणतात?", a: "उंट", w: ["घोडा", "हत्ती"] },
+                gu: { q: "રણનું વહાણ કોને કહેવાય છે?", a: "ઊંટ", w: ["ઘોડો", "હાથી"] },
+                kn: { q: "ಮರುಭೂಮಿಯ ಹಡಗು ಎಂದು ಯಾವುದನ್ನು ಕರೆಯಲಾಗುತ್ತದೆ?", a: "ಒಂಟೆ", w: ["ಕುದುರೆ", "ಆನೆ"] },
+                ml: { q: "മരുഭൂമിയിലെ കപ്പൽ എന്ന് വിളിക്കപ്പെടുന്നത് ഏതിനെയാണ്?", a: "ഒട്ടകം", w: ["കുതിര", "ആന"] },
+                pa: { q: "ਰੇਗਿਸਤਾਨ ਦਾ ਜਹਾਜ਼ ਕਿਸਨੂੰ ਕਿਹਾ ਜਾਂਦਾ ਹੈ?", a: "ਊਠ", w: ["ਘੋੜਾ", "ਹਾਥੀ"] },
+                or: { q: "ମରୁଭୂମିର ଜାହାଜ କାହାକୁ କୁହାଯାଏ?", a: "ଓଟ", w: ["ଘୋଡ଼ା", "ହାତୀ"] }
+            },
+            {
+                en: { q: "Has hands but cannot clap?", a: "Clock", w: ["Tree", "Chair"] },
+                hi: { q: "हाथ हैं पर ताली नहीं बजा सकता?", a: "घड़ी", w: ["पेड़", "कुर्सी"] },
+                bn: { q: "হাত আছে কিন্তু তালি বাজাতে পারে না?", a: "ঘড়ি", w: ["গাছ", "চেয়ার"] },
+                te: { q: "చేతులు ఉంటాయి కానీ చప్పట్లు కొట్టలేదు?", a: "గడియారం", w: ["చెట్టు", "కుర్చీ"] },
+                ta: { q: "கைகள் உண்டு ஆனால் கைதட்ட முடியாது?", a: "கடிகாரம்", w: ["மரம்", "நாற்காலி"] },
+                mr: { q: "हात आहेत पण टाळी वाजवू शकत नाही?", a: "घड्याळ", w: ["झाड", "खुर्ची"] },
+                gu: { q: "હાથ છે પણ તાળી પાડી શકતું નથી?", a: "ઘડિયાળ", w: ["ઝાડ", "ખુરશી"] },
+                kn: { q: "ಕೈಗಳಿವೆ ಆದರೆ ಚಪ್ಪಾಳೆ ತಟ್ಟಲು ಸಾಧ್ಯವಿಲ್ಲ?", a: "ಗಡಿಯಾರ", w: ["ಮರ", "ಕುರ್ಚಿ"] },
+                ml: { q: "കൈകളുണ്ട് എന്നാൽ കൈയടിക്കാൻ കഴിയില്ല?", a: "ക്ലോക്ക്", w: ["മരം", "കസേര"] },
+                pa: { q: "ਹੱਥ ਹਨ ਪਰ ਤਾੜੀ ਨਹੀਂ ਮਾਰ ਸਕਦਾ?", a: "ਘੜੀ", w: ["ਦਰੱਖਤ", "ਕੁਰਸੀ"] },
+                or: { q: "ହାତ ଅଛି କିନ୍ତୁ ତାଳି ମାରିପାରିବ ନାହିଁ?", a: "ଘଣ୍ଟା", w: ["ଗଛ", "ଚେୟାର"] }
+            },
+            {
+                en: { q: "Largest Ocean on Earth?", a: "Pacific Ocean", w: ["Atlantic Ocean", "Indian Ocean"] },
+                hi: { q: "पृथ्वी पर सबसे बड़ा महासागर कौन सा है?", a: "प्रशांत महासागर", w: ["अटलांटिक महासागर", "हिंद महासागर"] },
+                bn: { q: "পৃথিবীর বৃহত্তম মহাসাগর কোনটি?", a: "প্রশান্ত মহাসাগর", w: ["আটলান্টিক মহাসাগর", "ভারত মহাসাগর"] },
+                te: { q: "భూమిపై అతిపెద్ద మహాసముద్రం ఏది?", a: "పసిఫిక్ మహాసముద్రం", w: ["అట్లాంటిక్ మహాసముద్రం", "హిందూ మహాసముద్రం"] },
+                ta: { q: "பூமியின் மிகப்பெரிய பெருங்கடல் எது?", a: "பசிபிக் பெருங்கடல்", w: ["அட்லாண்டிக் பெருங்கடல்", "இந்தியப் பெருங்கடல்"] },
+                mr: { q: "पृथ्वीवरील सर्वात मोठा महासागर कोणता?", a: "प्रशांत महासागर", w: ["अटलांटिक महासागर", "हिंदी महासागर"] },
+                gu: { q: "પૃથ્વી પરનો સૌથી મોટો મહાસાગર કયો છે?", a: "પ્રશાંત મહાસાગર", w: ["એટલાન્ટિક મહાસાગર", "હિંદ મહાસાગર"] },
+                kn: { q: "ಭೂಮಿಯ ಮೇಲಿನ ಅತ್ಯಂತ ದೊಡ್ಡ ಮಹಾಸಾಗರ ಯಾವುದು?", a: "ಪೆಸಿಫಿಕ್ ಮಹಾಸಾಗರ", w: ["ಅಟ್ಲಾಂಟಿಕ್ ಮಹಾಸಾಗರ", "ಹಿಂದೂ ಮಹಾಸಾಗರ"] },
+                ml: { q: "ഭൂമിയിലെ ഏറ്റവും വലിയ സമുദ്രം ഏതാണ്?", a: "പസഫിക് സമുദ്രം", w: ["അറ്റ്ലാന്റിക് സമുദ്രം", "ഇന്ത്യൻ സമുദ്രം"] },
+                pa: { q: "ਧਰਤੀ 'ਤੇ ਸਭ ਤੋਂ ਵੱਡਾ ਮਹਾਸਾਗਰ ਕਿਹੜਾ ਹੈ?", a: "ਪ੍ਰਸ਼ਾਂਤ ਮਹਾਸਾਗਰ", w: ["ਅਟਲਾਂਟਿਕ ਮਹਾਸਾਗਰ", "ਹਿੰਦ ਮਹਾਸਾਗਰ"] },
+                or: { q: "ପୃଥିବୀର ସବୁଠାରୁ ବଡ଼ ମହାସାଗର କିଏ?", a: "ପ୍ରଶାନ୍ତ ମହାସାଗର", w: ["ଆଟଲାଣ୍ଟିକ ମହାସାଗର", "ଭାରତ ମହାସାଗର"] }
+            }
+        ],
+        science: [
+            {
+                en: { q: "Chemical formula of Water?", a: "H2O", w: ["CO2", "O2"] },
+                hi: { q: "जल (पानी) का रासायनिक सूत्र क्या है?", a: "H2O", w: ["CO2", "O2"] },
+                bn: { q: "জলের রাসায়নিক সংকেত কি?", a: "H2O", w: ["CO2", "O2"] },
+                te: { q: "నీటి రసాయన సూత్రం ఏమిటి?", a: "H2O", w: ["CO2", "O2"] },
+                ta: { q: "நீரின் வேதியியல் சூத்திரம் என்ன?", a: "H2O", w: ["CO2", "O2"] },
+                mr: { q: "पाण्याचे रासायनिक सूत्र काय आहे?", a: "H2O", w: ["CO2", "O2"] },
+                gu: { q: "પાણીનું રાસાયણિક સૂત્ર શું છે?", a: "H2O", w: ["CO2", "O2"] },
+                kn: { q: "நீರಿನ ರಾಸಾಯನಿಕ ಸೂತ್ರ ಯಾವುದು?", a: "H2O", w: ["CO2", "O2"] },
+                ml: { q: "വെള്ളത്തിന്റെ രാസസൂത്രം ഏതാണ്?", a: "H2O", w: ["CO2", "O2"] },
+                pa: { q: "ਪਾਣੀ ਦਾ ਰਸਾਇਣਕ ਫਾਰਮੂਲਾ ਕੀ ਹੈ?", a: "H2O", w: ["CO2", "O2"] },
+                or: { q: "ଜଳର ରାସାୟନିକ ସୂତ୍ର କଣ?", a: "H2O", w: ["CO2", "O2"] }
+            },
+            {
+                en: { q: "Which planet is known as the Red Planet?", a: "Mars", w: ["Venus", "Jupiter"] },
+                hi: { q: "किस ग्रह को लाल ग्रह कहा जाता है?", a: "मंगल", w: ["शुक्र", "बृहस्पति"] },
+                bn: { q: "কোন গ্রহকে লাল গ্রহ বলা হয়?", a: "মঙ্গল", w: ["শুক্রবার", "বৃহস্পতি"] },
+                te: { q: "ఏ గ్రహాన్ని ఎర్ర గ్రహం అని పిలుస్తారు?", a: "అంగారకుడు (Mars)", w: ["శుక్రుడు", "బృహస్పతి"] },
+                ta: { q: "சிகப்பு கோள் என்று அழைக்கப்படும் கோள் எது?", a: "செவ்வாய் (Mars)", w: ["வெள்ளி", "வியாழன்"] },
+                mr: { q: "कोणत्या ग्रहाला लाल ग्रह म्हणतात?", a: "मंगळ", w: ["शुक्र", "गुरू"] },
+                gu: { q: "કયા ગ્રહને લાલ ગ્રહ તરીકે ઓળખવામાં આવે છે?", a: "મંગળ", w: ["શુક્ર", "ગુરુ"] },
+                kn: { q: "ಯಾವ ಗ್ರಹವನ್ನು ಕೆಂಪು ಗ್ರಹ ಎಂದು ಕರೆಯಲಾಗುತ್ತದೆ?", a: "ಮಂಗಳ", w: ["ಶುಕ್ರ", "ಗುರು"] },
+                ml: { q: "ചുവന്ന ഗ്രഹം എന്നറിയപ്പെടുന്ന ഗ്രഹം ഏതാണ്?", a: "ചൊവ്വ (Mars)", w: ["വ്യാഴം", "വെള്ളി"] },
+                pa: { q: "ਕਿਸ ਗ੍ਰਹਿ ਨੂੰ ਲਾਲ ਗ੍ਰਹਿ ਕਿਹਾ ਜਾਂਦਾ ਹੈ?", a: "ਮੰਗਲ", w: ["ਸ਼ੁੱਕਰ", "ਬ੍ਰਹਸਪਤੀ"] },
+                or: { q: "କେଉଁ ଗ୍ରହକୁ ଲାଲ୍ ଗ୍ରହ କୁହାଯାଏ?", a: "ମଙ୍ଗଳ", w: ["ଶୁକ୍ର", "ବୃହସ୍ପତି"] }
+            },
+            {
+                en: { q: "Which gas is absorbed by plants during photosynthesis?", a: "Carbon Dioxide", w: ["Oxygen", "Nitrogen"] },
+                hi: { q: "प्रकाश संश्लेषण के दौरान पौधे कौन सी गैस अवशोषित करते हैं?", a: "कार्बन डाइऑक्साइड", w: ["ऑक्सीजन", "नाइट्रोजन"] },
+                bn: { q: "শালোকসংশ্লেষের সময় উদ্ভিদ কোন গ্যাস গ্রহণ করে?", a: "কার্বন ডাই অক্সাইড", w: ["অক্সিজেন", "নাইট্রোজেন"] },
+                te: { q: "కిరణజన్య సంయోగక్రియ ద్వారా మొక్కలు పీల్చుకునే వాయువు ఏది?", a: "కార్బన్ డయాక్సైడ్", w: ["ఆక్సిజన్", "నైట్రోజన్"] },
+                ta: { q: "ஒளிச்சேர்க்கையின் போது தாவரங்கள் உறிஞ்சும் வாயு எது?", a: "கார்பன் டை ஆக்சைடு", w: ["ஆக்ஸிஜன்", "நைட்ரஜன்"] },
+                mr: { q: "प्रकाशसंश्लेषणादरम्यान वनस्पती कोणता वायू शोषून घेतात?", a: "कार्बन डायऑक्साईड", w: ["ऑक्सिजन", "नायट्रोजन"] },
+                gu: { q: "પ્રકાશસંશ્લેષણ દરમિયાન વનસ્પતિ કયો ગેસ લે છે?", a: "કાર્બન ડાયોક્સાઇડ", w: ["ઓક્સિજન", "નાઇટ્રોજન"] },
+                kn: { q: "ದ್ಯುತಿಸಂಶ್ಲೇಷಣೆಯ ಸಮಯದಲ್ಲಿ ಸಸ್ಯಗಳು ಯಾವ ಅನಿಲವನ್ನು ತೆಗೆದುಕೊಳ್ಳುತ್ತವೆ?", a: "ಕಾರ್ಬನ್ ಡೈಆಕ್ಸೈಡ್", w: ["ಆಮ್ಲಜನಕ", "ನಾರಜನಕ"] },
+                ml: { q: "പ്രകാശസംശ്ലേഷണ സമയത്ത് സസ്യങ്ങൾ സ്വീകരിക്കുന്ന വാതകം ഏതാണ്?", a: "കാർബൺ ഡൈ ഓക്സൈഡ്", w: ["ഓക്സിജൻ", "നൈട്രജൻ"] },
+                pa: { q: "ਪ੍ਰਕਾਸ਼ ਸੰਸ਼ਲੇਸ਼ਣ ਦੌਰਾਨ ਪੌਦੇ ਕਿਹੜੀ ਗੈਸ ਲੈਂਦੇ ਹਨ?", a: "ਕਾਰਬਨ ਡਾਈਆਕਸਾਈਡ", w: ["ਆਕਸੀਜਨ", "ਨਾਇਟ੍ਰੋਜਨ"] },
+                or: { q: "ଆଲୋକ ସଂଶ୍ଳେଷଣ ସମୟରେ ଉଦ୍ଭିଦ କେଉଁ ଗ୍ୟାସ୍ ଗ୍ରହଣ କରେ?", a: "କାର୍ବନ୍ ଡାଇଅକ୍ସାଇଡ୍", w: ["ଅମ୍ଳଜାନ", "ନାଇଟ୍ରୋଜନ୍"] }
+            },
+            {
+                en: { q: "The Sun rises in which direction?", a: "East", w: ["West", "North"] },
+                hi: { q: "सूर्य किस दिशा में उगता है?", a: "पूर्व", w: ["पश्चिम", "उत्तर"] },
+                bn: { q: "সূর্য কোন দিকে ওঠে?", a: "পূর্ব", w: ["পশ্চিম", "উত্তর"] },
+                te: { q: "సూర్యుడు ఏ దిశలో ఉదయిస్తాడు?", a: "తూర్పు", w: ["పడమర", "ఉత్తరం"] },
+                ta: { q: "சூரியன் எந்தத் திசையில் உதிக்கிறது?", a: "கிழக்கு", w: ["மேற்கு", "வடக்கு"] },
+                mr: { q: "सूर्य कोणत्या दिशेला उगवतो?", a: "पूर्व", w: ["पश्चिम", "उत्तर"] },
+                gu: { q: "સૂર્ય કઈ દિશામાં ઊગે છે?", a: "પૂર્વ", w: ["પશ્ચિમ", "ઉત્તર"] },
+                kn: { q: "ಸೂರ್ಯನು ಯಾವ ದಿಕ್ಕಿನಲ್ಲಿ ಉದಯಿಸುತ್ತಾನೆ?", a: "ಪೂರ್ವ", w: ["ಪಶ್ಚಿಮ", "ಉತ್ತರ"] },
+                ml: { q: "സൂര്യൻ ഏത് ദിക്കിലാണ് ഉദിക്കുന്നത്?", a: "കിഴക്ക്", w: ["പടിഞ്ഞാറ്", "വടക്ക്"] },
+                pa: { q: "ਸੂਰਜ ਕਿਸ ਦਿਸ਼ਾ ਵਿੱਚ ਚੜ੍ਹਦਾ ਹੈ?", a: "ਪੂਰਬ", w: ["ਪੱਛਮ", "ਉੱਤਰ"] },
+                or: { q: "ସୂର୍ଯ୍ୟ କେଉଁ ଦିଗରେ ଉଦୟ ହୁଅନ୍ତି?", a: "ପୂର୍ବ", w: ["ପଶ୍ଚିମ", "ଉତ୍ତର"] }
+            },
+            {
+                en: { q: "Approximate Speed of Light in vacuum?", a: "3x10⁸ m/s", w: ["3x10⁶ m/s", "3x10⁵ m/s"] },
+                hi: { q: "निर्वात में प्रकाश की अनुमानित चाल क्या है?", a: "3x10⁸ m/s", w: ["3x10⁶ m/s", "3x10⁵ m/s"] },
+                bn: { q: "শূন্যস্থানে আলোর আনুমানিক গতি কত?", a: "3x10⁸ m/s", w: ["3x10⁶ m/s", "3x10⁵ m/s"] },
+                te: { q: "శూన్యంలో కాంతి వేగం ఎంత?", a: "3x10⁸ m/s", w: ["3x10⁶ m/s", "3x10⁵ m/s"] },
+                ta: { q: "வெற்றிடத்தில் ஒளியின் வேகம் என்ன?", a: "3x10⁸ m/s", w: ["3x10⁶ m/s", "3x10⁵ m/s"] },
+                mr: { q: "निर्वातात प्रकाशाचा वेग किती असतो?", a: "3x10⁸ m/s", w: ["3x10⁶ m/s", "3x10⁵ m/s"] },
+                gu: { q: "પ્રકાશની ઝડપ કેટલી હોય છે?", a: "3x10⁸ m/s", w: ["3x10⁶ m/s", "3x10⁵ m/s"] },
+                kn: { q: "ಬೆಳಕಿನ ವೇಗ ಎಷ್ಟು?", a: "3x10⁸ m/s", w: ["3x10⁶ m/s", "3x10⁵ m/s"] },
+                ml: { q: "പ്രകാശത്തിന്റെ വേഗത എത്രയാണ്?", a: "3x10⁸ m/s", w: ["3x10⁸ m/s", "3x10⁵ m/s"] },
+                pa: { q: "ਚਾਨਣ ਦੀ ਗਤੀ ਕਿੰਨੀ ਹੁੰਦੀ ਹੈ?", a: "3x10⁸ m/s", w: ["3x10⁶ m/s", "3x10⁵ m/s"] },
+                or: { q: "ଆଲୋକର ବେଗ କେତେ?", a: "3x10⁸ m/s", w: ["3x10⁶ m/s", "3x10⁵ m/s"] }
+            }
+        ]
+    };
 
-    function playMathLevel(lvl, reward) {
-        // 10 minutes break after every 100 levels (Updated from 30 mins)
-        if (lvl > 1 && (lvl - 1) % 100 === 0) {
-            let lastHundredTime = localStorage.getItem('math_cooldown_time') || 0;
-            let elapsed = Date.now() - parseInt(lastHundredTime);
-            if (elapsed < 10 * 60 * 1000) {
-                let minLeft = Math.ceil((10 * 60 * 1000 - elapsed) / 60000);
-                showToast(`10 Min Break! Wait ${minLeft} mins for next 100 levels.`, 'error');
+    const mathTemplates = {
+        square: {
+            en: (b) => `Square of ${b} (${b}²) = ?`,
+            hi: (b) => `${b} का वर्ग (${b}²) = ?`,
+            bn: (b) => `${b}-এর বর্গ (${b}²) = ?`,
+            te: (b) => `${b} యొక్క వర్గం (${b}²) = ?`,
+            ta: (b) => `${b}-ன் வர்க்கம் (${b}²) = ?`,
+            mr: (b) => `${b} चा वर्ग (${b}²) = ?`,
+            gu: (b) => `${b} નો વર્ગ (${b}²) = ?`,
+            kn: (b) => `${b} ರ ವರ್ಗ (${b}²) = ?`,
+            ml: (b) => `${b}-ന്റെ വർഗ്ഗം (${b}²) = ?`,
+            pa: (b) => `${b} ਦਾ ਵਰਗ (${b}²) = ?`,
+            or: (b) => `${b} ର ବର୍ଗ (${b}²) = ?`
+        },
+        si: {
+            en: (p) => `S.I on ₹${p} @ 5% for 2 yrs = ?`,
+            hi: (p) => `₹${p} पर 5% की दर से 2 वर्ष का साधारण ब्याज = ?`,
+            bn: (p) => `₹${p}-এ 5% হারে 2 বছরের সরল সুদ = ?`,
+            te: (p) => `₹${p} పై 5% చొప్పున 2 సంవత్సరాలకు సాధారణ వడ్డీ = ?`,
+            ta: (p) => `₹${p}-க்கு 5% வீதத்தில் 2 ஆண்டு எளிய வட்டி = ?`,
+            mr: (p) => `₹${p} वर 5% दराने 2 वर्षांचे सरळव्याज = ?`,
+            gu: (p) => `₹${p} પર 5% ના દરે 2 વર્ષનું સાદું વ્યાજ = ?`,
+            kn: (p) => `₹${p} ಗೆ 5% ದರದಲ್ಲಿ 2 ವರ್ಷಗಳ ಸರಳ ಬಡ್ಡಿ = ?`,
+            ml: (p) => `₹${p}-ന് 5% നിരക്കിൽ 2 വർഷത്തെ സാധാരണ പലിശ = ?`,
+            pa: (p) => `₹${p} 'ਤੇ 5% ਦੀ ਦਰ ਨਾਲ 2 ਸਾਲ ਦਾ ਸਾਧਾਰਨ ਵਿਆਜ = ?`,
+            or: (p) => `₹${p} ରେ 5% ହାରରେ 2 ବର୍ଷର ସାଧାରଣ ସୁଧ = ?`
+        },
+        pct: {
+            en: (pct, total) => `What is ${pct}% of ${total}?`,
+            hi: (pct, total) => `${total} का ${pct}% क्या होगा?`,
+            bn: (pct, total) => `${total}-এর ${pct}% কত?`,
+            te: (pct, total) => `${total} లో ${pct}% ఎంత?`,
+            ta: (pct, total) => `${total}-ல் ${pct}% எவ்வளவு?`,
+            mr: (pct, total) => `${total} चे ${pct}% किती?`,
+            gu: (pct, total) => `${total} ના ${pct}% કેટલા થાય?`,
+            kn: (pct, total) => `${total} ರ ${pct}% ಎಷ್ಟು?`,
+            ml: (pct, total) => `${total}-ന്റെ ${pct}% എത്ര?`,
+            pa: (pct, total) => `${total} ਦਾ ${pct}% ਕੀ ਹੈ?`,
+            or: (pct, total) => `${total} ର ${pct}% କେତେ?`
+        },
+        pow: {
+            en: (a, pow) => `Value of ${a}^${pow} = ?`,
+            hi: (a, pow) => `${a}^${pow} का मान = ?`,
+            bn: (a, pow) => `${a}^${pow}-এর মান = ?`,
+            te: (a, pow) => `${a}^${pow} విలువ = ?`,
+            ta: (a, pow) => `${a}^${pow}-ன் மதிப்பு = ?`,
+            mr: (a, pow) => `${a}^${pow} ची किंमत = ?`,
+            gu: (a, pow) => `${a}^${pow} ની કિંમત = ?`,
+            kn: (a, pow) => `${a}^${pow} ನ ಮೌಲ್ಯ = ?`,
+            ml: (a, pow) => `${a}^${pow}-ന്റെ മൂല്യം = ?`,
+            pa: (a, pow) => `${a}^${pow} ਦਾ ਮੁੱਲ = ?`,
+            or: (a, pow) => `${a}^${pow} ର ମୂଲ୍ୟ = ?`
+        },
+        circle: {
+            en: (r) => `Area of circle (r=${r}, π=22/7) = ?`,
+            hi: (r) => `वृत्त का क्षेत्रफल (r=${r}, π=22/7) = ?`,
+            bn: (r) => `বৃত্তের ক্ষেত্রফল (r=${r}, π=22/7) = ?`,
+            te: (r) => `వృత్త వైశాల్యం (r=${r}, π=22/7) = ?`,
+            ta: (r) => `வட்டத்தின் பரப்பளவு (r=${r}, π=22/7) = ?`,
+            mr: (r) => `वर्तुळाचे क्षेत्रफळ (r=${r}, π=22/7) = ?`,
+            gu: (r) => `વર્તુળનું ક્ષેત્રફળ (r=${r}, π=22/7) = ?`,
+            kn: (r) => `ವೃತ್ತದ ವಿಸ್ತೀರ್ಣ (r=${r}, π=22/7) = ?`,
+            ml: (r) => `വൃത്തത്തിന്റെ വിസ്തീർണ്ണം (r=${r}, π=22/7) = ?`,
+            pa: (r) => `ਚੱਕਰ ਦਾ ਖੇਤਰਫਲ (r=${r}, π=22/7) = ?`,
+            or: (r) => `ବୃତ୍ତର କ୍ଷେତ୍ରଫଳ (r=${r}, π=22/7) = ?`
+        }
+    };
+
+    function generateDynamicQuestion(lvl, cat) {
+        let questionText = "";
+        let correctVal = "";
+        let options = [];
+        let lang = currentLang || localStorage.getItem('earnpro_lang') || 'hi';
+
+        if (cat === 'math') {
+            let numAns = 0;
+            if (lvl <= 20) {
+                let mode = Math.floor(Math.random() * 3);
+                if(mode === 0) {
+                    let a = Math.floor(Math.random() * 15) + 5;
+                    let b = Math.floor(Math.random() * 12) + 2;
+                    let c = Math.floor(Math.random() * 25) + 10;
+                    questionText = `(${a} × ${b}) - ${c} = ?`;
+                    numAns = (a * b) - c;
+                } else if(mode === 1) {
+                    let base = Math.floor(Math.random() * 15) + 6;
+                    let fn = mathTemplates.square[lang] || mathTemplates.square.en;
+                    questionText = fn(base);
+                    numAns = base * base;
+                } else {
+                    let a = Math.floor(Math.random() * 40) + 20;
+                    let b = Math.floor(Math.random() * 30) + 10;
+                    let c = Math.floor(Math.random() * 20) + 5;
+                    questionText = `${a} + ${b} - ${c} = ?`;
+                    numAns = a + b - c;
+                }
+            } else if (lvl <= 100) {
+                let mode = Math.floor(Math.random() * 4);
+                if(mode === 0) {
+                    let P = (Math.floor(Math.random() * 8) + 2) * 1000;
+                    let R = 5;
+                    let T = 2;
+                    let fn = mathTemplates.si[lang] || mathTemplates.si.en;
+                    questionText = fn(P);
+                    numAns = (P * R * T) / 100;
+                } else if(mode === 1) {
+                    let x = Math.floor(Math.random() * 15) + 3;
+                    let mult = Math.floor(Math.random() * 4) + 2;
+                    let add = Math.floor(Math.random() * 15) + 2;
+                    let rhs = (mult * x) + add;
+                    questionText = `If ${mult}x + ${add} = ${rhs}, x = ?`;
+                    numAns = x;
+                } else if(mode === 2) {
+                    let pct = (Math.floor(Math.random() * 8) + 2) * 5;
+                    let total = (Math.floor(Math.random() * 10) + 2) * 50;
+                    let fn = mathTemplates.pct[lang] || mathTemplates.pct.en;
+                    questionText = fn(pct, total);
+                    numAns = (pct * total) / 100;
+                } else {
+                    let a = Math.floor(Math.random() * 5) + 2;
+                    let pow = Math.floor(Math.random() * 3) + 3;
+                    let fn = mathTemplates.pow[lang] || mathTemplates.pow.en;
+                    questionText = fn(a, pow);
+                    numAns = Math.pow(a, pow);
+                }
+            } else if (lvl <= 300) {
+                let mode = Math.floor(Math.random() * 3);
+                if(mode === 0) {
+                    const trigMap = [
+                        { q: "sin(30°) + cos(60°)", ans: 1 },
+                        { q: "tan(45°) × cos(0°)", ans: 1 },
+                        { q: "sin(90°) + tan(45°)", ans: 2 },
+                        { q: "2 × sin(30°)", ans: 1 }
+                    ];
+                    let pick = trigMap[Math.floor(Math.random() * trigMap.length)];
+                    questionText = `${pick.q} = ?`;
+                    numAns = pick.ans;
+                } else if(mode === 1) {
+                    let r = (Math.floor(Math.random() * 5) + 1) * 7;
+                    let fn = mathTemplates.circle[lang] || mathTemplates.circle.en;
+                    questionText = fn(r);
+                    numAns = (22 / 7) * r * r;
+                } else {
+                    let a = Math.floor(Math.random() * 10) + 2;
+                    let b = Math.floor(Math.random() * 10) + 2;
+                    questionText = `(${a}+${b})² - 2(${a})(${b}) = ?`;
+                    numAns = (a * a) + (b * b);
+                }
+            } else {
+                let mode = Math.floor(Math.random() * 3);
+                if(mode === 0) {
+                    let n = Math.floor(Math.random() * 6) + 2;
+                    questionText = `d/dx (x^${n}) at x = 2 = ?`;
+                    numAns = n * Math.pow(2, n - 1);
+                } else if(mode === 1) {
+                    let a = Math.floor(Math.random() * 5) + 2;
+                    let b = Math.floor(Math.random() * 5) + 1;
+                    let c = Math.floor(Math.random() * 4) + 1;
+                    let d = Math.floor(Math.random() * 6) + 2;
+                    questionText = `Det |[${a}, ${b}], [${c}, ${d}]| = ?`;
+                    numAns = (a * d) - (b * c);
+                } else {
+                    questionText = `sin²(45°) + cos²(45°) = ?`;
+                    numAns = 1;
+                }
+            }
+            correctVal = String(numAns);
+            options.push(correctVal);
+            while (options.length < 3) {
+                let offset = (Math.floor(Math.random() * 6) + 1) * (Math.random() > 0.5 ? 1 : -1);
+                let wrong = String(numAns + offset);
+                if (!options.includes(wrong) && parseInt(wrong) >= 0) options.push(wrong);
+            }
+        } else {
+            let bank = quizTranslations[cat] || quizTranslations.gk;
+            let itemObj = bank[(lvl + Math.floor(Math.random() * bank.length)) % bank.length];
+            let langObj = itemObj[lang] || itemObj.hi || itemObj.en;
+            questionText = langObj.q;
+            correctVal = langObj.a;
+            options = [langObj.a, ...langObj.w];
+        }
+
+        options.sort(() => Math.random() - 0.5);
+        return { question: questionText, answer: String(correctVal).toLowerCase().trim(), options: options };
+    }
+
+    function playTaskLevel(lvl, reward) {
+        if (lvl > 1 && (lvl - 1) % 50 === 0) {
+            let lastBreakTime = localStorage.getItem(`${activeTaskCategory}_break_time`) || 0;
+            let elapsed = Date.now() - parseInt(lastBreakTime);
+            if (elapsed < 15 * 60 * 1000) {
+                let minLeft = Math.ceil((15 * 60 * 1000 - elapsed) / 60000);
+                showToast(`15 Min Break! Wait ${minLeft} mins for next levels.`, 'error');
                 return;
             }
         }
@@ -2001,76 +2592,15 @@
         activeMathLevel = lvl; 
         activeMathReward = reward;
         
-        let questionType = lvl % 3; // 0 & 1 = Math, 2 = GK/Riddle/Science
-        let categoryName = "गणित चुनौती";
-        let options = [];
+        let qObj = generateDynamicQuestion(lvl, activeTaskCategory);
+        quizAns = qObj.answer;
         
-        if (questionType === 2) {
-            let item = gkQuizBank[(lvl + Math.floor(Math.random() * gkQuizBank.length)) % gkQuizBank.length];
-            categoryName = item.cat;
-            document.getElementById('math-question-text').innerText = item.q;
-            quizAns = item.answer.toLowerCase().trim();
-            options = [...item.options];
-        } else {
-            // Hard scaling math question logic
-            categoryName = "गणित प्रश्न";
-            let op = '+';
-            let n1, n2;
-            
-            if (lvl <= 30) {
-                n1 = Math.floor(Math.random() * 25) + 5;
-                n2 = Math.floor(Math.random() * 25) + 5;
-                quizAns = String(n1 + n2);
-                document.getElementById('math-question-text').innerText = `${n1} + ${n2} = ?`;
-            } else if (lvl <= 100) {
-                op = Math.random() > 0.5 ? '+' : '-';
-                n1 = Math.floor(Math.random() * 60) + 20;
-                n2 = Math.floor(Math.random() * 20) + 1;
-                quizAns = String(op === '+' ? n1 + n2 : n1 - n2);
-                document.getElementById('math-question-text').innerText = `${n1} ${op} ${n2} = ?`;
-            } else if (lvl <= 300) {
-                let ops = ['+', '-', '*'];
-                op = ops[Math.floor(Math.random() * ops.length)];
-                if(op === '*') {
-                    n1 = Math.floor(Math.random() * 15) + 2;
-                    n2 = Math.floor(Math.random() * 12) + 2;
-                } else {
-                    n1 = Math.floor(Math.random() * 120) + 50;
-                    n2 = Math.floor(Math.random() * 50) + 10;
-                }
-                quizAns = String(op === '+' ? n1+n2 : (op === '-' ? n1-n2 : n1*n2));
-                document.getElementById('math-question-text').innerText = `${n1} ${op} ${n2} = ?`;
-            } else {
-                let ops = ['+', '-', '*'];
-                op = ops[Math.floor(Math.random() * ops.length)];
-                if(op === '*') {
-                    n1 = Math.floor(Math.random() * 25) + 5;
-                    n2 = Math.floor(Math.random() * 15) + 5;
-                } else {
-                    n1 = Math.floor(Math.random() * 500) + 100;
-                    n2 = Math.floor(Math.random() * 300) + 50;
-                }
-                quizAns = String(op === '+' ? n1+n2 : (op === '-' ? n1-n2 : n1*n2));
-                document.getElementById('math-question-text').innerText = `${n1} ${op} ${n2} = ?`;
-            }
-
-            // Generate 3 Options (1 Correct, 2 Wrong)
-            let wrong1 = String(parseInt(quizAns) + Math.floor(Math.random() * 10) + 1);
-            let wrong2 = String(parseInt(quizAns) - (Math.floor(Math.random() * 5) + 1));
-            if (wrong1 === wrong2 || wrong2 === quizAns) wrong2 = String(parseInt(quizAns) + 15);
-            options = [quizAns, wrong1, wrong2];
-            
-            // Shuffle the options array
-            options.sort(() => Math.random() - 0.5);
-        }
+        document.getElementById('math-question-text').innerText = qObj.question;
+        document.getElementById('math-modal-reward').innerText = `Win ${reward} Coins`;
         
-        document.getElementById('quiz-category-badge').innerText = categoryName;
-        document.getElementById('math-modal-reward').innerText = `जीतें ${reward} Coins`;
-        
-        // Render options in UI dynamically
         let optionsHtml = '';
-        options.forEach(opt => {
-            optionsHtml += `<button onclick="submitLevelAnswer('${opt}')" class="w-full bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl px-4 py-3.5 text-base font-bold text-slate-800 text-center focus:outline-none focus:border-blue-500 shadow-sm transition-colors cursor-pointer active:scale-95">${opt}</button>`;
+        qObj.options.forEach(opt => {
+            optionsHtml += `<button onclick="submitLevelAnswer('${opt}')" class="w-full bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-2xl px-4 py-3.5 text-sm font-extrabold text-slate-800 text-center focus:outline-none focus:border-sky-500 shadow-sm transition-all cursor-pointer active:scale-95">${opt}</button>`;
         });
         document.getElementById('quiz-options-container').innerHTML = optionsHtml;
         
@@ -2087,7 +2617,6 @@
             document.getElementById('math-success-modal').classList.remove('hidden');
             document.getElementById('math-success-modal').classList.add('flex');
         } else {
-            // 25 Coins penalty on wrong answer (Updated from 50 coins)
             let newBalance = Math.max(0, (currentUserData.coinBalance || 0) - 25);
             db.ref('users/' + currentAuthUser.uid).update({ coinBalance: newBalance });
             showToast('Wrong Answer! 25 Coins deducted.', 'error');
@@ -2102,31 +2631,32 @@
         document.getElementById('math-success-modal').classList.remove('flex');
         
         showRealAd(() => {
-            db.ref('users/'+currentAuthUser.uid).update({ 
-                coinBalance: Number(currentUserData.coinBalance || 0) + activeMathReward,
-                mathLevel: activeMathLevel + 1
-            });
+            let levelField = activeTaskCategory + 'Level';
+            let nextLevel = (currentUserData[levelField] || 1) + 1;
+
+            let updateObj = { 
+                coinBalance: Number(currentUserData.coinBalance || 0) + activeMathReward
+            };
+            updateObj[levelField] = nextLevel;
+
+            db.ref('users/'+currentAuthUser.uid).update(updateObj);
             
-            // Set 10-min cooldown timer marker if 100 levels completed
-            if (activeMathLevel % 100 === 0) {
-                localStorage.setItem('math_cooldown_time', Date.now());
+            if (activeMathLevel % 50 === 0) {
+                localStorage.setItem(`${activeTaskCategory}_break_time`, Date.now());
             }
 
-            if(activeMathReward > 0) {
-                showToast(`Awesome! +${activeMathReward} Coins Added`, 'success');
-            } else {
-                showToast(`Level ${activeMathLevel} Completed!`, 'success');
-            }
-            renderMathLevels();
+            showToast(`Awesome! +${activeMathReward} Coins Added`, 'success');
+            renderTaskLevels();
         });
     }
 
     function openCoinSpin(mode) {
         coinSpinMode = mode;
-        let title = mode === 'unlimited' ? 'Unlimited Free Spin' : 'Daily Coin Spin';
+        let d = langDict[currentLang] || langDict.hi;
+        let title = mode === 'unlimited' ? d.spinUnlimited : d.spinNormal;
         let btnText = mode === 'unlimited' ? 'WATCH AD & SPIN' : 'SPIN WHEEL';
         
-        if(mode === 'unlimited') coinWheelVals = [5, 10, 5, 10, 5, 10, 5, 10, 5, 10, 5, 10];
+        if(mode === 'unlimited') coinWheelVals = [5, 2, 3, 5, 2, 3, 5, 2, 3, 5, 2, 3];
         else coinWheelVals = [10, 30, 5, 10, 30, 5, 10, 30, 5, 10, 30, 5];
         
         document.getElementById('cspin-title').innerText = title;
@@ -2164,14 +2694,6 @@
             spinTheCoinWheel();
         } 
         else if(coinSpinMode === 'unlimited') {
-            let lastSpinTime = localStorage.getItem('unlimited_spin_time');
-            if(lastSpinTime && (Date.now() - parseInt(lastSpinTime)) < 5*60*1000) {
-                let left = 5*60*1000 - (Date.now() - parseInt(lastSpinTime));
-                let m = Math.floor(left / 60000);
-                let s = Math.floor((left % 60000) / 1000);
-                showToast(`Wait ${m}m ${s}s for next free spin!`, 'error');
-                return;
-            }
             showRealAd(() => { spinTheCoinWheel(); });
         }
     }
@@ -2197,7 +2719,6 @@
                 });
             } else {
                 db.ref('users/' + currentAuthUser.uid).update({ coinBalance: Number(currentUserData.coinBalance || 0) + selectedAmount });
-                localStorage.setItem('unlimited_spin_time', Date.now());
             }
             
             showToast(`🎉 You Won ${selectedAmount} Coins!`, 'success');
@@ -2205,25 +2726,30 @@
     }
 
     function startCoinTelegram() {
-        window.open('https://t.me/', '_blank'); 
-        if(!localStorage.getItem('coin_tg_done')) {
-            showToast('Coins will be added in 2 minutes!', 'info');
-            setTimeout(() => {
-                db.ref('users/'+currentAuthUser.uid).update({ coinBalance: Number(currentUserData.coinBalance || 0) + 10 });
-                localStorage.setItem('coin_tg_done', 'true');
-                showToast('10 Coins added for Telegram task!', 'success');
-            }, 2 * 60 * 1000);
-        } else {
-            showToast('Already completed!', 'error');
+        let channelLink = appSettings.telegramChannel || 'https://t.me/';
+        window.open(channelLink, '_blank'); 
+        
+        if(currentUserData.coinTelegramCompleted) {
+            showToast('Already claimed Telegram bonus!', 'error');
+            return;
         }
+
+        showToast('Coins will be added in 2 minutes!', 'info');
+        setTimeout(() => {
+            db.ref('users/'+currentAuthUser.uid).update({ 
+                coinBalance: Number(currentUserData.coinBalance || 0) + 200,
+                coinTelegramCompleted: true
+            });
+            showToast('200 Coins added for Telegram task!', 'success');
+        }, 2 * 60 * 1000);
     }
 
     function requestCoinWithdrawal() {
-        const amount = Number(document.getElementById('cw-amount').value); 
+        const amount = Number(document.getElementById('cw-amount-input').value); 
         const upi = document.getElementById('cw-upi-id').value.trim();
         
         if (!upi) { showToast('Enter UPI ID', 'error'); return; } 
-        if (amount < 1000) { showToast('Min withdraw 1000 Coins', 'error'); return; }
+        if (!amount || amount < 1000) { showToast('Min withdraw 1000 Coins', 'error'); return; }
         if (currentUserData && amount > (currentUserData.coinBalance || 0)) { showToast('Not enough coins!', 'error'); return; }
         
         let today = new Date().toLocaleDateString();
