@@ -128,14 +128,14 @@
         </div>
     </div>
 
-    <!-- LEVEL FINISH INTERSTITIAL AD MODAL (MANUAL CLOSE ONLY) -->
+    <!-- LEVEL FINISH INTERSTITIAL AD MODAL (WITH 7-SECOND SKIP TIMER) -->
     <div id="game-ad-modal" class="absolute inset-0 z-[700] bg-slate-950/95 backdrop-blur-md hidden flex-col items-center justify-between p-6">
         <div class="w-full flex justify-between items-center z-10">
             <div class="bg-indigo-600/30 border border-indigo-400/40 text-indigo-300 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5">
                 <i class="fas fa-ad"></i> Sponsored Break
             </div>
-            <button id="ad-close-btn" onclick="closeGameAdModal()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black tracking-wider flex items-center gap-1.5 active:scale-95 transition-transform shadow-lg shadow-rose-600/30">
-                <i class="fas fa-xmark"></i> Close Ad
+            <button id="ad-close-btn" disabled onclick="closeGameAdModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-400 text-xs font-black tracking-wider flex items-center gap-1.5 transition-all shadow-lg cursor-not-allowed">
+                <i class="fas fa-clock"></i> <span id="ad-close-btn-text">Skip in 7s...</span>
             </button>
         </div>
 
@@ -456,7 +456,7 @@
             <h3 class="text-[10.5px] font-black uppercase tracking-widest text-slate-400 mb-2.5 ml-1">Gaming Arena</h3>
             <div id="gaming-arena-grid" class="grid grid-cols-2 gap-3">
                 <!-- Arrow Puzzle Card -->
-                <div id="game-arena-puzzle-btn" onclick="playSound('click'); openArrowGameModal()" class="cursor-pointer relative overflow-hidden rounded-3xl p-4 bg-gradient-to-br from-blue-600 via-indigo-600 to-indigo-800 text-white shadow-lg shadow-indigo-600/20 active:scale-95 transition-all group flex flex-col justify-between border border-blue-400/30">
+                <div id="game-arena-puzzle-btn" onclick="playSound('click'); checkAndOpenArrowPuzzle()" class="cursor-pointer relative overflow-hidden rounded-3xl p-4 bg-gradient-to-br from-blue-600 via-indigo-600 to-indigo-800 text-white shadow-lg shadow-indigo-600/20 active:scale-95 transition-all group flex flex-col justify-between border border-blue-400/30">
                     <div class="flex justify-between items-start mb-2">
                         <div class="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-lg shadow-inner group-hover:rotate-12 transition-transform">
                             <i class="fas fa-puzzle-piece text-amber-300"></i>
@@ -465,10 +465,10 @@
                     </div>
                     <div>
                         <h4 class="text-xs font-black uppercase tracking-wider text-white leading-tight">Arrow Puzzle</h4>
-                        <p class="text-[10px] text-blue-100 mt-0.5 line-clamp-1 font-medium">Direct Level Play & Win</p>
+                        <p class="text-[10px] text-blue-100 mt-0.5 line-clamp-1 font-medium" id="puzzle-lock-subtitle">Complete 2 Tasks to Play</p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-[10px] font-black text-amber-300">
-                        <span>PLAY NOW</span>
+                        <span id="puzzle-play-now-label">PLAY NOW</span>
                         <i class="fas fa-arrow-right text-[9px] group-hover:translate-x-1 transition-transform"></i>
                     </div>
                 </div>
@@ -503,7 +503,7 @@
                 <h2 class="text-xs font-black tracking-widest uppercase flex items-center gap-1.5 text-amber-400 justify-center"><i class="fas fa-trophy"></i> Arrow Tournament</h2>
                 <p class="text-[9px] text-slate-400 font-semibold" id="tournament-countdown-text">7-Day Season Reset</p>
             </div>
-            <button onclick="playSound('click'); openArrowGameModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] px-3 py-1.5 rounded-xl uppercase shadow-md active:scale-95 transition-transform">PLAY</button>
+            <button onclick="playSound('click'); checkAndOpenArrowPuzzle()" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] px-3 py-1.5 rounded-xl uppercase shadow-md active:scale-95 transition-transform">PLAY</button>
         </div>
 
         <div class="flex-1 overflow-y-auto hide-scrollbar pb-24">
@@ -919,7 +919,7 @@
         <div class="flex-1 overflow-y-auto hide-scrollbar pb-6">
             <div class="p-6 bg-gradient-to-b from-indigo-600 to-violet-600 text-white text-center rounded-b-[32px] shadow-lg">
                 <h3 class="text-2xl font-black mb-1">Invite Friends</h3>
-                <p class="text-xs text-indigo-100 mb-5 font-medium max-w-[90%] mx-auto">Get flat <span class="font-black text-amber-300">500 Coins</span> when your invited friend completes their first withdrawal!</p>
+                <p class="text-xs text-indigo-100 mb-5 font-medium max-w-[90%] mx-auto" id="ref-reward-banner-text">Get flat <span class="font-black text-amber-300">1000 Coins</span> when your invited friend completes their first task!</p>
                 
                 <div class="bg-white/15 backdrop-blur-md p-4 rounded-2xl flex items-center justify-between border border-white/20">
                     <div class="text-left">
@@ -1112,8 +1112,8 @@
         <button onclick="playSound('click'); switchTab('home')" id="nav-home" class="flex flex-col items-center justify-center w-12 text-indigo-600"><i class="fas fa-house text-base"></i><span class="text-[9px] font-black mt-1">Home</span></button>
         <button onclick="playSound('click'); switchTab('tasks')" id="nav-tasks" class="flex flex-col items-center justify-center w-12 text-slate-400"><i class="fas fa-list-check text-base"></i><span class="text-[9px] font-bold mt-1">Tasks</span></button>
         
-        <!-- Center Game Button (Directs to Level selection) -->
-        <button onclick="playSound('click'); openArrowGameModal()" class="relative -top-4 w-14 h-14 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-600/30 active:scale-95 transition-transform shrink-0 border-2 border-white" title="Play Arrow Puzzle"><i class="fas fa-puzzle-piece text-2xl text-amber-300"></i></button>
+        <!-- Center Game Button (Directs to Level selection if 2 tasks completed) -->
+        <button onclick="playSound('click'); checkAndOpenArrowPuzzle()" class="relative -top-4 w-14 h-14 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-600/30 active:scale-95 transition-transform shrink-0 border-2 border-white" title="Play Arrow Puzzle"><i class="fas fa-puzzle-piece text-2xl text-amber-300"></i></button>
         
         <button onclick="playSound('click'); switchTab('rewards')" id="nav-rewards" class="flex flex-col items-center justify-center w-12 text-slate-400"><i class="fas fa-gift text-base"></i><span class="text-[9px] font-bold mt-1">Rewards</span></button>
         <button onclick="playSound('click'); openPage('profile-page')" id="nav-profile" class="flex flex-col items-center justify-center w-12 text-slate-400"><i class="fas fa-user text-base"></i><span class="text-[9px] font-bold mt-1">Profile</span></button>
@@ -1216,12 +1216,15 @@
     let taskTimerInterval = null;
     let tgTimerInterval = null;
     let isSpinning = false;
+    let adSkipCountdownInterval = null;
 
-    // ================= AD MODAL CONTROLLER (MANUAL CLOSE ONLY) =================
+    // ================= AD MODAL CONTROLLER (WITH 7-SECOND SKIP TIMER) =================
     function triggerGameAdBreak() {
         const adModal = document.getElementById('game-ad-modal');
         const adContainer = document.getElementById('game-ad-iframe-container');
-        if (!adModal || !adContainer) return;
+        const closeBtn = document.getElementById('ad-close-btn');
+        const closeBtnText = document.getElementById('ad-close-btn-text');
+        if (!adModal || !adContainer || !closeBtn) return;
 
         adContainer.innerHTML = '';
         const iframe = document.createElement('iframe');
@@ -1234,11 +1237,34 @@
         const adHtml = '<!DOCTYPE html><html><head><style>body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;background:transparent;overflow:hidden;}<\/style><\/head><body><script type="text/javascript">atOptions = {\'key\' : \'c6d5a88abf9abec3fbcab7d72f28f1a2\',\'format\' : \'iframe\',\'height\' : 90,\'width\' : 728,\'params\' : {}};\<\/script><script type="text/javascript" src="https://www.highrevenueformat.com/c6d5a88abf9abec3fbcab7d72f28f1a2/invoke.js"><\/script><\/body><\/html>';
         iframe.srcdoc = adHtml;
 
+        // Reset and enforce 7-second skip button lock
+        if (adSkipCountdownInterval) clearInterval(adSkipCountdownInterval);
+        let secondsLeft = 7;
+        closeBtn.disabled = true;
+        closeBtn.className = "px-4 py-2 rounded-xl bg-slate-800 text-slate-400 text-xs font-black tracking-wider flex items-center gap-1.5 transition-all shadow-lg cursor-not-allowed";
+        if (closeBtnText) closeBtnText.innerText = `Skip in ${secondsLeft}s...`;
+
+        adSkipCountdownInterval = setInterval(() => {
+            secondsLeft--;
+            if (secondsLeft <= 0) {
+                clearInterval(adSkipCountdownInterval);
+                closeBtn.disabled = false;
+                closeBtn.className = "px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black tracking-wider flex items-center gap-1.5 active:scale-95 transition-transform shadow-lg shadow-rose-600/30 cursor-pointer animate-pulse";
+                if (closeBtnText) closeBtnText.innerHTML = `<i class="fas fa-xmark mr-1"></i> Close Ad`;
+            } else {
+                if (closeBtnText) closeBtnText.innerText = `Skip in ${secondsLeft}s...`;
+            }
+        }, 1000);
+
         adModal.classList.remove('hidden');
         adModal.classList.add('flex');
     }
 
     function closeGameAdModal() {
+        const closeBtn = document.getElementById('ad-close-btn');
+        if (closeBtn && closeBtn.disabled) return;
+
+        if (adSkipCountdownInterval) clearInterval(adSkipCountdownInterval);
         const adModal = document.getElementById('game-ad-modal');
         if (adModal) {
             adModal.classList.add('hidden');
@@ -1264,7 +1290,6 @@
     function showLoader() { 
         document.getElementById('loader').classList.remove('hidden'); 
         document.getElementById('loader').classList.add('flex'); 
-        // Safety timeout so it never hangs indefinitely
         setTimeout(() => hideLoader(), 4500);
     }
     function hideLoader() { 
@@ -1312,6 +1337,30 @@
     function closeAvatarModal() { document.getElementById('avatar-modal').classList.add('hidden'); document.getElementById('avatar-modal').classList.remove('flex'); }
     function dismissWithdrawSuccessBanner() { document.getElementById('withdraw-success-card').classList.add('hidden'); document.getElementById('withdraw-success-card').classList.remove('flex'); }
 
+    // ================= ARROW PUZZLE 2-TASK COMPLETION REQUIREMENT CHECK =================
+    function getApprovedTaskCount() {
+        let count = 0;
+        for (let k in userSubmissionsMap) {
+            if (userSubmissionsMap[k] && userSubmissionsMap[k].prio === 3) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    function checkAndOpenArrowPuzzle() {
+        const approvedCount = getApprovedTaskCount();
+        const isBypassed = currentUserData && currentUserData.taskBypass;
+
+        if (approvedCount < 2 && !isBypassed) {
+            alert(`🔒 ARROW PUZZLE LOCKED!\n\nPuzzle Game khelne ke liye pehle Tasks section mein jakar kam se kam 2 tasks complete karein aur admin dwara approve karwayein.\n\nAapne abhi tak ${approvedCount}/2 tasks complete kiye hain.`);
+            switchTab('tasks');
+            return;
+        }
+
+        openArrowGameModal();
+    }
+
     // Direct Level Screen Trigger for Arrow Game
     function openArrowGameModal() {
         document.getElementById('arrow-game-container').classList.remove('hidden');
@@ -1343,6 +1392,13 @@
                 document.getElementById('streak-reward-text').innerText = `${appSettings.streakReward} Coins Extra!`; 
             }
             
+            // Dynamic Referral Reward text (Default 1000 Coins)
+            const refAmt = appSettings.referralReward || 1000;
+            const refTrigger = (appSettings.referralTriggerType === 'withdraw') ? 'first withdrawal' : 'first task approval';
+            if (document.getElementById('ref-reward-banner-text')) {
+                document.getElementById('ref-reward-banner-text').innerHTML = `Get flat <span class="font-black text-amber-300">${refAmt} Coins</span> when your invited friend completes their ${refTrigger}!`;
+            }
+
             // Dynamic puzzle rewards text
             const pRew = appSettings.perLevelReward || 2;
             const mRew = appSettings.milestone50Reward || 500;
@@ -1520,6 +1576,7 @@
                 status: 'Active', 
                 firstTaskCompleted: false, 
                 firstRedeemCompleted: false,
+                referralRewardProcessed: false,
                 telegramRewardClaimed: false,
                 puzzleLevelsCompleted: 0,
                 claimedMilestones: [],
@@ -1621,6 +1678,20 @@
         
         if(document.getElementById('full-spins-left')) document.getElementById('full-spins-left').innerText = (currentUserData.spinsLeft ?? 3) + '/3';
         if(document.getElementById('home-spin-badge')) document.getElementById('home-spin-badge').innerText = `(${currentUserData.spinsLeft ?? 3}/3 Left)`;
+
+        // Update Puzzle Lock text based on tasks
+        const approvedCount = getApprovedTaskCount();
+        const pSub = document.getElementById('puzzle-lock-subtitle');
+        const pBtnLabel = document.getElementById('puzzle-play-now-label');
+        if (pSub && pBtnLabel) {
+            if (approvedCount >= 2 || (currentUserData && currentUserData.taskBypass)) {
+                pSub.innerText = "Unlocked & Ready to Play";
+                pBtnLabel.innerText = "PLAY NOW";
+            } else {
+                pSub.innerText = `Complete 2 Tasks (${approvedCount}/2 Done)`;
+                pBtnLabel.innerText = "LOCKED";
+            }
+        }
 
         if(currentUserData.avatar) {
             document.getElementById('header-avatar-img').src = currentUserData.avatar;
@@ -1747,11 +1818,14 @@
             
             const uid = currentAuthUser.uid;
             
-            if(!currentUserData.firstRedeemCompleted) {
-                db.ref('users/' + uid).update({ firstRedeemCompleted: true });
+            // Dynamic Admin-Switchable Trigger: If configured as "withdraw" base
+            if(appSettings.referralTriggerType === 'withdraw' && !currentUserData.referralRewardProcessed) {
+                db.ref('users/' + uid).update({ referralRewardProcessed: true, firstRedeemCompleted: true });
                 if (currentUserData.referredByL1) {
-                    giveReferralBonus(currentUserData.referredByL1, 500, currentUserData.name);
+                    giveReferralBonus(currentUserData.referredByL1, Number(appSettings.referralReward || 1000), currentUserData.name);
                 }
+            } else if (!currentUserData.firstRedeemCompleted) {
+                db.ref('users/' + uid).update({ firstRedeemCompleted: true });
             }
 
             db.ref('users/' + uid).update({ 
@@ -1792,11 +1866,13 @@
         });
     }
 
+    // ================= REAL-TIME TASK SUBMISSIONS & 1000 COIN TASK-BASED REFERRAL REWARD =================
     function listenUserSubmissions() {
         if(!currentAuthUser) return;
         db.ref('taskSubmissions').orderByChild('userId').equalTo(currentAuthUser.uid).on('value', snap => {
             let temp = {}; 
             let rCounts = {};
+            let approvedTasksCount = 0;
             
             if (snap.exists()) {
                 snap.forEach(c => {
@@ -1808,8 +1884,9 @@
                         prio = 1; 
                         rCounts[sub.taskId] = (rCounts[sub.taskId] || 0) + 1; 
                     }
-                    else if (st.includes('success')) {
+                    else if (st.includes('success') || st.includes('approved')) {
                         prio = 3;
+                        approvedTasksCount++;
                     }
                     
                     if (prio >= (temp[sub.taskId]?.prio || -1)) {
@@ -1818,14 +1895,27 @@
                     
                     if (prio === 3 && !sub.streakProcessed) process7DayStreak(c.key);
 
-                    if (prio === 3 && currentUserData && !currentUserData.firstTaskCompleted) {
-                        db.ref('users/' + currentAuthUser.uid).update({ firstTaskCompleted: true });
+                    // TRIGGER: First Task Completion Reward (Default 1000 Coins) to Referrer
+                    if (prio === 3 && currentUserData && !currentUserData.referralRewardProcessed) {
+                        let isWithdrawTrigger = (appSettings.referralTriggerType === 'withdraw');
+                        if (!isWithdrawTrigger) {
+                            db.ref('users/' + currentAuthUser.uid).update({ 
+                                firstTaskCompleted: true,
+                                referralRewardProcessed: true 
+                            });
+                            if (currentUserData.referredByL1) {
+                                giveReferralBonus(currentUserData.referredByL1, Number(appSettings.referralReward || 1000), currentUserData.name);
+                            }
+                        } else {
+                            db.ref('users/' + currentAuthUser.uid).update({ firstTaskCompleted: true });
+                        }
                     }
                 });
             }
             userSubmissionsMap = temp; 
             userRejectCounts = rCounts; 
             renderTasksUI();
+            updateUIWithUserData();
         });
     }
 
@@ -1838,7 +1928,7 @@
                         refEarnings: Number(ref.val().refEarnings||0)+amt
                     });
                     db.ref('transactions/'+ref.key).push({
-                        type: 'Referral Bonus (Friend First Withdraw) - ' + myName, 
+                        type: 'Referral Bonus (Friend 1st Task) - ' + myName, 
                         amount: amt, 
                         date: new Date().toLocaleDateString(), 
                         status:'Success'
@@ -2092,12 +2182,12 @@
                     let u = child.val();
                     totalRefs++;
                     
-                    let hasCompletedTask = u.firstRedeemCompleted === true;
+                    let hasCompletedTask = (u.referralRewardProcessed === true || u.firstTaskCompleted === true);
                     if(hasCompletedTask) activeRefs++;
                     
                     let statusHtml = hasCompletedTask 
-                        ? `<span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg"><i class="fas fa-check-circle mr-1"></i> Rewarded</span>` 
-                        : `<span class="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg"><i class="fas fa-clock mr-1"></i> Pending Redeem</span>`;
+                        ? `<span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg"><i class="fas fa-check-circle mr-1"></i> +1000 Rewarded</span>` 
+                        : `<span class="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg"><i class="fas fa-clock mr-1"></i> Pending 1st Task</span>`;
                         
                     html += `
                         <div class="flex items-center justify-between p-3 card-neo rounded-2xl mb-2">
@@ -2371,7 +2461,7 @@
                 snap.forEach(c => {
                     let d = c.val();
                     let title = d.taskTitle || d.type || `Withdrawal`;
-                    let statusColor = (d.status==='Success'||d.status==='Refunded')?'text-emerald-600':'text-amber-600';
+                    let statusColor = (d.status==='Success'||d.status==='Refunded'||d.status==='Approved')?'text-emerald-600':'text-amber-600';
                     if(d.status==='Rejected') statusColor='text-rose-600';
                     content.innerHTML += `<div class="card-neo p-3.5 rounded-2xl flex justify-between items-center text-xs mb-2"><div><div class="font-black text-slate-800">${title}</div><div class="text-[10px] text-slate-500 font-semibold">Amount: ${d.reward || d.amount} Coins</div></div><div class="font-black ${statusColor}">${d.status}</div></div>`;
                 });
@@ -3107,7 +3197,7 @@
               showToast(isMilestoneReached ? `🔥 50 Level Milestone! +${totalCoinsToAdd} Coins Added!` : `+${baseReward} Coins Added! 🎉`, 'success');
           }
 
-          // Trigger Interstitial Manual Ad Break on Every Level Clear
+          // Trigger Interstitial Ad with 7-Second Lock on Every Level Clear
           setTimeout(() => {
               triggerGameAdBreak();
           }, 350);
